@@ -283,7 +283,7 @@ export default function App() {
                     setUserInput(e.target.value);
                   }}
                   placeholder="Enter IPA symbols..."
-                  className={`font-ipa w-full text-center text-5xl font-light py-8 border-b-2 focus:outline-none transition-colors placeholder:text-slate-100 ${
+                  className={`ipa-text w-full text-center text-5xl font-light py-8 border-b-2 focus:outline-none transition-colors placeholder:text-slate-100 ${
                     feedback === 'correct' ? 'border-green-500 text-green-600' :
                     feedback === 'incorrect' ? 'border-red-500 text-red-600' :
                     'border-slate-200 focus:border-indigo-600 text-slate-800'
@@ -305,7 +305,7 @@ export default function App() {
                         </div>
                       ) : (
                         <div className="flex items-center gap-2 text-red-600 bg-red-50 px-5 py-2 rounded-full text-xs font-bold border border-red-100 uppercase tracking-widest">
-                          <XCircle className="w-4 h-4" /> Correct: <span className="font-ipa">/{currentWord?.ipa}/</span>
+                          <XCircle className="w-4 h-4" /> Correct: <span className="ipa-text">/{currentWord?.ipa}/</span>
                         </div>
                       )}
                     </motion.div>
