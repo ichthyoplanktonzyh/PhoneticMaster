@@ -9,9 +9,12 @@ export interface WordData {
   phoneticDescription?: string;
 }
 
+export type Difficulty = 'basic' | 'intermediate' | 'advanced';
+
 export interface QuizState {
   currentWord: WordData | null;
   userInput: string;
   feedback: 'correct' | 'incorrect' | 'neutral';
   score: number;
+  difficulty: Difficulty;
 }
