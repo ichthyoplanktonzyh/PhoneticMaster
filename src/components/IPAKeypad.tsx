@@ -26,7 +26,7 @@ export const IPAKeypad: React.FC<IPAKeypadProps> = ({ onInsert }) => {
             <button
               key={char}
               onClick={() => onInsert(char)}
-              className="h-12 w-full flex items-center justify-center bg-white border border-slate-200 rounded-lg hover:border-indigo-600 hover:text-indigo-600 transition-all font-serif text-xl shadow-sm cursor-pointer"
+              className="h-12 w-full flex items-center justify-center bg-white border border-slate-200 rounded-lg hover:border-indigo-600 hover:text-indigo-600 transition-all ipa-text text-xl shadow-sm cursor-pointer"
             >
               {char}
             </button>
@@ -41,7 +41,7 @@ export const IPAKeypad: React.FC<IPAKeypadProps> = ({ onInsert }) => {
             <button
               key={char}
               onClick={() => onInsert(char)}
-              className="h-12 w-full flex items-center justify-center bg-white border border-slate-200 rounded-lg hover:border-indigo-600 hover:text-indigo-600 transition-all font-serif text-xl shadow-sm cursor-pointer"
+              className="h-12 w-full flex items-center justify-center bg-white border border-slate-200 rounded-lg hover:border-indigo-600 hover:text-indigo-600 transition-all ipa-text text-xl shadow-sm cursor-pointer"
             >
               {char}
             </button>
@@ -56,7 +56,7 @@ export const IPAKeypad: React.FC<IPAKeypadProps> = ({ onInsert }) => {
             <button
               key={char}
               onClick={() => onInsert(char)}
-              className="h-12 w-14 flex items-center justify-center bg-white border border-slate-200 rounded-lg hover:border-indigo-600 hover:text-indigo-600 transition-all font-serif text-xl shadow-sm cursor-pointer"
+              className="h-12 w-14 flex items-center justify-center bg-white border border-slate-200 rounded-lg hover:border-indigo-600 hover:text-indigo-600 transition-all ipa-text text-xl shadow-sm cursor-pointer"
             >
               {char === ' ' ? '␣' : char}
             </button>

@@ -1,1 +1,29 @@
 @import "tailwindcss";
+
+/* IPA 音标专用字体栈 — 确保全部 Unicode IPA 符号可正常渲染 */
+@utility font-ipa {
+  font-family:
+    'DejaVu Sans',
+    'Arial Unicode MS',
+    'Apple Symbols',
+    'Segoe UI Symbol',
+    'Noto Sans',
+    'Charis SIL',
+    'Gentium Plus',
+    system-ui,
+    sans-serif;
+}
+
+/* 确保 IPA 输入框和展示区域使用 IPA 字体 */
+.ipa-text {
+  font-family:
+    'DejaVu Sans',
+    'Arial Unicode MS',
+    'Apple Symbols',
+    'Segoe UI Symbol',
+    'Noto Sans',
+    'Charis SIL',
+    'Gentium Plus',
+    system-ui,
+    sans-serif;
+}
