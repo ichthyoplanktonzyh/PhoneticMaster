@@ -113,7 +113,7 @@ export default function App() {
     if (!currentWord || feedback !== 'neutral') return;
 
     const normalizedInput = userInput.trim().replace(/^\/|\/$/g, '');
-    const normalizedTarget = currentWord.ipa.trim().replace(/^\/|\/$/g, '');
+    const normalizedTarget = currentWord.ipa_us.trim().replace(/^\/|\/$/g, '');
 
     if (normalizedInput === normalizedTarget) {
       setFeedback('correct');
@@ -265,9 +265,12 @@ export default function App() {
                 </motion.button>
                 <div>
                   <h2 className="text-2xl font-light text-slate-400">Click to hear the word</h2>
-                  {feedback === 'incorrect' && (
+                  {feedback !== 'neutral' && (
                     <p className="mt-2 text-slate-800 font-mono text-lg">
-                      Actual Word: <span className="font-bold underline decoration-indigo-200 uppercase tracking-widest">{currentWord?.word}</span>
+                      <span className={feedback === 'correct' ? 'text-green-600' : 'text-red-600'}>
+                        {feedback === 'correct' ? '✓ ' : '✗ '}
+                      </span>
+                      Word: <span className="font-bold underline decoration-indigo-200 uppercase tracking-widest">{currentWord?.word}</span>
                     </p>
                   )}
                 </div>
@@ -305,7 +308,7 @@ export default function App() {
                         </div>
                       ) : (
                         <div className="flex items-center gap-2 text-red-600 bg-red-50 px-5 py-2 rounded-full text-xs font-bold border border-red-100 uppercase tracking-widest">
-                          <XCircle className="w-4 h-4" /> Correct: <span className="ipa-text">/{currentWord?.ipa}/</span>
+                          <XCircle className="w-4 h-4" /> Correct: <span className="ipa-text">/{currentWord?.ipa_us}/</span>
                         </div>
                       )}
                     </motion.div>

@@ -5,8 +5,8 @@
 
 export interface WordData {
   word: string;
-  ipa: string; // American IPA
-  phoneticDescription?: string;
+  ipa_uk: string; // British IPA (RP)
+  ipa_us: string; // American IPA (General American)
 }
 
 export type Difficulty = 'basic' | 'intermediate' | 'advanced';
