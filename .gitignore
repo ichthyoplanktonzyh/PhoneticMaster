@@ -7,5 +7,7 @@ coverage/
 .env*
 !.env.example
 
-# COCA raw data
-.coca_raw/
+# COCA raw data (keep parser and README)
+.coca_raw/*.md
+.coca_raw/urls.txt
+!.coca_raw/README.md

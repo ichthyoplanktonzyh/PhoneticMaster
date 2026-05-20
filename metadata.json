@@ -1,6 +1,5 @@
 {
   "name": "IPA Spelling Master",
-  "description": "Learn American English IPA by listening to pronunciations and transcribing them.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "description": "Learn American English IPA by listening to pronunciations and transcribing them with an interactive IPA keyboard.",
+  "keywords": ["ipa", "phonetics", "american-english", "language-learning", "react"]
 }
