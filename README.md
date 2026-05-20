@@ -4,6 +4,8 @@
 [![React](https://img.shields.io/badge/react-19-61DAFB.svg)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/typescript-5.8-3178C6.svg)](https://www.typescriptlang.org)
 
+[English](README_EN.md)
+
 一款面向美式英语学习者的国际音标（IPA）拼写训练工具。通过听取浏览器原生语音合成的单词发音，在交互式 IPA 键盘的辅助下完成音标转写，即时获得正确性反馈。
 
 ## 功能特性
