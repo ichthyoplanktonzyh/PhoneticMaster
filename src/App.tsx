@@ -3,12 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Volume2, CheckCircle2, XCircle, RefreshCw, Trophy, Keyboard, ArrowRight } from 'lucide-react';
+import { Volume2, CheckCircle2, XCircle, RefreshCw, Trophy, Keyboard, ArrowRight, ChevronDown } from 'lucide-react';
 import { WordData, Difficulty } from './types';
 import { IPAKeypad } from './components/IPAKeypad';
 import { pickWords } from './data/wordBank';
+import { getEnglishVoices, selectBestVoice, saveVoicePreference } from './utils/voice';
 
 export default function App() {
   const [difficulty, setDifficulty] = useState<Difficulty>('basic');
@@ -19,6 +20,39 @@ export default function App() {
   const [score, setScore] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showKeypad, setShowKeypad] = useState(true);
+
+  // Voice management
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
+
+  useEffect(() => {
+    const loadVoices = () => {
+      const available = getEnglishVoices();
+      if (available.length > 0) {
+        setVoices(available);
+        const best = selectBestVoice(available);
+        if (best) setSelectedVoice(best);
+      }
+    };
+
+    loadVoices();
+    // Chrome 等浏览器异步加载语音列表
+    const synth = window.speechSynthesis;
+    if (synth) {
+      synth.addEventListener('voiceschanged', loadVoices);
+    }
+    return () => {
+      if (synth) synth.removeEventListener('voiceschanged', loadVoices);
+    };
+  }, []);
+
+  const handleVoiceChange = (voiceURI: string) => {
+    const voice = voices.find(v => v.voiceURI === voiceURI);
+    if (voice) {
+      setSelectedVoice(voice);
+      saveVoicePreference(voice);
+    }
+  };
 
   const currentWord = words[currentIndex];
 
@@ -54,16 +88,16 @@ export default function App() {
     utterance.lang = 'en-US';
     utterance.rate = 0.9;
 
-    const voices = synth.getVoices();
-    const enVoice = voices.find(v => v.lang.startsWith('en-US'));
-    if (enVoice) utterance.voice = enVoice;
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+    }
 
     utterance.onstart = () => setIsPlaying(true);
     utterance.onend = () => setIsPlaying(false);
     utterance.onerror = () => setIsPlaying(false);
 
     synth.speak(utterance);
-  }, [currentWord, isPlaying]);
+  }, [currentWord, isPlaying, selectedVoice]);
 
   const handleCharInsert = (char: string) => {
     if (feedback !== 'neutral') return;
@@ -129,6 +163,29 @@ export default function App() {
         </div>
 
         <div className="flex items-center gap-6">
+          {/* Voice Selector */}
+          {voices.length > 0 && (
+            <div className="relative flex items-center gap-1.5">
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Voice</span>
+              <div className="relative">
+                <select
+                  value={selectedVoice?.voiceURI || ''}
+                  onChange={(e) => handleVoiceChange(e.target.value)}
+                  className="appearance-none bg-slate-100 border-none rounded-lg pl-2.5 pr-7 py-1.5 text-[11px] text-slate-600 font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                >
+                  {voices.map(v => (
+                    <option key={v.voiceURI} value={v.voiceURI}>
+                      {v.name} ({v.lang})
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+              </div>
+            </div>
+          )}
+
+          <div className="h-10 w-px bg-slate-100"></div>
+
           {/* Difficulty Selector */}
           <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-0.5">
             {(['basic', 'intermediate', 'advanced'] as Difficulty[]).map(d => (
