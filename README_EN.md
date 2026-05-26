@@ -4,10 +4,12 @@
 [![React](https://img.shields.io/badge/react-19-61DAFB.svg)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/typescript-5.8-3178C6.svg)](https://www.typescriptlang.org)
 
-An interactive training tool for learning American English IPA (International Phonetic Alphabet). Listen to word pronunciations via the browser's native speech synthesis, transcribe them using a built-in IPA keyboard, and get instant feedback.
+An interactive training tool for learning American English IPA (International Phonetic Alphabet) with two modes: **Spelling Mode** (listen and transcribe) and **Training Mode** (targeted listening practice by phoneme). Uses browser-native speech synthesis for pronunciation, with a built-in IPA keyboard and instant feedback.
 
 ## Features
 
+- **Dual Training Modes**: Spelling mode (listen & transcribe) + Training mode (see word + IPA, targeted listening by phoneme)
+- **Phoneme-focused Listening**: 40 phoneme categories for targeted ear training on weak sounds, with Space key binding for replay
 - **Listen & Transcribe**: Uses the browser Web Speech API to pronounce words, building a direct mapping between speech sounds and IPA symbols
 - **Built-in IPA Keyboard**: Full American English IPA input keyboard (vowels / consonants / stress marks) — no external input methods or symbol memorization needed
 - **Three Difficulty Levels**: Basic / Intermediate / Advanced, graded by COCA word frequency
@@ -50,7 +52,14 @@ The build output is pure static files (`dist/` directory), deployable to any sta
 
 ## User Guide
 
-### Workflow
+### Mode Switching
+
+Toggle between modes using the "拼写 / 训练" (Spelling / Training) buttons in the header:
+
+- **Spelling Mode**: Traditional listen-and-transcribe practice — hear a word, type its IPA transcription
+- **Training Mode**: Targeted phoneme listening — see the word and IPA while focusing on sound recognition
+
+### Spelling Mode Workflow
 
 1. **Choose Difficulty**: Click "基础 / 进阶 / 挑战" in the header to switch levels. Each switch resets the quiz with new words.
 2. **Listen**: Click the circular speaker button 🔊 to hear the current word pronounced in American English (repeatable).
@@ -59,6 +68,19 @@ The build output is pure static files (`dist/` directory), deployable to any sta
 5. **Review**: The current word is always shown. Incorrect answers display the correct American IPA for comparison.
 6. **Next**: Click "Next Challenge" to proceed through all 10 words in the round.
 7. **Refresh**: Click "New Word Set" at the bottom to draw 10 new random words.
+
+### Training Mode Workflow
+
+1. **Switch Mode**: Click the "训练" (Training) button in the header.
+2. **Select Phoneme**: Choose a target phoneme from the Phoneme dropdown (e.g., `/eɪ/`, `/θ/`) — 40 phonemes available. Select "All" to use the full word bank.
+3. **View & Listen**: The current word and its American IPA transcription are displayed. Click the play button or press the **Space key** to hear the pronunciation.
+4. **Repeat Listening**: Replay as many times as needed to study the relationship between spelling, IPA symbols, and actual pronunciation.
+5. **Next Word**: Click "Next Word" to proceed through all words in the round.
+6. **Refresh**: Click "New Word Set" at the bottom to draw 10 new random words.
+
+### Phoneme Filtering
+
+The Phoneme dropdown in the header filters the word bank by phoneme. When a specific phoneme is selected, both Spelling and Training modes only use words containing that phoneme. The count next to each phoneme shows how many words are available for practice.
 
 ### Voice Selection
 
@@ -106,15 +128,18 @@ Word bank data sourced from [llt22/coca-vocabulary-20000](https://github.com/llt
 ```
 src/
 ├── main.tsx                 # Entry point
-├── App.tsx                  # Main application component
+├── App.tsx                  # Main application component (mode switching, state)
 ├── index.css                # Global styles + IPA font definition
 ├── types.ts                 # Type definitions
 ├── components/
-│   └── IPAKeypad.tsx        # Interactive IPA keyboard component
+│   ├── IPAKeypad.tsx        # Interactive IPA keyboard component
+│   └── TrainingView.tsx     # Listening training mode component
 ├── data/
 │   └── wordBank.ts          # Local word bank (4,648 words)
 └── utils/
-    └── voice.ts             # Voice management (smart selection + localStorage)
+    ├── voice.ts             # Voice management (smart selection + localStorage)
+    ├── ipaParser.ts         # IPA parser (phoneme tokenizer)
+    └── phonemeGroups.ts     # Phoneme grouping (word classification by phoneme)
 ```
 
 ## Deployment
