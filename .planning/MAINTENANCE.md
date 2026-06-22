@@ -175,6 +175,7 @@ YYYY-MM-DD
 ### 每次提交
 
 - [ ] 相关 codebase 文档是否需要更新（新文件？新依赖？）
+- [ ] 根目录 `CHANGELOG.md` 是否已记录本次变更，时间戳精确到分钟（`YYYY-MM-DD HH:mm Z`）
 
 ### 每次 phase 完成
 

@@ -11,6 +11,8 @@
 | L1L2Difficulty | `l1` + `l2` | 每对 (L1, L2) 至多一条映射 |
 | PhonemeDifficulty | `phoneme` | 在 L1L2Difficulty 内唯一 |
 | FeatureDifficulty | `feature` | 在 L1L2Difficulty 内唯一 |
+| TrainingSession | generated `id` | 一轮本地训练会话 |
+| MasteryRecord | `l2` + `topic` + `phoneme` | 本地掌握度聚合记录 |
 
 ## Core Type Relationships
 
@@ -57,6 +59,36 @@ L1L2Difficulty
     ├── feature: string             ← matches LanguageProfile.soundFeatures[]
     ├── level: number               ← 1-5
     └── reason: string
+
+TrainingSession (planned M2)
+├── id: string
+├── createdAt: string
+├── l1?: string                       ← optional, recommendation only
+├── l2: string
+├── mode: 'spelling' | 'training' | 'minimal_pair'
+├── difficulty: Difficulty
+├── topic?: string                    ← phoneme / tone / all
+├── total: number
+├── correct: number
+└── answers: TrainingAnswer[]
+
+TrainingAnswer (planned M2)
+├── itemId: string                     ← display + pronunciation
+├── expected: string
+├── actual?: string
+├── correct: boolean
+├── nearMatch?: boolean
+└── diffs?: PhonemeDiff[]
+
+MasteryRecord (planned M4)
+├── l1?: string
+├── l2: string
+├── topic: string
+├── phoneme?: string
+├── attempts: number
+├── correct: number
+├── lastPracticedAt: string
+└── source: 'local'
 ```
 
 ## Notation Semantics
@@ -85,8 +117,12 @@ L1L2Difficulty
 | `ipa-spelling-l1` | string (ISO 639-1) | 用户母语选择 |
 | `ipa-spelling-l2` | string (ISO 639-1) | 用户目标语言选择 |
 | `ipa-spelling-voice-{lang}` | string (voiceURI) | TTS 语音偏好（按语言） |
+| `phonetic-master-sessions` | TrainingSession[] | 最近训练会话（planned M2） |
+| `phonetic-master-mastery` | MasteryRecord[] | 本地掌握度（planned M4） |
 
 所有 localStorage 操作均有 try/catch 保护，隐私模式下静默失败。
+
+MVP 约束：训练流程不能依赖 localStorage 成功写入。存储失败时只丢失历史记录，不影响当前训练。
 
 ## Backward Compatibility
 

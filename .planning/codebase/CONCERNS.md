@@ -39,6 +39,14 @@
 
 ## 2. 脆弱区域
 
+### 2.0 L1/L2 入口仍偏前置
+
+- **文件**：`src/App.tsx`、`src/components/OnboardingView.tsx`、`src/components/SmartRecommend.tsx`
+- **脆弱原因**：当前产品方向已调整为“独立训练器优先，L1-aware 推荐可选”，但实现仍保留较强的 onboarding 前置心智
+- **常见失败**：用户只想直接训练时被迫先理解 L1/L2 选择；无 L1 时推荐层可能占据过多入口注意力
+- **安全修改方式**：Phase 2.1 中将 L2 作为最小必要选择，L1 变为可选；SmartRecommend 降级为可隐藏/可选教练层
+- **测试覆盖**：❌ 无
+
 ### 2.1 拼音解析器
 
 - **文件**：`src/utils/pinyinParser.ts`

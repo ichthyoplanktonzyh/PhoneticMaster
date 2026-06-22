@@ -49,6 +49,16 @@
 | localStorage | L1/L2/语音偏好持久化 | 所有现代浏览器 |
 | CSS Grid/Flexbox | 键盘布局 | 所有现代浏览器 |
 
+## 3.1 发布架构
+
+MVP 目标是纯前端静态发布。`server.ts` / Express 用于本地开发、生产预览或自托管场景，不是产品运行的必需后端。
+
+| 发布方式 | 状态 | 说明 |
+|----------|------|------|
+| 静态托管 | 推荐 | Vercel / Netlify / Cloudflare Pages / GitHub Pages |
+| Express serve dist | 可用 | 适合本地 preview 或自托管 |
+| 数据库 / API 后端 | 暂不需要 | 进入 M6 云端增强再评估 |
+
 ## 4. 构建与测试
 
 | 命令 | 用途 |

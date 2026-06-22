@@ -9,8 +9,8 @@
 │                        Browser (SPA)                             │
 │                                                                  │
 │  ┌──────────┐  ┌──────────────┐  ┌──────────────┐               │
-│  │ Onboarding│  │  App (Shell) │  │   Header     │               │
-│  │   View    │──│  L1/L2 状态  │──│  控制面板    │               │
+│  │ Language  │  │  App (Shell) │  │   Header     │               │
+│  │ Selector  │──│  L2 + 可选L1 │──│  控制面板    │               │
 │  └──────────┘  └──────┬───────┘  └──────────────┘               │
 │                       │                                          │
 │          ┌────────────┼────────────────┐                        │
@@ -18,7 +18,7 @@
 │  ┌───────▼──────┐ ┌───▼────────┐ ┌────▼───────┐               │
 │  │  Spelling    │ │ Training   │ │  Smart     │               │
 │  │  Mode        │ │ Mode       │ │  Recommend │               │
-│  │ (输入+判定)  │ │ (浏览记忆) │ │ (L1推荐)   │               │
+│  │ (输入+判定)  │ │ (浏览记忆) │ │ (可选教练) │               │
 │  └───────┬──────┘ └───┬────────┘ └────┬───────┘               │
 │          │            │                │                         │
 │  ┌───────▼────────────▼────────────────▼───────┐               │
@@ -64,6 +64,17 @@
 
 ## 2. 数据流
 
+### 2.0 独立训练入口流程
+
+```
+首次访问 → 选择目标语言 L2（L1 可选）
+         → 选择训练类型 / 难度 / 主题
+         → 基于 LanguageProfile 抽题
+         → 进入训练会话
+
+约束：L1 缺失、无 difficultyMap、localStorage 写入失败，都不能阻塞训练。
+```
+
 ### 2.1 拼写模式流程
 
 ```
@@ -91,16 +102,16 @@
                 用户点击音素 → handleSmartPhonemeSelect → 启动训练
 ```
 
-### 2.3 Onboarding 流程
+### 2.3 语言选择流程
 
 ```
-首次访问 → localStorage 无 L1/L2 → 显示 OnboardingView
+首次访问 → localStorage 无 L2 → 显示语言选择
                                         │
-                    选择 L1 (SUPPORTED_L1) + L2 (getAllProfiles())
+                    必选 L2 (getAllProfiles()) + 可选 L1 (SUPPORTED_L1)
                                         │
                     保存到 localStorage → 进入主界面
                                         │
-                    点击设置按钮 → 重新显示 OnboardingView
+                    点击设置按钮 → 重新显示语言选择
 ```
 
 ## 3. 模块职责
@@ -130,8 +141,10 @@
 | Profile ↔ Parser | 每个 profile 自带 parseNotation；UI 不直接调用解析器 | 解耦 |
 | Profile ↔ Judge | 每个 profile 自带 judge；判定逻辑不散落在组件中 | 单一职责 |
 | L1 Layer ↔ Profile | difficultyMap 接受 profile 参数但不修改 profile | 只读依赖 |
+| Training ↔ L1 Layer | 训练器不能依赖 L1；推荐层可以唤起训练器 | 保证独立训练闭环 |
 | Components ↔ Data | 组件不直接 import 词库；词库通过 profile.wordBank 访问 | 统一入口 |
 | voice.ts ↔ Profile | voice 函数接受 lang 参数（来自 profile.ttsLang） | 多语言 |
+| Frontend ↔ Backend | MVP 不依赖后端；未来云端能力通过 storage/provider 替换 | 静态发布与渐进扩展 |
 
 ## 5. 已知架构债务
 
