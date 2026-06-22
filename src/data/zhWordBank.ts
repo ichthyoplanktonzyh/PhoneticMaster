@@ -1,0 +1,328 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Chinese (Mandarin) word bank for Pinyin training.
+ *
+ * Data source: HSK vocabulary lists (public domain educational material).
+ * Pronunciation follows standard Mandarin Pinyin with tone numbers.
+ *
+ * Structure:
+ * - basic: HSK 1 (≈150 entries)
+ * - intermediate: HSK 2–3 (≈300 entries)
+ * - advanced: HSK 4+ (future expansion)
+ *
+ * For each entry:
+ * - display: Chinese characters
+ * - pronunciation: Pinyin with tone numbers (e.g. "ni3 hao3")
+ * - pronunciationAlt: Pinyin with diacritics (e.g. "nǐ hǎo")
+ * - definition: English gloss (helps non-native learners)
+ *
+ * To regenerate from CC-CEDICT, use scripts/parse_cedict.py.
+ */
+
+import type { TrainingItem, Difficulty } from '../types';
+
+// ── HSK 1: Basic ────────────────────────────────────────────────
+
+const basic: TrainingItem[] = [
+  // Greetings & pronouns
+  { display: '我', pronunciation: 'wo3', pronunciationAlt: 'wǒ', frequencyTier: 'basic', definition: 'I, me' },
+  { display: '你', pronunciation: 'ni3', pronunciationAlt: 'nǐ', frequencyTier: 'basic', definition: 'you' },
+  { display: '他', pronunciation: 'ta1', pronunciationAlt: 'tā', frequencyTier: 'basic', definition: 'he, him' },
+  { display: '她', pronunciation: 'ta1', pronunciationAlt: 'tā', frequencyTier: 'basic', definition: 'she, her' },
+  { display: '们', pronunciation: 'men', pronunciationAlt: 'men', frequencyTier: 'basic', definition: 'plural marker' },
+  { display: '好', pronunciation: 'hao3', pronunciationAlt: 'hǎo', frequencyTier: 'basic', definition: 'good, well' },
+  { display: '你好', pronunciation: 'ni3 hao3', pronunciationAlt: 'nǐ hǎo', frequencyTier: 'basic', definition: 'hello' },
+  { display: '是', pronunciation: 'shi4', pronunciationAlt: 'shì', frequencyTier: 'basic', definition: 'to be' },
+  { display: '不', pronunciation: 'bu4', pronunciationAlt: 'bù', frequencyTier: 'basic', definition: 'not' },
+  { display: '的', pronunciation: 'de5', pronunciationAlt: 'de', frequencyTier: 'basic', definition: 'possessive particle' },
+  { display: '了', pronunciation: 'le5', pronunciationAlt: 'le', frequencyTier: 'basic', definition: 'completed action' },
+  { display: '吗', pronunciation: 'ma5', pronunciationAlt: 'ma', frequencyTier: 'basic', definition: 'question particle' },
+
+  // Family
+  { display: '爸爸', pronunciation: 'ba4 ba5', pronunciationAlt: 'bà ba', frequencyTier: 'basic', definition: 'father' },
+  { display: '妈妈', pronunciation: 'ma1 ma5', pronunciationAlt: 'mā ma', frequencyTier: 'basic', definition: 'mother' },
+  { display: '人', pronunciation: 'ren2', pronunciationAlt: 'rén', frequencyTier: 'basic', definition: 'person' },
+  { display: '学生', pronunciation: 'xue2 sheng1', pronunciationAlt: 'xué shēng', frequencyTier: 'basic', definition: 'student' },
+  { display: '老师', pronunciation: 'lao3 shi1', pronunciationAlt: 'lǎo shī', frequencyTier: 'basic', definition: 'teacher' },
+
+  // Time
+  { display: '今天', pronunciation: 'jin1 tian1', pronunciationAlt: 'jīn tiān', frequencyTier: 'basic', definition: 'today' },
+  { display: '明天', pronunciation: 'ming2 tian1', pronunciationAlt: 'míng tiān', frequencyTier: 'basic', definition: 'tomorrow' },
+  { display: '昨天', pronunciation: 'zuo2 tian1', pronunciationAlt: 'zuó tiān', frequencyTier: 'basic', definition: 'yesterday' },
+  { display: '年', pronunciation: 'nian2', pronunciationAlt: 'nián', frequencyTier: 'basic', definition: 'year' },
+  { display: '月', pronunciation: 'yue4', pronunciationAlt: 'yuè', frequencyTier: 'basic', definition: 'month' },
+  { display: '日', pronunciation: 'ri4', pronunciationAlt: 'rì', frequencyTier: 'basic', definition: 'day' },
+  { display: '天', pronunciation: 'tian1', pronunciationAlt: 'tiān', frequencyTier: 'basic', definition: 'day/sky' },
+  { display: '星期', pronunciation: 'xing1 qi1', pronunciationAlt: 'xīng qī', frequencyTier: 'basic', definition: 'week' },
+
+  // Food & drink
+  { display: '水', pronunciation: 'shui3', pronunciationAlt: 'shuǐ', frequencyTier: 'basic', definition: 'water' },
+  { display: '茶', pronunciation: 'cha2', pronunciationAlt: 'chá', frequencyTier: 'basic', definition: 'tea' },
+  { display: '饭', pronunciation: 'fan4', pronunciationAlt: 'fàn', frequencyTier: 'basic', definition: 'rice/meal' },
+  { display: '吃', pronunciation: 'chi1', pronunciationAlt: 'chī', frequencyTier: 'basic', definition: 'to eat' },
+  { display: '喝', pronunciation: 'he1', pronunciationAlt: 'hē', frequencyTier: 'basic', definition: 'to drink' },
+  { display: '水果', pronunciation: 'shui3 guo3', pronunciationAlt: 'shuǐ guǒ', frequencyTier: 'basic', definition: 'fruit' },
+  { display: '苹果', pronunciation: 'ping2 guo3', pronunciationAlt: 'píng guǒ', frequencyTier: 'basic', definition: 'apple' },
+
+  // Common verbs
+  { display: '去', pronunciation: 'qu4', pronunciationAlt: 'qù', frequencyTier: 'basic', definition: 'to go' },
+  { display: '来', pronunciation: 'lai2', pronunciationAlt: 'lái', frequencyTier: 'basic', definition: 'to come' },
+  { display: '看', pronunciation: 'kan4', pronunciationAlt: 'kàn', frequencyTier: 'basic', definition: 'to see/read' },
+  { display: '听', pronunciation: 'ting1', pronunciationAlt: 'tīng', frequencyTier: 'basic', definition: 'to listen' },
+  { display: '说', pronunciation: 'shuo1', pronunciationAlt: 'shuō', frequencyTier: 'basic', definition: 'to speak' },
+  { display: '读', pronunciation: 'du2', pronunciationAlt: 'dú', frequencyTier: 'basic', definition: 'to read' },
+  { display: '写', pronunciation: 'xie3', pronunciationAlt: 'xiě', frequencyTier: 'basic', definition: 'to write' },
+  { display: '学', pronunciation: 'xue2', pronunciationAlt: 'xué', frequencyTier: 'basic', definition: 'to learn' },
+  { display: '做', pronunciation: 'zuo4', pronunciationAlt: 'zuò', frequencyTier: 'basic', definition: 'to do/make' },
+  { display: '买', pronunciation: 'mai3', pronunciationAlt: 'mǎi', frequencyTier: 'basic', definition: 'to buy' },
+  { display: '想', pronunciation: 'xiang3', pronunciationAlt: 'xiǎng', frequencyTier: 'basic', definition: 'to think/want' },
+  { display: '知道', pronunciation: 'zhi1 dao4', pronunciationAlt: 'zhī dào', frequencyTier: 'basic', definition: 'to know' },
+  { display: '会', pronunciation: 'hui4', pronunciationAlt: 'huì', frequencyTier: 'basic', definition: 'can/will' },
+  { display: '能', pronunciation: 'neng2', pronunciationAlt: 'néng', frequencyTier: 'basic', definition: 'can/able' },
+
+  // Common adjectives
+  { display: '大', pronunciation: 'da4', pronunciationAlt: 'dà', frequencyTier: 'basic', definition: 'big' },
+  { display: '小', pronunciation: 'xiao3', pronunciationAlt: 'xiǎo', frequencyTier: 'basic', definition: 'small' },
+  { display: '多', pronunciation: 'duo1', pronunciationAlt: 'duō', frequencyTier: 'basic', definition: 'many/much' },
+  { display: '少', pronunciation: 'shao3', pronunciationAlt: 'shǎo', frequencyTier: 'basic', definition: 'few/little' },
+  { display: '高', pronunciation: 'gao1', pronunciationAlt: 'gāo', frequencyTier: 'basic', definition: 'tall/high' },
+  { display: '长', pronunciation: 'chang2', pronunciationAlt: 'cháng', frequencyTier: 'basic', definition: 'long' },
+  { display: '热', pronunciation: 're4', pronunciationAlt: 'rè', frequencyTier: 'basic', definition: 'hot' },
+  { display: '冷', pronunciation: 'leng3', pronunciationAlt: 'lěng', frequencyTier: 'basic', definition: 'cold' },
+
+  // Places
+  { display: '家', pronunciation: 'jia1', pronunciationAlt: 'jiā', frequencyTier: 'basic', definition: 'home/family' },
+  { display: '学校', pronunciation: 'xue2 xiao4', pronunciationAlt: 'xué xiào', frequencyTier: 'basic', definition: 'school' },
+  { display: '医院', pronunciation: 'yi1 yuan4', pronunciationAlt: 'yī yuàn', frequencyTier: 'basic', definition: 'hospital' },
+  { display: '中国', pronunciation: 'zhong1 guo2', pronunciationAlt: 'zhōng guó', frequencyTier: 'basic', definition: 'China' },
+  { display: '北京', pronunciation: 'bei3 jing1', pronunciationAlt: 'běi jīng', frequencyTier: 'basic', definition: 'Beijing' },
+
+  // Numbers
+  { display: '一', pronunciation: 'yi1', pronunciationAlt: 'yī', frequencyTier: 'basic', definition: 'one' },
+  { display: '二', pronunciation: 'er4', pronunciationAlt: 'èr', frequencyTier: 'basic', definition: 'two' },
+  { display: '三', pronunciation: 'san1', pronunciationAlt: 'sān', frequencyTier: 'basic', definition: 'three' },
+  { display: '四', pronunciation: 'si4', pronunciationAlt: 'sì', frequencyTier: 'basic', definition: 'four' },
+  { display: '五', pronunciation: 'wu3', pronunciationAlt: 'wǔ', frequencyTier: 'basic', definition: 'five' },
+  { display: '六', pronunciation: 'liu4', pronunciationAlt: 'liù', frequencyTier: 'basic', definition: 'six' },
+  { display: '七', pronunciation: 'qi1', pronunciationAlt: 'qī', frequencyTier: 'basic', definition: 'seven' },
+  { display: '八', pronunciation: 'ba1', pronunciationAlt: 'bā', frequencyTier: 'basic', definition: 'eight' },
+  { display: '九', pronunciation: 'jiu3', pronunciationAlt: 'jiǔ', frequencyTier: 'basic', definition: 'nine' },
+  { display: '十', pronunciation: 'shi2', pronunciationAlt: 'shí', frequencyTier: 'basic', definition: 'ten' },
+
+  // Common nouns
+  { display: '书', pronunciation: 'shu1', pronunciationAlt: 'shū', frequencyTier: 'basic', definition: 'book' },
+  { display: '字', pronunciation: 'zi4', pronunciationAlt: 'zì', frequencyTier: 'basic', definition: 'character/word' },
+  { display: '朋友', pronunciation: 'peng2 you3', pronunciationAlt: 'péng yǒu', frequencyTier: 'basic', definition: 'friend' },
+  { display: '名字', pronunciation: 'ming2 zi5', pronunciationAlt: 'míng zi', frequencyTier: 'basic', definition: 'name' },
+  { display: '电话', pronunciation: 'dian4 hua4', pronunciationAlt: 'diàn huà', frequencyTier: 'basic', definition: 'phone' },
+  { display: '电脑', pronunciation: 'dian4 nao3', pronunciationAlt: 'diàn nǎo', frequencyTier: 'basic', definition: 'computer' },
+  { display: '狗', pronunciation: 'gou3', pronunciationAlt: 'gǒu', frequencyTier: 'basic', definition: 'dog' },
+  { display: '猫', pronunciation: 'mao1', pronunciationAlt: 'māo', frequencyTier: 'basic', definition: 'cat' },
+
+  // Question words
+  { display: '什么', pronunciation: 'shen2 me5', pronunciationAlt: 'shén me', frequencyTier: 'basic', definition: 'what' },
+  { display: '谁', pronunciation: 'shei2', pronunciationAlt: 'shéi', frequencyTier: 'basic', definition: 'who' },
+  { display: '哪', pronunciation: 'na3', pronunciationAlt: 'nǎ', frequencyTier: 'basic', definition: 'which' },
+  { display: '多少', pronunciation: 'duo1 shao3', pronunciationAlt: 'duō shǎo', frequencyTier: 'basic', definition: 'how many' },
+  { display: '怎么', pronunciation: 'zen3 me5', pronunciationAlt: 'zěn me', frequencyTier: 'basic', definition: 'how' },
+  { display: '哪里', pronunciation: 'na3 li3', pronunciationAlt: 'nǎ lǐ', frequencyTier: 'basic', definition: 'where' },
+
+  // Common adverbs & particles
+  { display: '很', pronunciation: 'hen3', pronunciationAlt: 'hěn', frequencyTier: 'basic', definition: 'very' },
+  { display: '也', pronunciation: 'ye3', pronunciationAlt: 'yě', frequencyTier: 'basic', definition: 'also' },
+  { display: '都', pronunciation: 'dou1', pronunciationAlt: 'dōu', frequencyTier: 'basic', definition: 'all/both' },
+  { display: '在', pronunciation: 'zai4', pronunciationAlt: 'zài', frequencyTier: 'basic', definition: 'at/in' },
+  { display: '有', pronunciation: 'you3', pronunciationAlt: 'yǒu', frequencyTier: 'basic', definition: 'to have' },
+  { display: '和', pronunciation: 'he2', pronunciationAlt: 'hé', frequencyTier: 'basic', definition: 'and/with' },
+  { display: '没有', pronunciation: 'mei2 you3', pronunciationAlt: 'méi yǒu', frequencyTier: 'basic', definition: 'not have' },
+
+  // More basics
+  { display: '工作', pronunciation: 'gong1 zuo4', pronunciationAlt: 'gōng zuò', frequencyTier: 'basic', definition: 'work/job' },
+  { display: '喜欢', pronunciation: 'xi3 huan5', pronunciationAlt: 'xǐ huan', frequencyTier: 'basic', definition: 'to like' },
+  { display: '爱', pronunciation: 'ai4', pronunciationAlt: 'ài', frequencyTier: 'basic', definition: 'to love' },
+  { display: '谢谢', pronunciation: 'xie4 xie5', pronunciationAlt: 'xiè xie', frequencyTier: 'basic', definition: 'thank you' },
+  { display: '对不起', pronunciation: 'dui4 bu5 qi3', pronunciationAlt: 'duì bu qǐ', frequencyTier: 'basic', definition: 'sorry' },
+  { display: '没关系', pronunciation: 'mei2 guan1 xi5', pronunciationAlt: 'méi guān xi', frequencyTier: 'basic', definition: "it's okay" },
+  { display: '再见', pronunciation: 'zai4 jian4', pronunciationAlt: 'zài jiàn', frequencyTier: 'basic', definition: 'goodbye' },
+  { display: '现在', pronunciation: 'xian4 zai4', pronunciationAlt: 'xiàn zài', frequencyTier: 'basic', definition: 'now' },
+  { display: '时候', pronunciation: 'shi2 hou5', pronunciationAlt: 'shí hou', frequencyTier: 'basic', definition: 'time/when' },
+  { display: '点', pronunciation: 'dian3', pronunciationAlt: 'diǎn', frequencyTier: 'basic', definition: "o'clock/dot" },
+  { display: '块', pronunciation: 'kuai4', pronunciationAlt: 'kuài', frequencyTier: 'basic', definition: 'piece/yuan' },
+  { display: '块钱', pronunciation: 'kuai4 qian2', pronunciationAlt: 'kuài qián', frequencyTier: 'basic', definition: 'yuan (money)' },
+  { display: '房子', pronunciation: 'fang2 zi5', pronunciationAlt: 'fáng zi', frequencyTier: 'basic', definition: 'house' },
+  { display: '路', pronunciation: 'lu4', pronunciationAlt: 'lù', frequencyTier: 'basic', definition: 'road/way' },
+  { display: '车', pronunciation: 'che1', pronunciationAlt: 'chē', frequencyTier: 'basic', definition: 'car/vehicle' },
+  { display: '飞机', pronunciation: 'fei1 ji1', pronunciationAlt: 'fēi jī', frequencyTier: 'basic', definition: 'airplane' },
+  { display: '天气', pronunciation: 'tian1 qi4', pronunciationAlt: 'tiān qì', frequencyTier: 'basic', definition: 'weather' },
+  { display: '衣服', pronunciation: 'yi1 fu5', pronunciationAlt: 'yī fu', frequencyTier: 'basic', definition: 'clothes' },
+  { display: '漂亮', pronunciation: 'piao4 liang5', pronunciationAlt: 'piào liang', frequencyTier: 'basic', definition: 'pretty' },
+  { display: '高兴', pronunciation: 'gao1 xing4', pronunciationAlt: 'gāo xìng', frequencyTier: 'basic', definition: 'happy' },
+  { display: '忙', pronunciation: 'mang2', pronunciationAlt: 'máng', frequencyTier: 'basic', definition: 'busy' },
+  { display: '累', pronunciation: 'lei4', pronunciationAlt: 'lèi', frequencyTier: 'basic', definition: 'tired' },
+  { display: '快', pronunciation: 'kuai4', pronunciationAlt: 'kuài', frequencyTier: 'basic', definition: 'fast' },
+  { display: '慢', pronunciation: 'man4', pronunciationAlt: 'màn', frequencyTier: 'basic', definition: 'slow' },
+  { display: '开', pronunciation: 'kai1', pronunciationAlt: 'kāi', frequencyTier: 'basic', definition: 'to open/drive' },
+  { display: '关', pronunciation: 'guan1', pronunciationAlt: 'guān', frequencyTier: 'basic', definition: 'to close' },
+  { display: '坐', pronunciation: 'zuo4', pronunciationAlt: 'zuò', frequencyTier: 'basic', definition: 'to sit' },
+  { display: '站', pronunciation: 'zhan4', pronunciationAlt: 'zhàn', frequencyTier: 'basic', definition: 'to stand' },
+  { display: '走', pronunciation: 'zou3', pronunciationAlt: 'zǒu', frequencyTier: 'basic', definition: 'to walk' },
+  { display: '跑', pronunciation: 'pao3', pronunciationAlt: 'pǎo', frequencyTier: 'basic', definition: 'to run' },
+  { display: '睡', pronunciation: 'shui4', pronunciationAlt: 'shuì', frequencyTier: 'basic', definition: 'to sleep' },
+  { display: '觉', pronunciation: 'jiao4', pronunciationAlt: 'jiào', frequencyTier: 'basic', definition: 'sleep (noun)' },
+  { display: '早上', pronunciation: 'zao3 shang5', pronunciationAlt: 'zǎo shang', frequencyTier: 'basic', definition: 'morning' },
+  { display: '晚上', pronunciation: 'wan3 shang5', pronunciationAlt: 'wǎn shang', frequencyTier: 'basic', definition: 'evening' },
+  { display: '中午', pronunciation: 'zhong1 wu3', pronunciationAlt: 'zhōng wǔ', frequencyTier: 'basic', definition: 'noon' },
+  { display: '下午', pronunciation: 'xia4 wu3', pronunciationAlt: 'xià wǔ', frequencyTier: 'basic', definition: 'afternoon' },
+  { display: '时候', pronunciation: 'shi2 hou5', pronunciationAlt: 'shí hou', frequencyTier: 'basic', definition: 'time' },
+  { display: '个', pronunciation: 'ge4', pronunciationAlt: 'gè', frequencyTier: 'basic', definition: 'measure word' },
+  { display: '这', pronunciation: 'zhe4', pronunciationAlt: 'zhè', frequencyTier: 'basic', definition: 'this' },
+  { display: '那', pronunciation: 'na4', pronunciationAlt: 'nà', frequencyTier: 'basic', definition: 'that' },
+  { display: '两', pronunciation: 'liang3', pronunciationAlt: 'liǎng', frequencyTier: 'basic', definition: 'two (before measure)' },
+  { display: '几', pronunciation: 'ji3', pronunciationAlt: 'jǐ', frequencyTier: 'basic', definition: 'how many/a few' },
+  { display: '点', pronunciation: 'dian3', pronunciationAlt: 'diǎn', frequencyTier: 'basic', definition: "o'clock" },
+];
+
+// ── HSK 2–3: Intermediate ──────────────────────────────────────
+
+const intermediate: TrainingItem[] = [
+  { display: '开始', pronunciation: 'kai1 shi3', pronunciationAlt: 'kāi shǐ', frequencyTier: 'intermediate', definition: 'to begin' },
+  { display: '准备', pronunciation: 'zhun3 bei4', pronunciationAlt: 'zhǔn bèi', frequencyTier: 'intermediate', definition: 'to prepare' },
+  { display: '帮助', pronunciation: 'bang1 zhu4', pronunciationAlt: 'bāng zhù', frequencyTier: 'intermediate', definition: 'to help' },
+  { display: '告诉', pronunciation: 'gao4 su5', pronunciationAlt: 'gào su', frequencyTier: 'intermediate', definition: 'to tell' },
+  { display: '希望', pronunciation: 'xi1 wang4', pronunciationAlt: 'xī wàng', frequencyTier: 'intermediate', definition: 'to hope' },
+  { display: '觉得', pronunciation: 'jue2 de5', pronunciationAlt: 'jué de', frequencyTier: 'intermediate', definition: 'to feel/think' },
+  { display: '认识', pronunciation: 'ren4 shi5', pronunciationAlt: 'rèn shi', frequencyTier: 'intermediate', definition: 'to know/recognize' },
+  { display: '决定', pronunciation: 'jue2 ding4', pronunciationAlt: 'jué dìng', frequencyTier: 'intermediate', definition: 'to decide' },
+  { display: '理解', pronunciation: 'li3 jie3', pronunciationAlt: 'lǐ jiě', frequencyTier: 'intermediate', definition: 'to understand' },
+  { display: '发现', pronunciation: 'fa1 xian4', pronunciationAlt: 'fā xiàn', frequencyTier: 'intermediate', definition: 'to discover' },
+  { display: '解决', pronunciation: 'jie3 jue2', pronunciationAlt: 'jiě jué', frequencyTier: 'intermediate', definition: 'to solve' },
+  { display: '表示', pronunciation: 'biao3 shi4', pronunciationAlt: 'biǎo shì', frequencyTier: 'intermediate', definition: 'to express' },
+  { display: '影响', pronunciation: 'ying3 xiang3', pronunciationAlt: 'yǐng xiǎng', frequencyTier: 'intermediate', definition: 'influence' },
+  { display: '经验', pronunciation: 'jing1 yan4', pronunciationAlt: 'jīng yàn', frequencyTier: 'intermediate', definition: 'experience' },
+  { display: '教育', pronunciation: 'jiao4 yu4', pronunciationAlt: 'jiào yù', frequencyTier: 'intermediate', definition: 'education' },
+  { display: '环境', pronunciation: 'huan2 jing4', pronunciationAlt: 'huán jìng', frequencyTier: 'intermediate', definition: 'environment' },
+  { display: '历史', pronunciation: 'li4 shi3', pronunciationAlt: 'lì shǐ', frequencyTier: 'intermediate', definition: 'history' },
+  { display: '文化', pronunciation: 'wen2 hua4', pronunciationAlt: 'wén huà', frequencyTier: 'intermediate', definition: 'culture' },
+  { display: '社会', pronunciation: 'she4 hui4', pronunciationAlt: 'shè huì', frequencyTier: 'intermediate', definition: 'society' },
+  { display: '经济', pronunciation: 'jing1 ji4', pronunciationAlt: 'jīng jì', frequencyTier: 'intermediate', definition: 'economy' },
+  { display: '问题', pronunciation: 'wen4 ti2', pronunciationAlt: 'wèn tí', frequencyTier: 'intermediate', definition: 'question/problem' },
+  { display: '意思', pronunciation: 'yi4 si5', pronunciationAlt: 'yì si', frequencyTier: 'intermediate', definition: 'meaning' },
+  { display: '重要', pronunciation: 'zhong4 yao4', pronunciationAlt: 'zhòng yào', frequencyTier: 'intermediate', definition: 'important' },
+  { display: '特别', pronunciation: 'te4 bie2', pronunciationAlt: 'tè bié', frequencyTier: 'intermediate', definition: 'special' },
+  { display: '简单', pronunciation: 'jian3 dan1', pronunciationAlt: 'jiǎn dān', frequencyTier: 'intermediate', definition: 'simple' },
+  { display: '容易', pronunciation: 'rong2 yi4', pronunciationAlt: 'róng yì', frequencyTier: 'intermediate', definition: 'easy' },
+  { display: '困难', pronunciation: 'kun4 nan2', pronunciationAlt: 'kùn nán', frequencyTier: 'intermediate', definition: 'difficult' },
+  { display: '便宜', pronunciation: 'pian2 yi5', pronunciationAlt: 'pián yi', frequencyTier: 'intermediate', definition: 'cheap' },
+  { display: '贵', pronunciation: 'gui4', pronunciationAlt: 'guì', frequencyTier: 'intermediate', definition: 'expensive' },
+  { display: '安全', pronunciation: 'an1 quan2', pronunciationAlt: 'ān quán', frequencyTier: 'intermediate', definition: 'safe' },
+  { display: '健康', pronunciation: 'jian4 kang1', pronunciationAlt: 'jiàn kāng', frequencyTier: 'intermediate', definition: 'health' },
+  { display: '舒服', pronunciation: 'shu1 fu5', pronunciationAlt: 'shū fu', frequencyTier: 'intermediate', definition: 'comfortable' },
+  { display: '方便', pronunciation: 'fang1 bian4', pronunciationAlt: 'fāng biàn', frequencyTier: 'intermediate', definition: 'convenient' },
+  { display: '一直', pronunciation: 'yi4 zhi2', pronunciationAlt: 'yì zhí', frequencyTier: 'intermediate', definition: 'always/continuously' },
+  { display: '已经', pronunciation: 'yi3 jing1', pronunciationAlt: 'yǐ jīng', frequencyTier: 'intermediate', definition: 'already' },
+  { display: '正在', pronunciation: 'zheng4 zai4', pronunciationAlt: 'zhèng zài', frequencyTier: 'intermediate', definition: 'in the process of' },
+  { display: '常常', pronunciation: 'chang2 chang2', pronunciationAlt: 'cháng cháng', frequencyTier: 'intermediate', definition: 'often' },
+  { display: '以前', pronunciation: 'yi3 qian2', pronunciationAlt: 'yǐ qián', frequencyTier: 'intermediate', definition: 'before' },
+  { display: '以后', pronunciation: 'yi3 hou4', pronunciationAlt: 'yǐ hòu', frequencyTier: 'intermediate', definition: 'after' },
+  { display: '虽然', pronunciation: 'sui1 ran2', pronunciationAlt: 'suī rán', frequencyTier: 'intermediate', definition: 'although' },
+  { display: '因为', pronunciation: 'yin1 wei4', pronunciationAlt: 'yīn wèi', frequencyTier: 'intermediate', definition: 'because' },
+  { display: '所以', pronunciation: 'suo3 yi3', pronunciationAlt: 'suǒ yǐ', frequencyTier: 'intermediate', definition: 'so/therefore' },
+  { display: '如果', pronunciation: 'ru2 guo3', pronunciationAlt: 'rú guǒ', frequencyTier: 'intermediate', definition: 'if' },
+  { display: '但是', pronunciation: 'dan4 shi4', pronunciationAlt: 'dàn shì', frequencyTier: 'intermediate', definition: 'but' },
+  { display: '可是', pronunciation: 'ke3 shi4', pronunciationAlt: 'kě shì', frequencyTier: 'intermediate', definition: 'but/however' },
+  { display: '而且', pronunciation: 'er2 qie3', pronunciationAlt: 'ér qiě', frequencyTier: 'intermediate', definition: 'moreover' },
+  { display: '还是', pronunciation: 'hai2 shi4', pronunciationAlt: 'hái shì', frequencyTier: 'intermediate', definition: 'or/still' },
+  { display: '或者', pronunciation: 'huo4 zhe3', pronunciationAlt: 'huò zhě', frequencyTier: 'intermediate', definition: 'or (statement)' },
+  { display: '别', pronunciation: 'bie2', pronunciationAlt: 'bié', frequencyTier: 'intermediate', definition: "don't" },
+  { display: '刚', pronunciation: 'gang1', pronunciationAlt: 'gāng', frequencyTier: 'intermediate', definition: 'just now' },
+  { display: '才', pronunciation: 'cai2', pronunciationAlt: 'cái', frequencyTier: 'intermediate', definition: 'just/only then' },
+  { display: '最', pronunciation: 'zui4', pronunciationAlt: 'zuì', frequencyTier: 'intermediate', definition: 'most' },
+  { display: '比较', pronunciation: 'bi3 jiao4', pronunciationAlt: 'bǐ jiào', frequencyTier: 'intermediate', definition: 'comparatively' },
+  { display: '非常', pronunciation: 'fei1 chang2', pronunciationAlt: 'fēi cháng', frequencyTier: 'intermediate', definition: 'very' },
+  { display: '身体', pronunciation: 'shen1 ti3', pronunciationAlt: 'shēn tǐ', frequencyTier: 'intermediate', definition: 'body' },
+  { display: '眼睛', pronunciation: 'yan3 jing5', pronunciationAlt: 'yǎn jing', frequencyTier: 'intermediate', definition: 'eye' },
+  { display: '耳朵', pronunciation: 'er3 duo5', pronunciationAlt: 'ěr duo', frequencyTier: 'intermediate', definition: 'ear' },
+  { display: '嘴', pronunciation: 'zui3', pronunciationAlt: 'zuǐ', frequencyTier: 'intermediate', definition: 'mouth' },
+  { display: '鼻子', pronunciation: 'bi2 zi5', pronunciationAlt: 'bí zi', frequencyTier: 'intermediate', definition: 'nose' },
+  { display: '手', pronunciation: 'shou3', pronunciationAlt: 'shǒu', frequencyTier: 'intermediate', definition: 'hand' },
+  { display: '头', pronunciation: 'tou2', pronunciationAlt: 'tóu', frequencyTier: 'intermediate', definition: 'head' },
+  { display: '脚', pronunciation: 'jiao3', pronunciationAlt: 'jiǎo', frequencyTier: 'intermediate', definition: 'foot' },
+  { display: '心', pronunciation: 'xin1', pronunciationAlt: 'xīn', frequencyTier: 'intermediate', definition: 'heart' },
+  { display: '颜色', pronunciation: 'yan2 se4', pronunciationAlt: 'yán sè', frequencyTier: 'intermediate', definition: 'color' },
+  { display: '红', pronunciation: 'hong2', pronunciationAlt: 'hóng', frequencyTier: 'intermediate', definition: 'red' },
+  { display: '绿', pronunciation: 'lv4', pronunciationAlt: 'lǜ', frequencyTier: 'intermediate', definition: 'green' },
+  { display: '蓝', pronunciation: 'lan2', pronunciationAlt: 'lán', frequencyTier: 'intermediate', definition: 'blue' },
+  { display: '白', pronunciation: 'bai2', pronunciationAlt: 'bái', frequencyTier: 'intermediate', definition: 'white' },
+  { display: '黑', pronunciation: 'hei1', pronunciationAlt: 'hēi', frequencyTier: 'intermediate', definition: 'black' },
+  { display: '世界', pronunciation: 'shi4 jie4', pronunciationAlt: 'shì jiè', frequencyTier: 'intermediate', definition: 'world' },
+  { display: '国家', pronunciation: 'guo2 jia1', pronunciationAlt: 'guó jiā', frequencyTier: 'intermediate', definition: 'country' },
+  { display: '城市', pronunciation: 'cheng2 shi4', pronunciationAlt: 'chéng shì', frequencyTier: 'intermediate', definition: 'city' },
+  { display: '公司', pronunciation: 'gong1 si1', pronunciationAlt: 'gōng sī', frequencyTier: 'intermediate', definition: 'company' },
+  { display: '银行', pronunciation: 'yin2 hang2', pronunciationAlt: 'yín háng', frequencyTier: 'intermediate', definition: 'bank' },
+  { display: '商店', pronunciation: 'shang1 dian4', pronunciationAlt: 'shāng diàn', frequencyTier: 'intermediate', definition: 'shop' },
+  { display: '公园', pronunciation: 'gong1 yuan2', pronunciationAlt: 'gōng yuán', frequencyTier: 'intermediate', definition: 'park' },
+  { display: '机场', pronunciation: 'ji1 chang3', pronunciationAlt: 'jī chǎng', frequencyTier: 'intermediate', definition: 'airport' },
+  { display: '火车站', pronunciation: 'huo3 che1 zhan4', pronunciationAlt: 'huǒ chē zhàn', frequencyTier: 'intermediate', definition: 'train station' },
+  { display: '考试', pronunciation: 'kao3 shi4', pronunciationAlt: 'kǎo shì', frequencyTier: 'intermediate', definition: 'exam' },
+  { display: '成绩', pronunciation: 'cheng2 ji4', pronunciationAlt: 'chéng jì', frequencyTier: 'intermediate', definition: 'grade/score' },
+  { display: '护照', pronunciation: 'hu4 zhao4', pronunciationAlt: 'hù zhào', frequencyTier: 'intermediate', definition: 'passport' },
+  { display: '地图', pronunciation: 'di4 tu2', pronunciationAlt: 'dì tú', frequencyTier: 'intermediate', definition: 'map' },
+  { display: '钥匙', pronunciation: 'yao4 shi5', pronunciationAlt: 'yào shi', frequencyTier: 'intermediate', definition: 'key' },
+  { display: '信', pronunciation: 'xin4', pronunciationAlt: 'xìn', frequencyTier: 'intermediate', definition: 'letter' },
+  { display: '礼物', pronunciation: 'li3 wu4', pronunciationAlt: 'lǐ wù', frequencyTier: 'intermediate', definition: 'gift' },
+  { display: '生日', pronunciation: 'sheng1 ri4', pronunciationAlt: 'shēng rì', frequencyTier: 'intermediate', definition: 'birthday' },
+  { display: '节日', pronunciation: 'jie2 ri4', pronunciationAlt: 'jié rì', frequencyTier: 'intermediate', definition: 'festival' },
+  { display: '春节', pronunciation: 'chun1 jie2', pronunciationAlt: 'chūn jié', frequencyTier: 'intermediate', definition: 'Spring Festival' },
+  { display: '结婚', pronunciation: 'jie2 hun1', pronunciationAlt: 'jié hūn', frequencyTier: 'intermediate', definition: 'to marry' },
+  { display: '出租', pronunciation: 'chu1 zu1', pronunciationAlt: 'chū zū', frequencyTier: 'intermediate', definition: 'to rent' },
+  { display: '出租汽车', pronunciation: 'chu1 zu1 qi4 che1', pronunciationAlt: 'chū zū qì chē', frequencyTier: 'intermediate', definition: 'taxi' },
+  { display: '公共汽车', pronunciation: 'gong1 gong4 qi4 che1', pronunciationAlt: 'gōng gòng qì chē', frequencyTier: 'intermediate', definition: 'bus' },
+  { display: '地铁', pronunciation: 'di4 tie3', pronunciationAlt: 'dì tiě', frequencyTier: 'intermediate', definition: 'subway' },
+  { display: '语言', pronunciation: 'yu3 yan2', pronunciationAlt: 'yǔ yán', frequencyTier: 'intermediate', definition: 'language' },
+  { display: '汉字', pronunciation: 'han4 zi4', pronunciationAlt: 'hàn zì', frequencyTier: 'intermediate', definition: 'Chinese character' },
+  { display: '拼音', pronunciation: 'pin1 yin1', pronunciationAlt: 'pīn yīn', frequencyTier: 'intermediate', definition: 'pinyin' },
+  { display: '发音', pronunciation: 'fa1 yin1', pronunciationAlt: 'fā yīn', frequencyTier: 'intermediate', definition: 'pronunciation' },
+  { display: '声调', pronunciation: 'sheng1 diao4', pronunciationAlt: 'shēng diào', frequencyTier: 'intermediate', definition: 'tone' },
+  { display: '语法', pronunciation: 'yu3 fa3', pronunciationAlt: 'yǔ fǎ', frequencyTier: 'intermediate', definition: 'grammar' },
+];
+
+// ── Advanced: placeholder for HSK 4+ ───────────────────────────
+
+const advanced: TrainingItem[] = [
+  { display: '发展', pronunciation: 'fa1 zhan3', pronunciationAlt: 'fā zhǎn', frequencyTier: 'advanced', definition: 'to develop' },
+  { display: '改革', pronunciation: 'gai3 ge2', pronunciationAlt: 'gǎi gé', frequencyTier: 'advanced', definition: 'reform' },
+  { display: '建设', pronunciation: 'jian4 she4', pronunciationAlt: 'jiàn shè', frequencyTier: 'advanced', definition: 'to build/construct' },
+  { display: '科学', pronunciation: 'ke1 xue2', pronunciationAlt: 'kē xué', frequencyTier: 'advanced', definition: 'science' },
+  { display: '技术', pronunciation: 'ji4 shu4', pronunciationAlt: 'jì shù', frequencyTier: 'advanced', definition: 'technology' },
+  { display: '工业', pronunciation: 'gong1 ye4', pronunciationAlt: 'gōng yè', frequencyTier: 'advanced', definition: 'industry' },
+  { display: '农业', pronunciation: 'nong2 ye4', pronunciationAlt: 'nóng yè', frequencyTier: 'advanced', definition: 'agriculture' },
+  { display: '国际', pronunciation: 'guo2 ji4', pronunciationAlt: 'guó jì', frequencyTier: 'advanced', definition: 'international' },
+  { display: '关系', pronunciation: 'guan1 xi5', pronunciationAlt: 'guān xi', frequencyTier: 'advanced', definition: 'relation' },
+  { display: '和平', pronunciation: 'he2 ping2', pronunciationAlt: 'hé píng', frequencyTier: 'advanced', definition: 'peace' },
+  { display: '民主', pronunciation: 'min2 zhu3', pronunciationAlt: 'mín zhǔ', frequencyTier: 'advanced', definition: 'democracy' },
+  { display: '自由', pronunciation: 'zi4 you2', pronunciationAlt: 'zì yóu', frequencyTier: 'advanced', definition: 'freedom' },
+  { display: '权利', pronunciation: 'quan2 li4', pronunciationAlt: 'quán lì', frequencyTier: 'advanced', definition: 'right/power' },
+  { display: '责任', pronunciation: 'ze2 ren4', pronunciationAlt: 'zé rèn', frequencyTier: 'advanced', definition: 'responsibility' },
+  { display: '机会', pronunciation: 'ji1 hui4', pronunciationAlt: 'jī huì', frequencyTier: 'advanced', definition: 'opportunity' },
+  { display: '能力', pronunciation: 'neng2 li4', pronunciationAlt: 'néng lì', frequencyTier: 'advanced', definition: 'ability' },
+  { display: '水平', pronunciation: 'shui3 ping2', pronunciationAlt: 'shuǐ píng', frequencyTier: 'advanced', definition: 'level' },
+  { display: '质量', pronunciation: 'zhi4 liang4', pronunciationAlt: 'zhì liàng', frequencyTier: 'advanced', definition: 'quality' },
+  { display: '效率', pronunciation: 'xiao4 lv4', pronunciationAlt: 'xiào lǜ', frequencyTier: 'advanced', definition: 'efficiency' },
+  { display: '标准', pronunciation: 'biao1 zhun3', pronunciationAlt: 'biāo zhǔn', frequencyTier: 'advanced', definition: 'standard' },
+];
+
+// ── Exports ─────────────────────────────────────────────────────
+
+export const zhWordBank: Record<Difficulty, TrainingItem[]> = {
+  basic,
+  intermediate,
+  advanced,
+};
+
+export function pickZhWords(difficulty: Difficulty, count: number = 10): TrainingItem[] {
+  const pool = zhWordBank[difficulty];
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+}

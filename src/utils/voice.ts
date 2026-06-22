@@ -1,23 +1,27 @@
 /**
- * Web Speech API 语音管理
- * 智能优选高质量语音 + 用户选择 + localStorage 持久化
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Web Speech API voice management.
+ * Now supports multiple languages: voice selection is driven by
+ * the LanguageProfile.ttsLang rather than hardcoded 'en-US'.
  */
 
-const STORAGE_KEY = 'ipa-spelling-voice';
+const STORAGE_KEY_PREFIX = 'ipa-spelling-voice-';
 
-// 高质量语音关键词（按优先级排序）
+// High-quality voice keywords (sorted by priority)
 const PREFERRED_NAMES = [
-  'samantha',           // macOS — 最佳美式女声
-  'google us english',  // Chrome — 高质量
-  'alex',               // macOS — 美式男声
-  'daniel',             // macOS — 英式男声（质量高）
-  'karen',              // macOS — 澳式女声
-  'microsoft zira',     // Windows — 美式女声
-  'microsoft david',    // Windows — 美式男声
-  'google uk english',  // Chrome — 英式
-  'moira',              // macOS — 爱尔兰
-  'fiona',              // macOS — 苏格兰
-  'veena',              // macOS — 印度
+  'samantha',           // macOS — best American female
+  'google us english',  // Chrome — high quality
+  'alex',               // macOS — American male
+  'daniel',             // macOS — British male (high quality)
+  'karen',              // macOS — Australian female
+  'microsoft zira',     // Windows — American female
+  'microsoft david',    // Windows — American male
+  'google uk english',  // Chrome — British
+  'moira',              // macOS — Irish
+  'fiona',              // macOS — Scottish
+  'veena',              // macOS — Indian
 ];
 
 export interface VoiceInfo {
@@ -27,29 +31,29 @@ export interface VoiceInfo {
   localService: boolean;
 }
 
-function getStoredVoiceURI(): string | null {
+function getStoredVoiceURI(lang: string): string | null {
   try {
-    return localStorage.getItem(STORAGE_KEY);
+    return localStorage.getItem(STORAGE_KEY_PREFIX + lang);
   } catch {
     return null;
   }
 }
 
-function storeVoiceURI(uri: string) {
+function storeVoiceURI(lang: string, uri: string) {
   try {
-    localStorage.setItem(STORAGE_KEY, uri);
+    localStorage.setItem(STORAGE_KEY_PREFIX + lang, uri);
   } catch {
-    // localStorage 不可用
+    // localStorage unavailable
   }
 }
 
-function scoreVoice(voice: SpeechSynthesisVoice): number {
+function scoreVoice(voice: SpeechSynthesisVoice, lang: string): number {
   const name = voice.name.toLowerCase();
   const idx = PREFERRED_NAMES.findIndex(p => name.includes(p));
-  if (idx >= 0) return PREFERRED_NAMES.length - idx; // 越靠前分越高
-  if (voice.lang === 'en-US' && voice.localService) return 2;
-  if (voice.lang.startsWith('en-') && voice.localService) return 1;
-  if (voice.lang === 'en-US') return 0;
+  if (idx >= 0) return PREFERRED_NAMES.length - idx; // earlier = higher score
+  if (voice.lang === lang && voice.localService) return 2;
+  if (voice.lang.startsWith(lang.split('-')[0]) && voice.localService) return 1;
+  if (voice.lang === lang) return 0;
   return -1;
 }
 
@@ -59,37 +63,44 @@ export function getAvailableVoices(): SpeechSynthesisVoice[] {
   return synth.getVoices();
 }
 
-/** 从可用语音中选出最佳默认语音 */
-export function selectBestVoice(voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null {
+/**
+ * Select the best default voice for a given BCP 47 language tag.
+ */
+export function selectBestVoice(voices: SpeechSynthesisVoice[], lang: string): SpeechSynthesisVoice | null {
   if (voices.length === 0) return null;
 
-  // 先查 localStorage 中是否有之前选过的
-  const storedURI = getStoredVoiceURI();
+  // Check if user has a stored preference for this language
+  const storedURI = getStoredVoiceURI(lang);
   if (storedURI) {
     const found = voices.find(v => v.voiceURI === storedURI);
     if (found) return found;
   }
 
-  // 按优先级打分选出最佳
+  // Score and select by priority
+  const langPrefix = lang.split('-')[0];
   const scored = voices
-    .filter(v => v.lang.startsWith('en-'))
-    .map(v => ({ voice: v, score: scoreVoice(v) }))
+    .filter(v => v.lang.startsWith(langPrefix))
+    .map(v => ({ voice: v, score: scoreVoice(v, lang) }))
     .sort((a, b) => b.score - a.score);
 
   return scored.length > 0 ? scored[0].voice : voices[0];
 }
 
-export function saveVoicePreference(voice: SpeechSynthesisVoice) {
-  storeVoiceURI(voice.voiceURI);
+export function saveVoicePreference(voice: SpeechSynthesisVoice, lang: string) {
+  storeVoiceURI(lang, voice.voiceURI);
 }
 
-/** 获取 en-US 语音列表（用于选择器） */
-export function getEnglishVoices(): SpeechSynthesisVoice[] {
+/**
+ * Get voice list for a specific language (for the voice selector).
+ * Filters by BCP 47 prefix and sorts by quality score.
+ */
+export function getVoicesForLang(lang: string): SpeechSynthesisVoice[] {
+  const langPrefix = lang.split('-')[0];
   return getAvailableVoices()
-    .filter(v => v.lang.startsWith('en-'))
+    .filter(v => v.lang.startsWith(langPrefix))
     .sort((a, b) => {
-      const sa = scoreVoice(a);
-      const sb = scoreVoice(b);
+      const sa = scoreVoice(a, lang);
+      const sb = scoreVoice(b, lang);
       if (sb !== sa) return sb - sa;
       return a.name.localeCompare(b.name);
     });

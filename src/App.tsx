@@ -1,24 +1,82 @@
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * Main application — now fully profile-driven.
+ * Supports multiple target languages (L2) and L1-aware smart recommendations.
+ * All language-specific behavior is delegated to LanguageProfile,
+ * so the UI code is language-agnostic.
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Volume2, CheckCircle2, XCircle, RefreshCw, Trophy, Keyboard, ArrowRight, ChevronDown, Headphones, Pencil } from 'lucide-react';
+import {
+  Volume2, CheckCircle2, XCircle, RefreshCw, Trophy, Keyboard,
+  ArrowRight, ChevronDown, Headphones, Pencil, Globe, Settings,
+} from 'lucide-react';
 import { TrainingView } from './components/TrainingView';
-import { WordData, Difficulty } from './types';
-import { IPAKeypad } from './components/IPAKeypad';
-import { pickWords, wordBank } from './data/wordBank';
-import { getWordsByPhoneme, getPhonemeStats, ALL_PHONEMES } from './utils/phonemeGroups';
-import { getEnglishVoices, selectBestVoice, saveVoicePreference } from './utils/voice';
+import { PhoneticKeypad } from './components/PhoneticKeypad';
+import { SmartRecommend } from './components/SmartRecommend';
+import { OnboardingView } from './components/OnboardingView';
+import type { TrainingItem, Difficulty, LanguageProfile, JudgeResult } from './types';
+import { getProfile, getAllProfiles, SUPPORTED_L1 } from './profiles';
+import { getItemsByPhoneme, getPhonemeStats } from './utils/phonemeGroups';
+import { getVoicesForLang, selectBestVoice, saveVoicePreference } from './utils/voice';
+
+// ── LocalStorage keys ──────────────────────────────────────────
+
+const LS_L1 = 'ipa-spelling-l1';
+const LS_L2 = 'ipa-spelling-l2';
+
+function loadL1(): string | null {
+  try { return localStorage.getItem(LS_L1); } catch { return null; }
+}
+function loadL2(): string | null {
+  try { return localStorage.getItem(LS_L2); } catch { return null; }
+}
+function saveL1L2(l1: string, l2: string) {
+  try {
+    localStorage.setItem(LS_L1, l1);
+    localStorage.setItem(LS_L2, l2);
+  } catch { /* ignore */ }
+}
+
+// ── Word picking ────────────────────────────────────────────────
+
+function pickItems(
+  profile: LanguageProfile,
+  difficulty: Difficulty,
+  phoneme: string | null,
+  count: number,
+): TrainingItem[] {
+  if (phoneme) {
+    const pool = getItemsByPhoneme(phoneme, profile, difficulty);
+    if (pool.length === 0) return [];
+    const shuffled = [...pool].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, Math.min(count, pool.length));
+  }
+  const bank = profile.wordBank[difficulty];
+  const shuffled = [...bank].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, Math.min(count, bank.length));
+}
+
+// ── App ─────────────────────────────────────────────────────────
 
 export default function App() {
+  // ── L1 / L2 state ────────────────────────────────────────────
+  const [l1, setL1] = useState<string | null>(loadL1());
+  const [l2, setL2] = useState<string | null>(loadL2());
+  const [showOnboarding, setShowOnboarding] = useState(!loadL1() || !loadL2());
+
+  const profile: LanguageProfile | undefined = l2 ? getProfile(l2) : undefined;
+
+  // ── Training state ────────────────────────────────────────────
   const [difficulty, setDifficulty] = useState<Difficulty>('basic');
-  const [words, setWords] = useState<WordData[]>(() => pickWords('basic'));
+  const [items, setItems] = useState<TrainingItem[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userInput, setUserInput] = useState('');
   const [feedback, setFeedback] = useState<'correct' | 'incorrect' | 'neutral'>('neutral');
+  const [judgeResult, setJudgeResult] = useState<JudgeResult | null>(null);
   const [score, setScore] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showKeypad, setShowKeypad] = useState(true);
@@ -26,24 +84,42 @@ export default function App() {
   const [mode, setMode] = useState<'spelling' | 'training'>('spelling');
   const [wordCount, setWordCount] = useState(10);
 
-  const phonemeStats = React.useMemo(() => getPhonemeStats(), []);
-
-  // Voice management
+  // ── Voice management ──────────────────────────────────────────
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
 
+  // ── Phoneme stats (profile-driven) ────────────────────────────
+  const phonemeStats = useMemo(
+    () => profile ? getPhonemeStats(profile) : [],
+    [profile],
+  );
+
+  // ── Initialize word set when profile changes ─────────────────
   useEffect(() => {
+    if (profile) {
+      setItems(pickItems(profile, difficulty, selectedPhoneme, wordCount));
+      setCurrentIndex(0);
+      setScore(0);
+      setFeedback('neutral');
+      setJudgeResult(null);
+      setUserInput('');
+    }
+  }, [profile]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Load voices for current language ──────────────────────────
+  useEffect(() => {
+    if (!profile) return;
+
     const loadVoices = () => {
-      const available = getEnglishVoices();
+      const available = getVoicesForLang(profile.ttsLang);
       if (available.length > 0) {
         setVoices(available);
-        const best = selectBestVoice(available);
+        const best = selectBestVoice(available, profile.ttsLang);
         if (best) setSelectedVoice(best);
       }
     };
 
     loadVoices();
-    // Chrome 等浏览器异步加载语音列表
     const synth = window.speechSynthesis;
     if (synth) {
       synth.addEventListener('voiceschanged', loadVoices);
@@ -51,57 +127,74 @@ export default function App() {
     return () => {
       if (synth) synth.removeEventListener('voiceschanged', loadVoices);
     };
-  }, []);
+  }, [profile]);
 
+  // ── Callbacks ─────────────────────────────────────────────────
+
+  const handleOnboardingComplete = (newL1: string, newL2: string) => {
+    setL1(newL1);
+    setL2(newL2);
+    saveL1L2(newL1, newL2);
+    setShowOnboarding(false);
+  };
 
   const handleVoiceChange = (voiceURI: string) => {
+    if (!profile) return;
     const voice = voices.find(v => v.voiceURI === voiceURI);
     if (voice) {
       setSelectedVoice(voice);
-      saveVoicePreference(voice);
+      saveVoicePreference(voice, profile.ttsLang);
     }
-  };
-
-  const currentWord = words[currentIndex];
-
-  const pickWordsForPractice = (diff: Difficulty, phoneme: string | null, count: number): WordData[] => {
-    if (phoneme) {
-      const pool = getWordsByPhoneme(phoneme, diff);
-      if (pool.length === 0) return [];
-      const shuffled = [...pool].sort(() => Math.random() - 0.5);
-      return shuffled.slice(0, Math.min(count, pool.length));
-    }
-    return pickWords(diff, count);
   };
 
   const changeDifficulty = (d: Difficulty) => {
+    if (!profile) return;
     setDifficulty(d);
-    setWords(pickWordsForPractice(d, selectedPhoneme, wordCount));
+    setItems(pickItems(profile, d, selectedPhoneme, wordCount));
     setCurrentIndex(0);
     setScore(0);
     setFeedback('neutral');
+    setJudgeResult(null);
     setUserInput('');
   };
 
   const newWordSet = () => {
-    setWords(pickWordsForPractice(difficulty, selectedPhoneme, wordCount));
+    if (!profile) return;
+    setItems(pickItems(profile, difficulty, selectedPhoneme, wordCount));
     setCurrentIndex(0);
     setScore(0);
     setFeedback('neutral');
+    setJudgeResult(null);
     setUserInput('');
   };
 
   const handlePhonemeChange = (phoneme: string | null) => {
+    if (!profile) return;
     setSelectedPhoneme(phoneme);
-    setWords(pickWordsForPractice(difficulty, phoneme, wordCount));
+    setItems(pickItems(profile, difficulty, phoneme, wordCount));
     setCurrentIndex(0);
     setScore(0);
     setFeedback('neutral');
+    setJudgeResult(null);
     setUserInput('');
   };
 
+  const handleSmartPhonemeSelect = (phoneme: string) => {
+    if (!profile) return;
+    setSelectedPhoneme(phoneme);
+    setItems(pickItems(profile, difficulty, phoneme, wordCount));
+    setCurrentIndex(0);
+    setScore(0);
+    setFeedback('neutral');
+    setJudgeResult(null);
+    setUserInput('');
+    setMode('spelling');
+  };
+
+  const currentItem = items[currentIndex];
+
   const playAudio = useCallback(() => {
-    if (!currentWord || isPlaying) return;
+    if (!currentItem || !profile || isPlaying) return;
 
     const synth = window.speechSynthesis;
     if (!synth) {
@@ -111,8 +204,8 @@ export default function App() {
 
     synth.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(currentWord.word);
-    utterance.lang = 'en-US';
+    const utterance = new SpeechSynthesisUtterance(currentItem.display);
+    utterance.lang = profile.ttsLang;
     utterance.rate = 0.9;
 
     if (selectedVoice) {
@@ -124,9 +217,9 @@ export default function App() {
     utterance.onerror = () => setIsPlaying(false);
 
     synth.speak(utterance);
-  }, [currentWord, isPlaying, selectedVoice]);
+  }, [currentItem, profile, isPlaying, selectedVoice]);
 
-  // Keyboard shortcuts for training mode: Space=replay, ←→=navigate
+  // Keyboard shortcuts for training mode
   useEffect(() => {
     if (mode !== 'training') return;
 
@@ -151,7 +244,7 @@ export default function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [mode, playAudio, currentIndex, words.length]);
+  }, [mode, playAudio, currentIndex, items.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCharInsert = (char: string) => {
     if (feedback !== 'neutral') return;
@@ -164,12 +257,16 @@ export default function App() {
   };
 
   const checkAnswer = () => {
-    if (!currentWord || feedback !== 'neutral') return;
+    if (!currentItem || !profile || feedback !== 'neutral') return;
 
-    const normalizedInput = userInput.trim().replace(/^\/|\/$/g, '');
-    const normalizedTarget = currentWord.ipa_us.trim().replace(/^\/|\/$/g, '');
+    const result = profile.judge(userInput, currentItem.pronunciation);
+    setJudgeResult(result);
 
-    if (normalizedInput === normalizedTarget) {
+    if (result.correct) {
+      setFeedback('correct');
+      setScore(prev => prev + 1);
+    } else if (result.nearMatch) {
+      // Near match: count as correct but show hint
       setFeedback('correct');
       setScore(prev => prev + 1);
     } else {
@@ -178,19 +275,20 @@ export default function App() {
   };
 
   const nextWord = () => {
-    if (currentIndex < words.length - 1) {
+    if (currentIndex < items.length - 1) {
       setCurrentIndex(prev => prev + 1);
       setUserInput('');
       setFeedback('neutral');
+      setJudgeResult(null);
     } else {
-      const msg = `本轮结束！得分: ${score + (feedback === 'correct' ? 0 : 0)}/${words.length}`;
+      const msg = `本轮结束！得分: ${score + (feedback === 'correct' ? 0 : 0)}/${items.length}`;
       alert(msg);
       newWordSet();
     }
   };
 
   const nextTrainingWord = () => {
-    if (currentIndex < words.length - 1) {
+    if (currentIndex < items.length - 1) {
       setCurrentIndex(prev => prev + 1);
     } else {
       alert('本轮训练结束！');
@@ -204,14 +302,28 @@ export default function App() {
     }
   };
 
-  if (words.length === 0) {
+  // ── Render ────────────────────────────────────────────────────
+
+  // Onboarding screen
+  if (showOnboarding || !profile) {
+    return (
+      <OnboardingView
+        currentL1={l1}
+        currentL2={l2}
+        onComplete={handleOnboardingComplete}
+      />
+    );
+  }
+
+  // Empty word set
+  if (items.length === 0) {
     return (
       <div className="min-h-screen bg-[#F8F9FA] flex items-center justify-center font-sans tracking-tight">
         <div className="text-center space-y-6">
           <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center mx-auto">
             <RefreshCw className="w-8 h-8 text-amber-500" />
           </div>
-          <p className="text-slate-600 font-medium text-sm">该音标在当前难度下没有匹配单词</p>
+          <p className="text-slate-600 font-medium text-sm">该音素在当前难度下没有匹配单词</p>
           <button
             onClick={() => handlePhonemeChange(null)}
             className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-indigo-700 transition-colors cursor-pointer"
@@ -223,6 +335,9 @@ export default function App() {
     );
   }
 
+  // L1 label for header
+  const l1Label = SUPPORTED_L1.find(l => l.code === l1)?.label ?? l1 ?? '—';
+
   return (
     <div className="min-h-screen bg-[#F8F9FA] text-[#1A1A1A] font-sans flex flex-col overflow-hidden">
       {/* Header */}
@@ -233,11 +348,30 @@ export default function App() {
           </div>
           <div>
             <h1 className="text-lg font-bold tracking-tight">PhoneticMaster</h1>
-            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">American IPA Training</p>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+              {profile.displayName} {profile.notationName} Training
+            </p>
           </div>
         </div>
 
         <div className="flex items-center gap-6">
+          {/* L1 / L2 Indicator */}
+          <div className="flex items-center gap-1.5">
+            <Globe className="w-3 h-3 text-slate-400" />
+            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+              {l1Label} → {profile.displayName}
+            </span>
+            <button
+              onClick={() => setShowOnboarding(true)}
+              className="ml-1 p-0.5 rounded hover:bg-slate-100 transition-colors cursor-pointer"
+              title="更改语言设置"
+            >
+              <Settings className="w-3 h-3 text-slate-300" />
+            </button>
+          </div>
+
+          <div className="h-10 w-px bg-slate-100"></div>
+
           {/* Mode Toggle */}
           <div className="flex items-center gap-0.5 bg-slate-100 rounded-lg p-0.5">
             <button
@@ -268,26 +402,27 @@ export default function App() {
 
           {/* Voice Selector */}
           {voices.length > 0 && (
-            <div className="relative flex items-center gap-1.5">
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Voice</span>
-              <div className="relative">
-                <select
-                  value={selectedVoice?.voiceURI || ''}
-                  onChange={(e) => handleVoiceChange(e.target.value)}
-                  className="appearance-none bg-slate-100 border-none rounded-lg pl-2.5 pr-7 py-1.5 text-[11px] text-slate-600 font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                >
-                  {voices.map(v => (
-                    <option key={v.voiceURI} value={v.voiceURI}>
-                      {v.name} ({v.lang})
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+            <>
+              <div className="relative flex items-center gap-1.5">
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Voice</span>
+                <div className="relative">
+                  <select
+                    value={selectedVoice?.voiceURI || ''}
+                    onChange={(e) => handleVoiceChange(e.target.value)}
+                    className="appearance-none bg-slate-100 border-none rounded-lg pl-2.5 pr-7 py-1.5 text-[11px] text-slate-600 font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                  >
+                    {voices.map(v => (
+                      <option key={v.voiceURI} value={v.voiceURI}>
+                        {v.name} ({v.lang})
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+                </div>
               </div>
-            </div>
+              <div className="h-10 w-px bg-slate-100"></div>
+            </>
           )}
-
-          <div className="h-10 w-px bg-slate-100"></div>
 
           {/* Difficulty Selector */}
           <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-0.5">
@@ -317,10 +452,12 @@ export default function App() {
                 onChange={(e) => handlePhonemeChange(e.target.value || null)}
                 className="appearance-none bg-slate-100 border-none rounded-lg pl-2.5 pr-7 py-1.5 text-[11px] text-slate-600 font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-200 max-w-[140px]"
               >
-                <option value="">All ({wordBank.basic.length + wordBank.intermediate.length + wordBank.advanced.length})</option>
+                <option value="">
+                  All ({profile.wordBank.basic.length + profile.wordBank.intermediate.length + profile.wordBank.advanced.length})
+                </option>
                 {phonemeStats.map(({ phoneme, count }) => (
                   <option key={phoneme} value={phoneme}>
-                    /{phoneme}/ ({count})
+                    {profile.notationName === 'Pinyin' ? phoneme : `/${phoneme}/`} ({count})
                   </option>
                 ))}
               </select>
@@ -341,10 +478,11 @@ export default function App() {
               onChange={(e) => {
                 const v = Math.max(1, Math.min(50, parseInt(e.target.value) || 1));
                 setWordCount(v);
-                setWords(pickWordsForPractice(difficulty, selectedPhoneme, v));
+                setItems(pickItems(profile, difficulty, selectedPhoneme, v));
                 setCurrentIndex(0);
                 setScore(0);
                 setFeedback('neutral');
+                setJudgeResult(null);
                 setUserInput('');
               }}
               className="w-12 bg-slate-100 border-none rounded-lg px-1.5 py-1 text-[11px] text-slate-600 font-medium text-center focus:outline-none focus:ring-2 focus:ring-indigo-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -356,7 +494,7 @@ export default function App() {
           <div className="flex flex-col items-end">
             <span className="text-[10px] text-slate-400 font-bold uppercase mb-1.5">Progress</span>
             <div className="flex gap-1">
-              {Array.isArray(words) && words.map((_, i) => (
+              {items.map((_, i) => (
                 <div
                   key={i}
                   className={`w-5 h-1.5 rounded-full transition-colors ${i <= currentIndex ? 'bg-indigo-600' : 'bg-indigo-100'}`}
@@ -372,7 +510,7 @@ export default function App() {
                 Score: {score}
               </div>
               <div className="text-[10px] text-slate-400 font-bold uppercase">
-                Accuracy: {words.length > 0 ? Math.round((score / (currentIndex || 1)) * 100) : 0}%
+                Accuracy: {items.length > 0 ? Math.round((score / (currentIndex || 1)) * 100) : 0}%
               </div>
             </div>
           )}
@@ -380,173 +518,212 @@ export default function App() {
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 flex flex-col items-center justify-center p-8 overflow-y-auto">
-        {mode === 'training' ? (
-          <TrainingView
-            words={words}
-            currentIndex={currentIndex}
-            onNext={nextTrainingWord}
-            onPlayAudio={playAudio}
-            isPlaying={isPlaying}
-            onNewWordSet={newWordSet}
-          />
-        ) : (
-          <div className="w-full max-w-3xl space-y-10">
+      <main className="flex-1 flex gap-8 p-8 overflow-y-auto">
+        {/* Left: Smart Recommendations (sidebar) */}
+        {l1 && l1 !== profile.code && (
+          <aside className="w-72 shrink-0">
+            <SmartRecommend
+              l1={l1}
+              l2={profile.code}
+              profile={profile}
+              onSelectPhoneme={handleSmartPhonemeSelect}
+            />
+          </aside>
+        )}
 
-            {/* Challenge Card */}
-            <div className="bg-white rounded-[40px] shadow-sm border border-slate-100 overflow-hidden">
-              <div className="p-12 flex flex-col items-center gap-10">
+        {/* Center: Training / Spelling */}
+        <div className="flex-1 flex flex-col items-center justify-center">
+          {mode === 'training' ? (
+            <TrainingView
+              items={items}
+              currentIndex={currentIndex}
+              profile={profile}
+              onNext={nextTrainingWord}
+              onPlayAudio={playAudio}
+              isPlaying={isPlaying}
+              onNewWordSet={newWordSet}
+            />
+          ) : (
+            <div className="w-full max-w-3xl space-y-10">
+              {/* Challenge Card */}
+              <div className="bg-white rounded-[40px] shadow-sm border border-slate-100 overflow-hidden">
+                <div className="p-12 flex flex-col items-center gap-10">
 
-                {/* Audio Prompt */}
-                <div className="flex flex-col items-center text-center space-y-4">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={playAudio}
-                    disabled={isPlaying}
-                    className={`w-24 h-24 rounded-full flex items-center justify-center transition-all cursor-pointer ${
-                      isPlaying ? 'bg-indigo-50 text-indigo-600' : 'bg-indigo-50 text-indigo-600 hover:bg-white shadow-sm border border-indigo-100'
-                    }`}
-                  >
-                    {isPlaying ? (
-                      <div className="flex gap-1 items-end h-8">
-                        {[1, 2, 3, 2, 1].map((h, i) => (
-                          <motion.div
-                            key={i}
-                            className="w-1.5 bg-indigo-600 rounded-full"
-                            animate={{ height: ['20%', '100%', '20%'] }}
-                            transition={{ repeat: Infinity, duration: 0.5, delay: i * 0.1 }}
-                          />
-                        ))}
-                      </div>
-                    ) : (
-                      <Volume2 className="w-10 h-10" />
-                    )}
-                  </motion.button>
-                  <div>
-                    <h2 className="text-2xl font-light text-slate-400">Click to hear the word</h2>
-                    {feedback !== 'neutral' && (
-                      <p className="mt-2 text-slate-800 font-mono text-lg">
-                        <span className={feedback === 'correct' ? 'text-green-600' : 'text-red-600'}>
-                          {feedback === 'correct' ? '✓ ' : '✗ '}
-                        </span>
-                        Word: <span className="font-bold underline decoration-indigo-200 uppercase tracking-widest">{currentWord?.word}</span>
-                      </p>
-                    )}
+                  {/* Audio Prompt */}
+                  <div className="flex flex-col items-center text-center space-y-4">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={playAudio}
+                      disabled={isPlaying}
+                      className={`w-24 h-24 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+                        isPlaying ? 'bg-indigo-50 text-indigo-600' : 'bg-indigo-50 text-indigo-600 hover:bg-white shadow-sm border border-indigo-100'
+                      }`}
+                    >
+                      {isPlaying ? (
+                        <div className="flex gap-1 items-end h-8">
+                          {[1, 2, 3, 2, 1].map((h, i) => (
+                            <motion.div
+                              key={i}
+                              className="w-1.5 bg-indigo-600 rounded-full"
+                              animate={{ height: ['20%', '100%', '20%'] }}
+                              transition={{ repeat: Infinity, duration: 0.5, delay: i * 0.1 }}
+                            />
+                          ))}
+                        </div>
+                      ) : (
+                        <Volume2 className="w-10 h-10" />
+                      )}
+                    </motion.button>
+                    <div>
+                      <h2 className="text-2xl font-light text-slate-400">
+                        {profile.notationName === 'Pinyin' ? '点击听发音' : 'Click to hear the word'}
+                      </h2>
+                      {feedback !== 'neutral' && (
+                        <p className="mt-2 text-slate-800 font-mono text-lg">
+                          <span className={feedback === 'correct' ? 'text-green-600' : 'text-red-600'}>
+                            {feedback === 'correct' ? '✓ ' : '✗ '}
+                          </span>
+                          {profile.notationName === 'Pinyin' ? '词语: ' : 'Word: '}
+                          <span className="font-bold underline decoration-indigo-200 uppercase tracking-widest">
+                            {currentItem?.display}
+                          </span>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Transcription Input */}
+                  <div className="w-full relative px-12">
+                    <input
+                      type="text"
+                      value={userInput}
+                      onChange={(e) => {
+                        if (feedback !== 'neutral') return;
+                        setUserInput(e.target.value);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && feedback === 'neutral' && userInput.trim()) {
+                          checkAnswer();
+                        }
+                      }}
+                      placeholder={
+                        profile.notationName === 'Pinyin'
+                          ? '输入拼音 (如 ni3 hao3)...'
+                          : 'Enter IPA symbols...'
+                      }
+                      className={`${
+                        profile.notationName === 'Pinyin' ? '' : 'ipa-text'
+                      } w-full text-center text-5xl font-light py-8 border-b-2 focus:outline-none transition-colors placeholder:text-slate-100 ${
+                        feedback === 'correct' ? 'border-green-500 text-green-600' :
+                        feedback === 'incorrect' ? 'border-red-500 text-red-600' :
+                        'border-slate-200 focus:border-indigo-600 text-slate-800'
+                      }`}
+                      disabled={feedback !== 'neutral'}
+                    />
+
+                    <AnimatePresence>
+                      {feedback !== 'neutral' && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          className="absolute -top-10 left-0 right-0 flex justify-center"
+                        >
+                          {feedback === 'correct' ? (
+                            <div className="flex items-center gap-2 text-green-600 bg-green-50 px-5 py-2 rounded-full text-xs font-bold border border-green-100 uppercase tracking-widest">
+                              <CheckCircle2 className="w-4 h-4" />
+                              {judgeResult?.nearMatch ? 'Almost Correct' : "That's Correct"}
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2 text-red-600 bg-red-50 px-5 py-2 rounded-full text-xs font-bold border border-red-100 uppercase tracking-widest">
+                              <XCircle className="w-4 h-4" />
+                              Correct:{' '}
+                              <span className={profile.notationName === 'Pinyin' ? '' : 'ipa-text'}>
+                                {profile.notationName === 'Pinyin'
+                                  ? (currentItem?.pronunciationAlt || currentItem?.pronunciation)
+                                  : `/${currentItem?.pronunciation}/`
+                                }
+                              </span>
+                            </div>
+                          )}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {/* Lower Controls: Keypad */}
+                  <div className="w-full max-w-lg">
+                    <AnimatePresence>
+                      {showKeypad && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="overflow-hidden pb-4"
+                        >
+                          <PhoneticKeypad profile={profile} onInsert={handleCharInsert} />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </div>
 
-                {/* Transcription Input */}
-                <div className="w-full relative px-12">
-                  <input
-                    type="text"
-                    value={userInput}
-                    onChange={(e) => {
-                      if (feedback !== 'neutral') return;
-                      setUserInput(e.target.value);
-                    }}
-                    placeholder="Enter IPA symbols..."
-                    className={`ipa-text w-full text-center text-5xl font-light py-8 border-b-2 focus:outline-none transition-colors placeholder:text-slate-100 ${
-                      feedback === 'correct' ? 'border-green-500 text-green-600' :
-                      feedback === 'incorrect' ? 'border-red-500 text-red-600' :
-                      'border-slate-200 focus:border-indigo-600 text-slate-800'
-                    }`}
-                    disabled={feedback !== 'neutral'}
-                  />
+                {/* Bottom Footer Action Bar */}
+                <footer className="h-24 bg-white border-t border-slate-100 px-12 flex items-center justify-between shrink-0">
+                  <button
+                    onClick={() => setShowKeypad(!showKeypad)}
+                    className="flex items-center gap-3 text-slate-400 hover:text-indigo-600 font-bold text-xs uppercase tracking-widest transition-colors cursor-pointer"
+                  >
+                    <Keyboard className="w-5 h-5 flex-shrink-0" />
+                    {showKeypad ? 'Hide Keypad' : 'Show Keypad'}
+                  </button>
 
-                  <AnimatePresence>
-                    {feedback !== 'neutral' && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        className="absolute -top-10 left-0 right-0 flex justify-center"
+                  <div className="flex gap-4">
+                    {feedback === 'neutral' ? (
+                      <>
+                        <button
+                          onClick={handleDelete}
+                          className="px-8 py-3 text-slate-400 hover:text-slate-900 font-bold text-xs uppercase tracking-widest transition-colors cursor-pointer"
+                        >
+                          Clear
+                        </button>
+                        <button
+                          onClick={checkAnswer}
+                          disabled={!userInput.trim()}
+                          className="px-12 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all disabled:opacity-30 disabled:shadow-none uppercase text-xs tracking-widest cursor-pointer"
+                        >
+                          Check Answer
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        onClick={nextWord}
+                        className="px-12 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 uppercase text-xs tracking-widest cursor-pointer"
                       >
-                        {feedback === 'correct' ? (
-                          <div className="flex items-center gap-2 text-green-600 bg-green-50 px-5 py-2 rounded-full text-xs font-bold border border-green-100 uppercase tracking-widest">
-                            <CheckCircle2 className="w-4 h-4" /> That's Correct
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2 text-red-600 bg-red-50 px-5 py-2 rounded-full text-xs font-bold border border-red-100 uppercase tracking-widest">
-                            <XCircle className="w-4 h-4" /> Correct: <span className="ipa-text">/{currentWord?.ipa_us}/</span>
-                          </div>
-                        )}
-                      </motion.div>
+                        {currentIndex < items.length - 1 ? 'Next Challenge' : 'Complete Session'}
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
                     )}
-                  </AnimatePresence>
-                </div>
-
-                {/* Lower Controls */}
-                <div className="w-full max-w-lg">
-                  <AnimatePresence>
-                    {showKeypad && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="overflow-hidden pb-4"
-                      >
-                        <IPAKeypad onInsert={handleCharInsert} />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                  </div>
+                </footer>
               </div>
 
-              {/* Bottom Footer Action Bar */}
-              <footer className="h-24 bg-white border-t border-slate-100 px-12 flex items-center justify-between shrink-0">
+              <div className="flex justify-between items-center px-4">
                 <button
-                  onClick={() => setShowKeypad(!showKeypad)}
-                  className="flex items-center gap-3 text-slate-400 hover:text-indigo-600 font-bold text-xs uppercase tracking-widest transition-colors cursor-pointer"
+                  onClick={newWordSet}
+                  className="flex items-center gap-2 text-slate-300 hover:text-indigo-400 transition-colors text-[10px] font-bold uppercase tracking-[0.2em] cursor-pointer"
                 >
-                  <Keyboard className="w-5 h-5 flex-shrink-0" />
-                  {showKeypad ? 'Hide Keypad' : 'Show Keypad'}
+                  <RefreshCw className="w-3 h-3" />
+                  New Word Set
                 </button>
-
-                <div className="flex gap-4">
-                  {feedback === 'neutral' ? (
-                    <>
-                      <button
-                        onClick={handleDelete}
-                        className="px-8 py-3 text-slate-400 hover:text-slate-900 font-bold text-xs uppercase tracking-widest transition-colors cursor-pointer"
-                      >
-                        Clear
-                      </button>
-                      <button
-                        onClick={checkAnswer}
-                        disabled={!userInput.trim()}
-                        className="px-12 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all disabled:opacity-30 disabled:shadow-none uppercase text-xs tracking-widest cursor-pointer"
-                      >
-                        Check Answer
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      onClick={nextWord}
-                      className="px-12 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 uppercase text-xs tracking-widest cursor-pointer"
-                    >
-                      {currentIndex < words.length - 1 ? 'Next Challenge' : 'Complete Session'}
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              </footer>
+                <p className="text-[10px] text-slate-300 font-bold uppercase tracking-[0.2em]">
+                  {profile.notationName} Practice • {currentIndex + 1} / {items.length}
+                </p>
+              </div>
             </div>
-
-            <div className="flex justify-between items-center px-4">
-              <button
-                onClick={newWordSet}
-                className="flex items-center gap-2 text-slate-300 hover:text-indigo-400 transition-colors text-[10px] font-bold uppercase tracking-[0.2em] cursor-pointer"
-              >
-                <RefreshCw className="w-3 h-3" />
-                New Word Set
-              </button>
-              <p className="text-[10px] text-slate-300 font-bold uppercase tracking-[0.2em]">
-                IPA Practice • {currentIndex + 1} / {words.length}
-              </p>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </main>
     </div>
   );

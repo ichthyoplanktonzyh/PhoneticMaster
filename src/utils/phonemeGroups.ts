@@ -1,75 +1,79 @@
 /**
- * 音素分组工具 —— 按音标对词库单词进行分类
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Phoneme grouping utility — profile-driven version.
+ * Groups training items by phoneme using LanguageProfile.parseNotation,
+ * so it works for any language (English IPA, Chinese Pinyin, etc.)
+ * instead of being hardcoded to English.
  */
 
-import { WordData, Difficulty } from '../types';
-import { wordBank } from '../data/wordBank';
-import { getUniquePhonemes } from './ipaParser';
+import type { LanguageProfile, TrainingItem, Difficulty } from '../types';
 
-/** 全部 40 个音素（与键盘布局一致） */
-export const ALL_PHONEMES: string[] = [
-  // 元音 (16)
-  'i', 'ɪ', 'eɪ', 'ɛ', 'æ', 'ɑ', 'ɔ', 'oʊ', 'ʊ', 'u', 'ʌ', 'ɚ', 'ə', 'aɪ', 'aʊ', 'ɔɪ',
-  // 辅音 (24)
-  'p', 'b', 't', 'd', 'k', 'ɡ', 'f', 'v', 'θ', 'ð', 's', 'z', 'ʃ', 'ʒ', 'h',
-  'm', 'n', 'ŋ', 'l', 'r', 'j', 'w', 'tʃ', 'dʒ',
-];
-
-let _phonemeGroups: Record<string, WordData[]> | null = null;
+/** Cache keyed by profile code to avoid recomputation. */
+const GROUP_CACHE = new Map<string, Record<string, TrainingItem[]>>();
 
 /**
- * 构建 音素 → 单词列表 映射（结果缓存）。
- * 基于美式音标 (ipa_us) 分类。
+ * Build a phoneme → TrainingItem[] mapping for a given profile.
+ * Results are cached by profile code.
  */
-export function buildPhonemeGroups(): Record<string, WordData[]> {
-  if (_phonemeGroups) return _phonemeGroups;
+export function buildPhonemeGroups(profile: LanguageProfile): Record<string, TrainingItem[]> {
+  const cached = GROUP_CACHE.get(profile.code);
+  if (cached) return cached;
 
-  const allWords = [
-    ...wordBank.basic,
-    ...wordBank.intermediate,
-    ...wordBank.advanced,
+  const allItems = [
+    ...profile.wordBank.basic,
+    ...profile.wordBank.intermediate,
+    ...profile.wordBank.advanced,
   ];
 
-  const groups: Record<string, WordData[]> = {};
-  for (const ph of ALL_PHONEMES) {
-    groups[ph] = [];
+  const groups: Record<string, TrainingItem[]> = {};
+  for (const ph of profile.phonemes) {
+    groups[ph.symbol] = [];
   }
 
-  for (const word of allWords) {
-    const phonemes = getUniquePhonemes(word.ipa_us);
+  for (const item of allItems) {
+    // Use parseNotation to extract phoneme symbols from the pronunciation
+    const phonemes = [...new Set(profile.parseNotation(item.pronunciation))];
     for (const ph of phonemes) {
       if (groups[ph]) {
-        groups[ph].push(word);
+        groups[ph].push(item);
       }
     }
   }
 
-  _phonemeGroups = groups;
+  GROUP_CACHE.set(profile.code, groups);
   return groups;
 }
 
 /**
- * 获取包含指定音素的所有单词，可选按难度筛选。
+ * Get all training items containing a specified phoneme,
+ * optionally filtered by difficulty tier.
  */
-export function getWordsByPhoneme(phoneme: string, difficulty?: Difficulty): WordData[] {
-  const groups = buildPhonemeGroups();
-  let words = groups[phoneme] || [];
+export function getItemsByPhoneme(
+  phoneme: string,
+  profile: LanguageProfile,
+  difficulty?: Difficulty,
+): TrainingItem[] {
+  const groups = buildPhonemeGroups(profile);
+  let items = groups[phoneme] || [];
 
   if (difficulty) {
-    const poolSet = new Set(wordBank[difficulty].map(w => w.word));
-    words = words.filter(w => poolSet.has(w.word));
+    const poolSet = new Set(profile.wordBank[difficulty].map(w => w.display));
+    items = items.filter(w => poolSet.has(w.display));
   }
 
-  return words;
+  return items;
 }
 
 /**
- * 获取各音素的单词数量统计，按数量降序排列。
+ * Get phoneme word-count statistics, sorted by count descending.
+ * Uses the profile's phoneme inventory and word bank.
  */
-export function getPhonemeStats(): { phoneme: string; count: number }[] {
-  const groups = buildPhonemeGroups();
-  return ALL_PHONEMES
-    .map(ph => ({ phoneme: ph, count: groups[ph]?.length || 0 }))
+export function getPhonemeStats(profile: LanguageProfile): { phoneme: string; count: number }[] {
+  const groups = buildPhonemeGroups(profile);
+  return profile.phonemes
+    .map(p => ({ phoneme: p.symbol, count: groups[p.symbol]?.length || 0 }))
     .filter(s => s.count > 0)
     .sort((a, b) => b.count - a.count);
 }

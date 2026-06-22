@@ -1,16 +1,21 @@
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * Training view: shows a word card with audio playback.
+ * Now profile-driven: uses TrainingItem and LanguageProfile
+ * instead of hardcoded WordData + English IPA.
  */
 
 import React from 'react';
 import { motion } from 'motion/react';
 import { Volume2, ArrowRight, RefreshCw } from 'lucide-react';
-import { WordData } from '../types';
+import type { TrainingItem, LanguageProfile } from '../types';
 
 interface TrainingViewProps {
-  words: WordData[];
+  items: TrainingItem[];
   currentIndex: number;
+  profile: LanguageProfile;
   onNext: () => void;
   onPlayAudio: () => void;
   isPlaying: boolean;
@@ -18,16 +23,17 @@ interface TrainingViewProps {
 }
 
 export const TrainingView: React.FC<TrainingViewProps> = ({
-  words,
+  items,
   currentIndex,
+  profile,
   onNext,
   onPlayAudio,
   isPlaying,
   onNewWordSet,
 }) => {
-  const currentWord = words[currentIndex];
+  const currentItem = items[currentIndex];
 
-  if (!currentWord) return null;
+  if (!currentItem) return null;
 
   return (
     <div className="w-full max-w-3xl space-y-10">
@@ -35,26 +41,31 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
       <div className="bg-white rounded-[40px] shadow-sm border border-slate-100 overflow-hidden">
         <div className="p-12 flex flex-col items-center gap-10">
 
-          {/* Word & IPA Display */}
+          {/* Word & Pronunciation Display */}
           <div className="flex flex-col items-center text-center space-y-4">
             <motion.div
-              key={currentWord.word}
+              key={currentItem.display}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
             >
               <h2 className="text-5xl font-bold text-slate-800 tracking-wider">
-                {currentWord.word}
+                {currentItem.display}
               </h2>
             </motion.div>
             <motion.div
-              key={currentWord.ipa_us}
+              key={currentItem.pronunciation}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3, delay: 0.1 }}
             >
-              <p className="ipa-text text-3xl text-slate-500 font-light">
-                /{currentWord.ipa_us}/
+              <p className={`${
+                profile.notationName === 'Pinyin' ? '' : 'ipa-text'
+              } text-3xl text-slate-500 font-light`}>
+                {profile.notationName === 'Pinyin'
+                  ? (currentItem.pronunciationAlt || currentItem.pronunciation)
+                  : `/${currentItem.pronunciation}/`
+                }
               </p>
             </motion.div>
           </div>
@@ -96,7 +107,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
         <footer className="h-24 bg-white border-t border-slate-100 px-12 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-4">
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-              {currentIndex + 1} / {words.length}
+              {currentIndex + 1} / {items.length}
             </span>
             <span className="text-[10px] text-slate-300 font-medium">
               <kbd className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-400 font-mono text-[10px]">←→</kbd> Navigate
@@ -106,7 +117,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
             onClick={onNext}
             className="px-12 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 uppercase text-xs tracking-widest cursor-pointer"
           >
-            {currentIndex < words.length - 1 ? 'Next Word' : 'Complete Session'}
+            {currentIndex < items.length - 1 ? 'Next Word' : 'Complete Session'}
             <ArrowRight className="w-4 h-4" />
           </button>
         </footer>
