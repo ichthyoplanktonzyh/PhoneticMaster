@@ -90,7 +90,7 @@
 用户输入 → userInput 字符串 → profile.judge(input, target) → JudgeResult
    │
    ├─ English: PhoneticKeypad 追加 IPA token
-   └─ 中文: StructuredPinyinInput 组合 声母+韵母+声调 → tone-number 拼音
+   └─ 中文: PhoneticKeypad 按声母/韵母/声调分区追加 token，输入框提示顺序
                                     │
                             correct → 绿色反馈
                             nearMatch → 黄色 Almost Correct + diffs
@@ -155,7 +155,6 @@
 | `data/minimalPairBank.ts` | 结构化最小对立体训练材料 | minimalPairBank |
 | `utils/ipaParser.ts` | IPA 音素分词 | tokenizeIpa(), getUniquePhonemes() |
 | `utils/pinyinParser.ts` | 拼音解析 | parsePinyin(), parsePinyinSyllables(), diacriticsToNumbers() |
-| `utils/pinyinBuilder.ts` | 结构化拼音生成 | buildPinyinSyllable(), appendPinyinSyllable() |
 | `utils/judge.ts` | 音素级判定 | phonemeJudge(), stringJudge() |
 | `utils/voice.ts` | TTS 语音管理 | getVoicesForLang(), selectBestVoice(), saveVoicePreference() |
 | `utils/phonemeGroups.ts` | 音素分组查询 | getItemsByPhoneme(), getPhonemeStats() |

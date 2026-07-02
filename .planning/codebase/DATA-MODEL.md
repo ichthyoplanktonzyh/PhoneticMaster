@@ -177,7 +177,7 @@ MasteryRecord (planned M4)
 - `pronunciation`: tone-number form, e.g. `ni3 hao3` — **canonical**
 - `pronunciationAlt`: diacritic form, e.g. `nǐ hǎo` — **display only**
 - `parseNotation`: parsePinyin — splits into initial + final + tone components
-- `StructuredPinyinInput` / `pinyinBuilder`: builds orthographic tone-number syllables such as `qu4`, `xue2`, `yue4`, `nv3`, while parser normalizes them to profile tokens
+- `PhoneticKeypad`: displays Pinyin finals with `ü` labels while inserting canonical keyboard symbols such as `v`; neutral tone is shown and inserted as `5`, then parsed internally as tone token `0`
 
 ### Future languages
 

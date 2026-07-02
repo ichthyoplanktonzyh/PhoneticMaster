@@ -59,7 +59,6 @@ ipa-spelling/
 | `OnboardingView.tsx` | 首次使用引导：L1/L2 选择 | profiles |
 | `TrainingView.tsx` | 训练模式视图：卡片 + 播放 + 导航 | types |
 | `PhoneticKeypad.tsx` | Profile-driven 音标/拼音键盘 | types |
-| `StructuredPinyinInput.tsx` | 中文声母 → 韵母 → 声调结构化输入面板 | types, pinyinBuilder |
 | `PhonemeDiffView.tsx` | 音素/拼音单元差异展示 | types |
 | `SessionResultView.tsx` | 会话结果页、错题复盘和最近记录 | types, PhonemeDiffView |
 | `MinimalPairView.tsx` | 最小对立体 A/B 听辨、即时反馈和本轮结果 | types |
@@ -102,7 +101,6 @@ ipa-spelling/
 |------|------|------|
 | `ipaParser.ts` | IPA 音素分词 + 变体标准化 | — |
 | `pinyinParser.ts` | 拼音解析（声调符号→数字→声母韵母声调） | — |
-| `pinyinBuilder.ts` | 结构化拼音输入生成 tone-number 正字法 | — |
 | `judge.ts` | 音素级判定 + 字符串判定 | types |
 | `voice.ts` | TTS 语音管理（获取、选择、持久化） | — |
 | `phonemeGroups.ts` | 音素分组查询（profile-driven） | types |
@@ -132,7 +130,6 @@ ipa-spelling/
 | 添加新 L1×L2 映射 | `src/l1/{l1}_{l2}.ts` | `ja_en.ts` |
 | 添加新 UI 组件 | `src/components/{Name}.tsx` | `MinimalPairView.tsx` |
 | 添加新工具函数 | `src/utils/{name}.ts` | `statsCalculator.ts` |
-| 添加语言专属输入构建规则 | `src/utils/{language}Builder.ts` + 对应组件 | `pinyinBuilder.ts` |
 | 添加本地浏览器存储 adapter | `src/utils/{name}.ts` | `storage.ts` |
 | 添加维护/校验脚本 | `scripts/{name}.ts` | `validateData.ts` |
 | 添加新类型 | `src/types.ts`（同一文件） | 新增接口 |

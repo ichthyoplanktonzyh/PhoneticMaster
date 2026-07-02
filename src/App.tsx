@@ -22,7 +22,6 @@ import { OnboardingView } from './components/OnboardingView';
 import { SessionResultView } from './components/SessionResultView';
 import { PhonemeDiffView } from './components/PhonemeDiffView';
 import { MinimalPairView } from './components/MinimalPairView';
-import { StructuredPinyinInput } from './components/StructuredPinyinInput';
 import type {
   Difficulty,
   JudgeResult,
@@ -56,7 +55,6 @@ import {
   createMinimalPairSession,
   getMinimalPairAudioText,
 } from './utils/minimalPairs';
-import { appendPinyinSyllable } from './utils/pinyinBuilder';
 
 // ── LocalStorage keys ──────────────────────────────────────────
 
@@ -80,6 +78,22 @@ function saveLanguagePreferences(l1: string | null, l2: string) {
       localStorage.removeItem(LS_L1);
     }
   } catch { /* ignore */ }
+}
+
+function appendPinyinToken(input: string, char: string): string {
+  const umlautAfterJqx: Record<string, string> = {
+    v: 'u',
+    ve: 'ue',
+    van: 'uan',
+    vn: 'un',
+  };
+  const lastToken = input.trimEnd().split(/\s+/).at(-1) ?? '';
+
+  if (['j', 'q', 'x'].includes(lastToken) && umlautAfterJqx[char]) {
+    return `${input}${umlautAfterJqx[char]}`;
+  }
+
+  return `${input}${char}`;
 }
 
 function isTextEntryTarget(target: EventTarget | null): target is HTMLElement {
@@ -422,17 +436,16 @@ export default function App() {
 
   const handleCharInsert = (char: string) => {
     if (feedback !== 'neutral') return;
-    setUserInput(prev => prev + char);
+    setUserInput(prev => (
+      profile?.notationName === 'Pinyin'
+        ? appendPinyinToken(prev, char)
+        : prev + char
+    ));
   };
 
   const handleDelete = () => {
     if (feedback !== 'neutral') return;
     setUserInput(prev => prev.slice(0, -1));
-  };
-
-  const handlePinyinSyllableCommit = (syllable: string) => {
-    if (feedback !== 'neutral') return;
-    setUserInput(prev => appendPinyinSyllable(prev, syllable));
   };
 
   const finishCurrentSession = (sourceSession: TrainingSession | null = session) => {
@@ -1086,12 +1099,12 @@ export default function App() {
                       }}
                       placeholder={
                         profile.notationName === 'Pinyin'
-                          ? '输入拼音 (如 ni3 hao3)...'
+                          ? '声母→韵母→声调，如 ni3'
                           : 'Enter IPA symbols...'
                       }
                       className={`${
-                        profile.notationName === 'Pinyin' ? '' : 'ipa-text'
-                      } w-full text-center text-5xl font-light py-8 border-b-2 focus:outline-none transition-colors placeholder:text-slate-100 ${
+                        profile.notationName === 'Pinyin' ? 'text-4xl' : 'ipa-text text-5xl'
+                      } w-full text-center font-light py-8 border-b-2 focus:outline-none transition-colors placeholder:text-slate-300 ${
                         feedback === 'correct' ? 'border-green-500 text-green-600' :
                         feedback === 'near' ? 'border-amber-500 text-amber-600' :
                         feedback === 'incorrect' ? 'border-red-500 text-red-600' :
@@ -1155,15 +1168,7 @@ export default function App() {
                           exit={{ height: 0, opacity: 0 }}
                           className="overflow-hidden pb-4"
                         >
-                          {profile.notationName === 'Pinyin' ? (
-                            <StructuredPinyinInput
-                              profile={profile}
-                              disabled={feedback !== 'neutral'}
-                              onCommitSyllable={handlePinyinSyllableCommit}
-                            />
-                          ) : (
-                            <PhoneticKeypad profile={profile} onInsert={handleCharInsert} />
-                          )}
+                          <PhoneticKeypad profile={profile} onInsert={handleCharInsert} />
                         </motion.div>
                       )}
                     </AnimatePresence>

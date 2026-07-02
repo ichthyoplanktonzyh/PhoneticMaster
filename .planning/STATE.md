@@ -92,9 +92,8 @@ progress:
 - **目标**：将中文拼音输入升级为声母 → 韵母 → 声调结构化辅助
 - **完成日期**：2026-07-02
 - **交付物**：
-  - `src/utils/pinyinBuilder.ts` — 结构化拼音生成、零声母、`j/q/x + ü` 正字法和轻声处理
-  - `src/components/StructuredPinyinInput.tsx` — 中文三段式输入面板
-  - `src/App.tsx` — 中文拼写模式接入结构化输入，英语保持原 IPA keypad
+  - `src/App.tsx` — 中文输入框 placeholder 提示“声母→韵母→声调”，保留自由输入
+  - `src/components/PhoneticKeypad.tsx` — 中文轻声按钮显示并输入为 `5`，韵母按钮显示 `ü`
   - `.planning/phases/3.2-chinese-structured-input/3.2-QA.md` — 自动检查、规则检查和浏览器冒烟清单
   - `npm run validate:data`、`npm run lint`、`npm run build` 通过
 

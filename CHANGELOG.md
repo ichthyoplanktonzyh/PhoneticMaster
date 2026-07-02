@@ -9,12 +9,11 @@ Timestamp format: `YYYY-MM-DD HH:mm Z` using local project time, precise to the 
 ### Added
 
 - Added Phase 3.2 planning, context, QA checklist, and completion summary.
-- Added `pinyinBuilder` for structured tone-number Pinyin generation.
-- Added a Mandarin structured input panel for initial -> final -> tone spelling input.
 
 ### Changed
 
-- Replaced the Mandarin on-screen spelling keypad with the structured Pinyin input panel while keeping direct text entry available.
+- Kept the Mandarin on-screen keypad as initials/finals/tones and moved the structured-input guidance into the input placeholder.
+- Updated the Mandarin tone keypad to show and insert neutral tone as `5`.
 - Updated README, PRD, roadmap, state, agent guide, and codebase docs for completed Phase 3.2.
 
 ## 2026-07-02 21:29 +0800

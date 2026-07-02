@@ -17,6 +17,24 @@ interface PhoneticKeypadProps {
   onInsert: (char: string) => void;
 }
 
+function isPinyinTone(profile: LanguageProfile, category: string): boolean {
+  return profile.notationName === 'Pinyin' && category.toLowerCase().includes('tone');
+}
+
+function getButtonLabel(profile: LanguageProfile, category: string, symbol: string): string {
+  if (symbol === ' ') return '␣';
+  if (isPinyinTone(profile, category) && symbol === '0') return '5';
+  if (profile.notationName === 'Pinyin' && symbol === 'v') return 'ü';
+  if (profile.notationName === 'Pinyin' && symbol.startsWith('v')) return `ü${symbol.slice(1)}`;
+  return symbol;
+}
+
+function getInsertValue(profile: LanguageProfile, category: string, symbol: string): string {
+  if (symbol === ' ') return ' ';
+  if (isPinyinTone(profile, category) && symbol === '0') return '5';
+  return symbol;
+}
+
 export const PhoneticKeypad: React.FC<PhoneticKeypadProps> = ({ profile, onInsert }) => {
   return (
     <div className="bg-[#F8F9FA] p-6 rounded-2xl border border-slate-100 space-y-6">
@@ -31,10 +49,10 @@ export const PhoneticKeypad: React.FC<PhoneticKeypadProps> = ({ profile, onInser
               {section.phonemes.map(symbol => (
                 <button
                   key={symbol}
-                  onClick={() => onInsert(symbol === ' ' ? ' ' : symbol)}
+                  onClick={() => onInsert(getInsertValue(profile, section.category, symbol))}
                   className="h-12 w-14 flex items-center justify-center bg-white border border-slate-200 rounded-lg hover:border-indigo-600 hover:text-indigo-600 transition-all text-xl shadow-sm cursor-pointer"
                 >
-                  {symbol === ' ' ? '␣' : symbol}
+                  {getButtonLabel(profile, section.category, symbol)}
                 </button>
               ))}
             </div>
@@ -44,10 +62,10 @@ export const PhoneticKeypad: React.FC<PhoneticKeypadProps> = ({ profile, onInser
               {section.phonemes.map(symbol => (
                 <button
                   key={symbol}
-                  onClick={() => onInsert(symbol === ' ' ? ' ' : symbol)}
+                  onClick={() => onInsert(getInsertValue(profile, section.category, symbol))}
                   className="h-12 w-full flex items-center justify-center bg-white border border-slate-200 rounded-lg hover:border-indigo-600 hover:text-indigo-600 transition-all ipa-text text-xl shadow-sm cursor-pointer"
                 >
-                  {symbol === ' ' ? '␣' : symbol}
+                  {getButtonLabel(profile, section.category, symbol)}
                 </button>
               ))}
             </div>
