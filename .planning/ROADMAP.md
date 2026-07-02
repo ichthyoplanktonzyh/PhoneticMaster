@@ -15,9 +15,9 @@
 
 | 维度 | 状态 |
 |------|------|
-| 已完成里程碑 | M0 (原始英语工具) → M1 (多语言架构) |
-| 当前里程碑 | M2 — 纯前端独立训练器 MVP |
-| 下一个 phase | 2.4 — Publish Readiness |
+| 已完成里程碑 | M0 (原始英语工具) → M1 (多语言架构) → M2 (纯前端独立训练器 MVP) |
+| 当前里程碑 | M3 — 专项训练 + 最小对立体 |
+| 下一个 phase | 3.2 — Chinese Structured Input |
 | 技术栈 | React 19 + TypeScript + Vite 6 + Tailwind 4 |
 | 架构模式 | LanguageProfile-driven SPA |
 | 发布策略 | MVP 纯前端静态部署，无账号、无数据库、无后端依赖 |
@@ -93,7 +93,7 @@ graph LR
 
 ## 7. M2 — 纯前端独立训练器 MVP
 
-> 状态：🚧 进行中。Phase 2.1、2.2、2.3 已完成（2026-07-02），下一步进入 Phase 2.4。
+> 状态：✅ 已完成。2026-07-02。
 
 - **目标**：让用户无需 L1 诊断、无需账号、无需后端，也能独立完成一次有效训练会话，并可直接发布到公网。
 - **覆盖需求**：CORE-001 ~ CORE-005, ARCH-004, TRAIN-CORE-001 ~ TRAIN-CORE-005, FEED-001 ~ FEED-002, DATA-LOCAL-001, PLAT-STATIC-001
@@ -101,7 +101,7 @@ graph LR
   - ✅ 2.1 Standalone Training Core：独立训练入口、训练类型选择、目标语言/难度/主题选择（2026-07-02 完成）
   - ✅ 2.2 Data Cleaning：清洗/校验词库、Profile 与 L1×L2 映射数据（2026-07-02 完成）
   - ✅ 2.3 Feedback & Session Results：nearMatch/diff 可视化、会话结果页、本地最近训练记录（2026-07-02 完成）
-  - 🧭 2.4 Publish Readiness：静态部署检查、README/PRD 对齐、基础手动 QA 清单
+  - ✅ 2.4 Publish Readiness：静态部署检查、README/PRD 对齐、基础手动 QA 清单（2026-07-02 完成）
 - **交付物**：
   - 不依赖 L1 的训练入口
   - 听音拼写 + 看词听音两种完整训练会话
@@ -119,12 +119,12 @@ graph LR
 
 ## 8. M3 — 专项训练 + 最小对立体
 
-> 状态：🧭 规划中。
+> 状态：🚧 进行中。Phase 3.1 已完成（2026-07-02），下一步进入 Phase 3.2。
 
 - **目标**：把训练器从“通用练习”升级为“针对具体声音问题的专项练习”。
 - **覆盖需求**：TRAIN-001 ~ TRAIN-003, FEED-003
 - **主要 phase**：
-  - 3.1 Targeted Minimal Pairs：最小对立体 A/B 听辨训练
+  - ✅ 3.1 Targeted Minimal Pairs：最小对立体 A/B 听辨训练（2026-07-02 完成）
   - 3.2 Chinese Structured Input：声母 → 韵母 → 声调三步输入
   - 3.3 Phoneme Detail Panel：音素详情、PAM/SLM 原因、例词
 - **交付物**：
@@ -232,7 +232,7 @@ graph LR
 | 4 | 汉语词库不够丰富 | 中 | 中 | 预留 CEDICT/HSK 导入脚本接口 |
 | 5 | 移动端键盘布局空间不足 | 高 | 中 | M2 保证不严重破版，完整移动端放后续 |
 | 6 | 过早引入后端导致发布变慢 | 中 | 高 | M2-M4 坚持纯前端，后端进入 M6 可选阶段 |
-| 7 | README/PRD 与新定位不一致 | 高 | 中 | M2.3 发布准备阶段统一对外文档 |
+| 7 | README/PRD 与新定位不一致 | 已缓解 | 中 | Phase 2.4 已统一对外文档 |
 
 ## 14. 质量门禁
 

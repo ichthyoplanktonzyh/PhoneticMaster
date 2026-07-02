@@ -1,28 +1,28 @@
 ---
 gsd_state_version: 1.0
-milestone: M2
-milestone_name: 纯前端独立训练器 MVP
+milestone: M3
+milestone_name: 专项训练 + 最小对立体
 status: in_progress
-last_updated: "2026-07-02T16:55:00+08:00"
+last_updated: "2026-07-02T21:15:00+08:00"
 progress:
-  total_phases: 4
-  completed_phases: 3
+  total_phases: 3
+  completed_phases: 1
   in_progress_phases: 0
 ---
 
 # PhoneticMaster — 项目活记忆
 
 > 最后更新：2026-07-02
-> 更新原因：Phase 2.3 Feedback & Session Results 完成，下一步进入 Phase 2.4 Publish Readiness
+> 更新原因：Phase 3.1 Targeted Minimal Pairs 完成，下一步进入 Phase 3.2 Chinese Structured Input
 
 ## 当前位置
 
 | 维度 | 值 |
 |------|------|
-| 里程碑 | M2 — 纯前端独立训练器 MVP |
-| 阶段 | Phase 2.4 待开始 |
+| 里程碑 | M3 — 专项训练 + 最小对立体 |
+| 阶段 | Phase 3.2 待开始 |
 | 分支 | `main` (ipa-spelling) |
-| 版本 | v1.1 M2 in progress |
+| 版本 | v1.2 M3 in progress |
 
 ## Phase 状态
 
@@ -52,14 +52,23 @@ progress:
 ### Phase 2.4: Publish Readiness 🧭
 
 - **目标**：静态部署检查、README/PRD 对齐和发布前手动 QA 清单
-- **状态**：待开始
-- **计划文件**：待建立
+- **状态**：已完成（2026-07-02）
+- **计划文件**：`.planning/phases/2.4-publish-readiness/2.4-PLAN.md`
+- **总结文件**：`.planning/phases/2.4-publish-readiness/2.4-SUMMARY.md`
+- **QA 文件**：`.planning/phases/2.4-publish-readiness/2.4-QA.md`
 
 ### Phase 3.1: Targeted Minimal Pairs 🧭
 
 - **目标**：在独立训练器成立后，提供最小对立体专项听辨
-- **状态**：计划已建立，等待 M2 完成
+- **状态**：已完成（2026-07-02）
 - **计划文件**：`.planning/phases/3.1-targeted-minimal-pairs/3.1-PLAN.md`
+- **总结文件**：`.planning/phases/3.1-targeted-minimal-pairs/3.1-SUMMARY.md`
+
+### Phase 3.2: Chinese Structured Input 🧭
+
+- **目标**：将中文拼音输入从简单字符串追加演进为声母 → 韵母 → 声调的结构化输入原型
+- **状态**：待开始
+- **计划文件**：待建立
 
 ### Phase 4.1: Local Personalization 🧭
 
@@ -68,6 +77,30 @@ progress:
 - **计划文件**：`.planning/phases/4.1-local-personalization/4.1-PLAN.md`
 
 ## 已完成历史
+
+### Phase 3.1: Targeted Minimal Pairs ✅
+
+- **目标**：提供最小对立体 A/B 听辨训练
+- **完成日期**：2026-07-02
+- **交付物**：
+  - `src/types.ts` — 新增 MinimalPairSet、MinimalPairSession、MinimalPairResult 等模型
+  - `src/data/minimalPairBank.ts` — 新增 15 组结构化 minimal pair 数据（英语 8、中文 7）
+  - `src/utils/minimalPairs.ts` — 题目生成、答案记录、完成和结果汇总服务
+  - `src/components/MinimalPairView.tsx` — A/B 听辨视图、即时反馈和错题复盘
+  - `src/App.tsx` — 新增 `minimal-pair` app mode，复用 Topic / Words / Voice 控件
+  - `scripts/validateData.ts` — minimal pair 数据结构和 notation 校验
+  - `npm run validate:data`、`npm run lint`、`npm run build` 通过
+
+### Phase 2.4: Publish Readiness ✅
+
+- **目标**：静态部署检查、README/PRD 对齐和发布前手动 QA 清单
+- **完成日期**：2026-07-02
+- **交付物**：
+  - `README.md`、`README_EN.md` — 对齐多语言纯前端训练器定位和静态部署说明
+  - `PRD.md` — 从旧英语 IPA PRD 更新为当前 M2/M3 产品需求
+  - `index.html` — 更新页面标题
+  - `.planning/phases/2.4-publish-readiness/2.4-QA.md` — 发布前 QA 清单
+  - `GITHUB_PAGES=true npm run build` 和公开 Pages HTTP 200 验证通过
 
 ### Phase 2.3: Feedback & Session Results ✅
 
@@ -170,6 +203,10 @@ progress:
 14. **2026-07-02** — 英语词库格式：`wordBank.ts` 已迁移为 `TrainingItem[]`，`englishProfile` 不再运行时转换 legacy `WordData`
 15. **2026-07-02** — 拼音解析语义：tone-number 正字法与内部 token 序列分离，`5` 轻声解析为 profile 声调 token `0`
 16. **2026-07-02** — 训练反馈闭环：`TrainingSession.answers` 成为 score/result/history 的事实来源，nearMatch 独立于 exact correct 计分，本地历史保存 `SessionResult[]`
+17. **2026-07-02** — M2 发布准备关闭：GitHub Pages 静态构建与公开 URL 已验证，README/PRD 对外叙事已对齐
+18. **2026-07-02** — M3 启动：Phase 3.1 先做结构化 minimal pair 数据、A/B 听辨和本轮结果统计，仍不引入后端音频服务
+19. **2026-07-02** — Minimal pair 数据独立为 `minimalPairBank`，不再把练习生成建立在 L1 映射里的 `"ship/sheep"` 字符串上
+20. **2026-07-02** — Minimal pair 当前使用 Web Speech API，`MinimalPairOption.audioUrl` 预留给未来标准音频
 
 ## 当前阻塞项
 
@@ -177,9 +214,9 @@ progress:
 
 ## 下一步工作
 
-见 `ROADMAP.md` M2 阶段规划，当前优先级：
-- Phase 2.4：公网静态发布准备，统一 README/PRD 对外叙事，并建立发布前手动 QA 清单
-- Phase 3.1：M2 完成后进入专项最小对立体训练规划
+见 `ROADMAP.md` M3 阶段规划，当前优先级：
+- Phase 3.2：推进中文声母 → 韵母 → 声调三步输入原型
+- Phase 3.3：补充音素/拼音单元详情面板和例词说明
 
 ## 指标
 
@@ -187,8 +224,9 @@ progress:
 |------|--------|
 | 支持语言数 | 2 (en, zh) |
 | L1×L2 映射数 | 2 (zh→en, en→zh) |
+| 最小对立体组数 | 15 (en 8, zh 7) |
 | 英语词库条目 | 4,088 (COCA 去重后) |
 | 汉语词库条目 | 250 (HSK 去重后) |
 | 数据校验 | `npm run validate:data` 通过 |
 | TypeScript 编译错误 | 0 |
-| 构建产物大小 | ~875 KB (gzip ~204 KB) |
+| 构建产物大小 | ~863 KB (gzip ~201 KB) |

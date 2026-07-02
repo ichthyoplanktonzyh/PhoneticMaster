@@ -1,176 +1,135 @@
-# IPA Spelling Master — American English IPA Training
+# PhoneticMaster
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![React](https://img.shields.io/badge/react-19-61DAFB.svg)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/typescript-5.8-3178C6.svg)](https://www.typescriptlang.org)
+[![Vite](https://img.shields.io/badge/vite-6-646CFF.svg)](https://vite.dev)
 
-An interactive training tool for learning American English IPA (International Phonetic Alphabet) with two modes: **Spelling Mode** (listen and transcribe) and **Training Mode** (targeted listening practice by phoneme). Uses browser-native speech synthesis for pronunciation, with a built-in IPA keyboard and instant feedback.
+[中文](README.md)
 
-## Features
+PhoneticMaster is a lightweight, browser-based phonetic perception trainer. It is driven by language profiles, currently supports English IPA and Mandarin Pinyin, and can optionally show L1-aware practice recommendations.
 
-- **Dual Training Modes**: Spelling mode (listen & transcribe) + Training mode (see word + IPA, targeted listening by phoneme)
-- **Phoneme-focused Listening**: 40 phoneme categories for targeted ear training on weak sounds, with Space key binding for replay
-- **Listen & Transcribe**: Uses the browser Web Speech API to pronounce words, building a direct mapping between speech sounds and IPA symbols
-- **Built-in IPA Keyboard**: Full American English IPA input keyboard (vowels / consonants / stress marks) — no external input methods or symbol memorization needed
-- **Three Difficulty Levels**: Basic / Intermediate / Advanced, graded by COCA word frequency
-- **Smart Voice Selection**: Automatically picks the highest-quality English voice available (Samantha on macOS, Google US English on Chrome), with manual override
-- **Instant Feedback**: Immediate correct/incorrect judgement with the correct IPA and word shown after each answer
-- **Zero Dependencies**: No external APIs, no backend, no API keys required
+The app has no required backend and no external API dependency. Word banks are bundled locally, speech playback uses the browser Web Speech API, and recent session history is stored locally when available.
 
-## Prerequisites
+## Live Demo
 
-- **Node.js** >= 18
-- **Browser**: Latest Chrome / Edge / Safari / Firefox (Web Speech API support required)
+[https://ichthyoplanktonzyh.github.io/PhoneticMaster/](https://ichthyoplanktonzyh.github.io/PhoneticMaster/)
 
-## Setup & Usage
+## Current Capabilities
 
-### Local Development
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/ichthyoplanktonzyh/PhoneticMaster.git
-cd PhoneticMaster
-
-# 2. Install dependencies
-npm install
-
-# 3. Start the dev server (default: http://localhost:3000)
-npm run dev
-```
-
-### Production Build
-
-```bash
-# Build to dist/
-npm run build
-
-# Preview the production build locally
-npm run preview
-```
-
-The build output is pure static files (`dist/` directory), deployable to any static hosting service.
-
-## User Guide
-
-### Mode Switching
-
-Toggle between modes using the "拼写 / 训练" (Spelling / Training) buttons in the header:
-
-- **Spelling Mode**: Traditional listen-and-transcribe practice — hear a word, type its IPA transcription
-- **Training Mode**: Targeted phoneme listening — see the word and IPA while focusing on sound recognition
-
-### Spelling Mode Workflow
-
-1. **Choose Difficulty**: Click "基础 / 进阶 / 挑战" in the header to switch levels. Each switch resets the quiz with new words.
-2. **Listen**: Click the circular speaker button 🔊 to hear the current word pronounced in American English (repeatable).
-3. **Transcribe**: Use the IPA keypad below to click symbols and build your transcription, or type directly into the input field.
-4. **Check**: Click "Check Answer" — your input is compared against the standard American IPA transcription.
-5. **Review**: The current word is always shown. Incorrect answers display the correct American IPA for comparison.
-6. **Next**: Click "Next Challenge" to proceed through all 10 words in the round.
-7. **Refresh**: Click "New Word Set" at the bottom to draw 10 new random words.
-
-### Training Mode Workflow
-
-1. **Switch Mode**: Click the "训练" (Training) button in the header.
-2. **Select Phoneme**: Choose a target phoneme from the Phoneme dropdown (e.g., `/eɪ/`, `/θ/`) — 40 phonemes available. Select "All" to use the full word bank.
-3. **View & Listen**: The current word and its American IPA transcription are displayed. Click the play button or press the **Space key** to hear the pronunciation.
-4. **Repeat Listening**: Replay as many times as needed to study the relationship between spelling, IPA symbols, and actual pronunciation.
-5. **Next Word**: Click "Next Word" to proceed through all words in the round.
-6. **Refresh**: Click "New Word Set" at the bottom to draw 10 new random words.
-
-### Phoneme Filtering
-
-The Phoneme dropdown in the header filters the word bank by phoneme. When a specific phoneme is selected, both Spelling and Training modes only use words containing that phoneme. The count next to each phoneme shows how many words are available for practice.
-
-### Voice Selection
-
-Use the Voice dropdown in the header to switch between available English voices. The system auto-selects the best quality voice by default (Samantha on macOS, Google US English on Chrome). Your choice is persisted in localStorage.
-
-### IPA Keypad
-
-The keypad is expanded by default and organized into three sections:
-
-| Section | Symbols |
-|---------|---------|
-| Vowels | i ɪ eɪ ɛ æ ɑ ɔ oʊ ʊ u ʌ ɚ ə aɪ aʊ ɔɪ |
-| Consonants | p b t d k ɡ f v θ ð s z ʃ ʒ h m n ŋ l r j w tʃ dʒ |
-| Marks & Stress | ˈ (primary stress) ˌ (secondary stress) . (syllable break) ␣ (space) |
-
-Click "Hide Keypad" to collapse it and free up screen space.
-
-## Word Bank
-
-Based on the [COCA (Corpus of Contemporary American English)](https://www.english-corpora.org/coca/) top 5,000 frequency list. Contains **4,088** deduplicated English items, each with American IPA as the primary transcription and British IPA as an alternate transcription.
-
-| Level | COCA Rank | Count | Examples (American IPA) |
-|-------|-----------|-------|--------------------------|
-| Basic | 1–1,200 | 881 | say /se/, time /taɪm/ |
-| Intermediate | 1,201–3,000 | 1,527 | method /ˈmɛθəd/, surface /ˈsɜ:rfɪs/ |
-| Advanced | 3,001–5,000 | 1,680 | composition /ˌkɑ:mpəˈzɪʃn/ |
-
-Word bank data sourced from [llt22/coca-vocabulary-20000](https://github.com/llt22/coca-vocabulary-20000). The parser script is at `.coca_raw/parse.py`.
+- **Multiple target languages**: English / IPA and Mandarin / Pinyin.
+- **Optional L1**: choosing a native language enables smart recommendations; choosing only an L2 is enough to train.
+- **Two core modes**:
+  - Spelling: listen, type IPA or Pinyin, then get phoneme-level feedback.
+  - Listen: view the word and notation while replaying the audio.
+- **Minimal-pair listening**: choose what you heard from A/B candidates, then review accuracy and missed pairs.
+- **Session results**: exact score, near matches, mistakes, review, and recent local history.
+- **Topic filtering**: focus a session on a specific English phoneme or Pinyin unit.
+- **Adjustable round size**: 1 to 50 items per session.
+- **Profile-driven keypad**: IPA vowels/consonants/stress marks for English, initials/finals/tones for Mandarin.
+- **Local-first**: no account, no API key, no database.
 
 ## Tech Stack
 
-| Category | Technology |
-|----------|------------|
-| Framework | React 19 |
-| Language | TypeScript 5.8 |
+| Area | Technology |
+| --- | --- |
+| Frontend | React 19, TypeScript 5.8 |
 | Build | Vite 6 |
 | Styling | Tailwind CSS 4 |
-| Animation | Motion (Framer Motion) |
+| Animation | Motion |
 | Icons | Lucide React |
-| Speech | Web Speech API (SpeechSynthesis) |
-| Font | Noto Sans (Google Fonts) |
+| Local preview | Express |
+| Speech | Web Speech API |
 
-## Project Structure
+## Requirements
 
+- Node.js 18 or newer
+- npm
+- A modern browser with Web Speech API support, such as Chrome, Edge, Safari, or Firefox
+
+## Quick Start
+
+```bash
+git clone https://github.com/ichthyoplanktonzyh/PhoneticMaster.git
+cd PhoneticMaster
+npm install
+npm run dev
 ```
-src/
-├── main.tsx                 # Entry point
-├── App.tsx                  # Main application component (mode switching, state)
-├── index.css                # Global styles + IPA font definition
-├── types.ts                 # Type definitions
-├── components/
-│   ├── IPAKeypad.tsx        # Interactive IPA keyboard component
-│   └── TrainingView.tsx     # Listening training mode component
-├── data/
-│   └── wordBank.ts          # Local English word bank (4,088 items)
-└── utils/
-    ├── voice.ts             # Voice management (smart selection + localStorage)
-    ├── ipaParser.ts         # IPA parser (phoneme tokenizer)
-    └── phonemeGroups.ts     # Phoneme grouping (word classification by phoneme)
+
+The local dev server runs at:
+
+```text
+http://localhost:3000
 ```
+
+## Commands
+
+```bash
+npm run dev            # start the Vite/Express dev server
+npm run lint           # TypeScript check
+npm run validate:data  # validate profiles, word banks, and L1/L2 maps
+npm run build          # production build
+npm run start          # serve dist/server.cjs after build
+npm run clean          # remove build artifacts
+```
+
+## Word Banks
+
+| Target language | Notation | Training units | Basic | Intermediate | Advanced | Total |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| English | IPA | 44 | 881 | 1,527 | 1,680 | 4,088 |
+| Mandarin | Pinyin | 61 | 131 | 99 | 20 | 250 |
+
+English items use American IPA as the canonical training notation and keep British IPA as an alternate display field. Mandarin items use tone-number Pinyin as canonical notation and diacritic Pinyin for display.
+
+The app also includes 15 structured minimal-pair sets: 8 for English and 7 for Mandarin. They currently use Web Speech API playback and reserve `audioUrl` for future standard recordings.
+
+## Architecture
+
+The central abstraction is `LanguageProfile`. Each target language declares its own phoneme inventory, keypad layout, parser, judge, TTS language, sound features, and word bank. UI and training flow use the profile instead of hardcoded language branches.
+
+Adding a new target language should mainly require:
+
+- `src/profiles/{code}.ts`
+- `src/data/{code}WordBank.ts`
+- one registration import in `src/profiles/index.ts`
+- optional parser and L1 difficulty data
 
 ## Deployment
 
-The build output is pure static files — no server required. Deploy to any static hosting platform.
+The MVP is intended for static hosting.
 
-### GitHub Pages
+For GitHub Pages:
 
-Push the code to a GitHub repository, then enable Pages in Settings. Build command: `npm run build`, output directory: `dist`.
+```bash
+GITHUB_PAGES=true npm run build
+```
 
-### Vercel / Netlify
+The output in `dist/` should reference assets under `/PhoneticMaster/assets/`. The repository includes a GitHub Actions workflow that validates data, type-checks, builds with the Pages base path, uploads `dist/`, and deploys Pages.
 
-1. Connect your GitHub repository
-2. Build command: `npm run build`
-3. Output directory: `dist`
-4. No environment variables needed
+For Vercel, Netlify, or Cloudflare Pages:
 
-### Local File
+```bash
+npm run build
+```
 
-The built `dist/index.html` can be opened directly in a browser (Web Speech API works over `file://` protocol).
+Publish the `dist/` directory. No environment variables are required.
+
+`server.ts` is useful for local preview or self-hosting, but it is not a required backend for the public MVP.
 
 ## FAQ
 
-**Q: No sound when clicking the play button?**
-A: Make sure your browser supports the Web Speech API (Chrome, Edge, and Safari all do). On macOS, check that system audio is not muted.
+**No sound?**
 
-**Q: IPA symbols show as boxes?**
-A: The project loads Noto Sans from Google Fonts, which requires internet access. For offline use, pre-download the font files.
+Make sure the browser supports Web Speech API, system audio is enabled, and try another voice in the Voice menu.
 
-**Q: The voice sounds bad / not like American English?**
-A: Use the Voice dropdown in the header to switch voices. Samantha (macOS) and Google US English (Chrome) offer the best quality.
+**Why do some L1/L2 pairs have no recommendation?**
+
+Recommendations depend on mappings in `src/l1/`. The current focused pairs are Mandarin speakers learning English and English speakers learning Mandarin.
+
+**Why does Mandarin use `v`?**
+
+The Mandarin profile uses `v` as the keyboard-friendly form of `ü`, as in `nv3` or `lv4`.
 
 ## License
 

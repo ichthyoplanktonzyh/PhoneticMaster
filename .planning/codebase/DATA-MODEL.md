@@ -12,6 +12,9 @@
 | PhonemeDifficulty | `phoneme` | 在 L1L2Difficulty 内唯一 |
 | FeatureDifficulty | `feature` | 在 L1L2Difficulty 内唯一 |
 | TrainingSession | generated `id` | 一轮本地训练会话 |
+| MinimalPairSet | `id` | 一组最小对立体材料，绑定 L2、目标音和对比音 |
+| MinimalPairOption | `MinimalPairSet.id` + `option.id` | 同一 pair 内候选项唯一 |
+| MinimalPairSession | generated `id` | 一轮最小对立体听辨会话 |
 | MasteryRecord | `l2` + `topic` + `phoneme` | 本地掌握度聚合记录 |
 
 ## Core Type Relationships
@@ -98,6 +101,58 @@ SessionResult (M2 Phase 2.3)
 ├── answers: TrainingAnswer[]
 └── mistakes: TrainingAnswer[]          ← incorrect + nearMatch review items
 
+MinimalPairSet (M3 Phase 3.1)
+├── id: string
+├── l2: string                          ← matches LanguageProfile.code
+├── targetPhoneme: string               ← target profile phoneme
+├── contrastPhoneme: string             ← target profile phoneme
+├── difficulty: Difficulty
+├── source: 'curated' | 'l1-map'
+├── note?: string
+└── options: MinimalPairOption[]         ← at least two candidates
+    ├── id: string
+    ├── display: string                  ← user-facing word/character
+    ├── pronunciation: string            ← canonical notation
+    ├── pronunciationAlt?: string        ← display notation
+    ├── audioText?: string               ← Web Speech prompt override
+    ├── audioUrl?: string                ← future standard audio
+    └── note?: string
+
+MinimalPairSession (M3 Phase 3.1)
+├── id: string
+├── createdAt: string
+├── completedAt?: string
+├── l1?: string
+├── l2: string
+├── topic: string | null
+├── questions: MinimalPairQuestion[]
+│   ├── id: string
+│   ├── pairSetId: string
+│   ├── targetPhoneme: string
+│   ├── contrastPhoneme: string
+│   ├── prompt: MinimalPairOption        ← played target
+│   └── options: MinimalPairOption[]     ← candidate choices
+└── answers: MinimalPairAnswer[]
+    ├── questionId: string
+    ├── selectedOptionId: string
+    ├── correctOptionId: string
+    ├── correct: boolean
+    └── submittedAt: string
+
+MinimalPairResult (M3 Phase 3.1)
+├── id: string
+├── sessionId: string
+├── createdAt: string
+├── completedAt: string
+├── l1?: string
+├── l2: string
+├── topic: string | null
+├── total: number
+├── correct: number
+├── accuracy: number
+├── answers: MinimalPairAnswer[]
+└── mistakes: MinimalPairAnswer[]
+
 MasteryRecord (planned M4)
 ├── l1?: string
 ├── l2: string
@@ -180,6 +235,7 @@ npm run validate:data
 | English IPA | 清理 ASCII stress/g、重复 identity 和少量 ASCII IPA 片段；`pronunciation` 为主要美式 IPA |
 | Chinese Pinyin | `pronunciation` 必须为正字法 tone-number form，每个音节以 `1-5` 结尾；`pronunciationAlt` 不含数字，仅作显示 |
 | L1/L2 map | `l1` / `l2` code 必须已注册；hardPhonemes 引用目标 profile 音素；hardFeatures 引用目标 profile soundFeatures；level 为 1-5 |
+| Minimal pairs | `l2` 已注册；target/contrast phoneme 引用目标 profile；候选项至少 2 个；候选 pronunciation 可解析且覆盖 target/contrast；`audioUrl` 不允许空字符串 |
 
 当前通过校验的数据规模：
 
@@ -187,3 +243,10 @@ npm run validate:data
 |---------|------:|-------------:|---------:|------:|
 | English IPA | 881 | 1,527 | 1,680 | 4,088 |
 | 中文 Pinyin | 131 | 99 | 20 | 250 |
+
+当前 minimal pair 数据规模：
+
+| L2 | Pair sets |
+|----|----------:|
+| English IPA | 8 |
+| 中文 Pinyin | 7 |

@@ -41,11 +41,19 @@
 
 ### 2.2 数据校验仍偏结构化
 
-- **文件**：`scripts/validateData.ts`、`src/data/wordBank.ts`、`src/data/zhWordBank.ts`
+- **文件**：`scripts/validateData.ts`、`src/data/wordBank.ts`、`src/data/zhWordBank.ts`、`src/data/minimalPairBank.ts`
 - **脆弱原因**：Phase 2.2 校验能证明字段、identity、notation token 和引用一致，但不能证明每个 IPA/拼音标注在语言学上完全正确
 - **常见失败**：错误音标仍可能是“可解析 token”；minimalPairs 可能格式正确但教学价值一般
 - **安全修改方式**：后续引入抽样审校、来源字段或专门的词库导入/校验流程
 - **测试覆盖**：✅ 结构校验；❌ 内容正确性审校
+
+### 2.3 最小对立体依赖浏览器 TTS
+
+- **文件**：`src/components/MinimalPairView.tsx`、`src/utils/minimalPairs.ts`、`src/data/minimalPairBank.ts`
+- **脆弱原因**：Phase 3.1 使用 Web Speech API 播放 prompt；浏览器语音可能无法稳定体现 minimal pair 的关键音系差异，尤其是中文声调和英语元音细微对比
+- **常见失败**：TTS 发音不自然、不同浏览器声音差异大、同形中文词的语义读音不可控
+- **安全修改方式**：`MinimalPairOption.audioUrl` 已预留；核心 pair 后续应接入人工审校标准音频或高质量 TTS 音频
+- **测试覆盖**：✅ 数据结构校验；❌ 发音质量不可自动验证
 
 ## 3. 测试覆盖缺口
 
@@ -58,13 +66,15 @@
 | P0 | `src/utils/ipaParser.ts` | 双字符音素匹配顺序影响英语训练 |
 | P1 | `src/l1/difficultyMap.ts` | 排序/降级逻辑错误影响推荐 |
 | P1 | `src/profiles/zh.ts` | zhJudge 声调容错逻辑 |
+| P2 | `src/utils/minimalPairs.ts` | 题目生成和结果汇总缺少 fixture-based 单元测试 |
+| P2 | `src/components/MinimalPairView.tsx` | A/B 选择、完成状态和复盘 UI 缺少组件测试 |
 | P2 | `src/components/OnboardingView.tsx` | L1===L2 阻断逻辑 |
 
 ## 4. 依赖风险
 
 | 依赖 | 风险 | 影响 |
 |------|------|------|
-| Web Speech API | 浏览器实现差异大；部分浏览器无中文 TTS | 汉语训练 TTS 可能不可用 |
+| Web Speech API | 浏览器实现差异大；部分浏览器无中文 TTS；minimal pairs 的细微音差可能不稳定 | 汉语训练 TTS 和专项听辨可信度可能受影响 |
 | motion (Framer Motion) | 包体积大 (~30KB gzip) | 增加构建产物大小 |
 | Tailwind CSS v4 | 仍在活跃迭代 | 升级可能有 breaking change |
 | localStorage | 隐私模式下可能抛异常 | 已 try/catch 处理 |
@@ -74,7 +84,7 @@
 | 操作 | 预估耗时 | 文件 | 改进方向 |
 |------|----------|------|----------|
 | 首次 buildPhonemeGroups | ~5ms | `utils/phonemeGroups.ts` | 已缓存，可接受 |
-| 构建产物大小 | 668KB / 193KB gzip | 全局 | code splitting |
+| 构建产物大小 | 863KB / 201KB gzip | 全局 | code splitting |
 | 汉语词库加载 | ~2ms | `data/zhWordBank.ts` | 未来可按 HSK 级别懒加载 |
 
 ---

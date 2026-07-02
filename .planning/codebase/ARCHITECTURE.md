@@ -16,12 +16,12 @@
 │                       │                                          │
 │          ┌────────────┼────────────────┐                        │
 │          │            │                │                         │
-│  ┌───────▼──────┐ ┌───▼────────┐ ┌────▼───────┐               │
-│  │  Spelling    │ │ Training   │ │  Smart     │               │
-│  │  Mode        │ │ Mode       │ │  Recommend │               │
-│  │ (输入+判定)  │ │ (浏览记忆) │ │ (可选教练) │               │
-│  └───────┬──────┘ └───┬────────┘ └────┬───────┘               │
-│          │            │                │                         │
+│  ┌───────▼──────┐ ┌───▼────────┐ ┌────▼───────┐ ┌───────────┐ │
+│  │  Spelling    │ │ Training   │ │ Minimal    │ │  Smart    │ │
+│  │  Mode        │ │ Mode       │ │ Pair Mode  │ │ Recommend │ │
+│  │ (输入+判定)  │ │ (浏览记忆) │ │ (A/B听辨)  │ │(可选教练) │ │
+│  └───────┬──────┘ └───┬────────┘ └────┬───────┘ └────┬──────┘ │
+│          │            │               │              │         │
 │  ┌───────▼────────────▼────────────────▼───────┐               │
 │  │          LanguageProfile (接口层)            │               │
 │  │  phonemes / keypadLayout / parseNotation /  │               │
@@ -56,10 +56,10 @@
 │  │ voice.ts     │  │ phonemeGroups│  │trainingSession│         │
 │  │ (TTS 管理)   │  │ (音素分组)   │  │(会话/结果)    │          │
 │  └──────────────┘  └──────────────┘  └──────────────┘          │
-│  ┌──────────────┐  ┌──────────────┐                            │
-│  │ storage.ts   │  │ result views │                            │
-│  │ (本地历史)   │  │ (反馈复盘)   │                            │
-│  └──────────────┘  └──────────────┘                            │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
+│  │ storage.ts   │  │ result views │  │minimalPairs  │          │
+│  │ (本地历史)   │  │ (反馈复盘)   │  │(A/B题目)     │          │
+│  └──────────────┘  └──────────────┘  └──────────────┘          │
 │                                                                  │
 │  ┌───────────────────────────────────────────────┐              │
 │  │            Web Speech API (TTS)               │              │
@@ -121,27 +121,47 @@
                     点击设置按钮 → 重新显示语言选择
 ```
 
+### 2.4 最小对立体听辨流程
+
+```
+用户选择 L2 + 主题 → getMinimalPairSets(profile, topic)
+                            │
+                 MinimalPairSet[] → MinimalPairQuestion[]
+                            │
+              Web Speech API 播放 prompt.display/audioText
+                            │
+                    用户在候选项中选择听到的词
+                            │
+              MinimalPairAnswer[] → MinimalPairResult
+                            │
+                    正确率 + 错题复盘
+
+约束：当前使用 Web Speech API，MinimalPairOption.audioUrl 已预留给未来标准音频。
+```
+
 ## 3. 模块职责
 
 | 模块 | 职责 | 关键导出 |
 |------|------|----------|
-| `types.ts` | 全局类型定义 | TrainingItem, LanguageProfile, JudgeResult, L1L2Difficulty, Difficulty |
+| `types.ts` | 全局类型定义 | TrainingItem, LanguageProfile, JudgeResult, L1L2Difficulty, MinimalPairSet, Difficulty |
 | `profiles/index.ts` | Profile 注册表 + L1 列表 | getProfile(), getAllProfiles(), SUPPORTED_L1 |
 | `profiles/en.ts` | 英语 Profile | englishProfile |
 | `profiles/zh.ts` | 汉语 Profile | chineseProfile |
 | `data/wordBank.ts` | 英语词库 (TrainingItem, COCA 去重数据) | wordBank, pickWords() |
 | `data/zhWordBank.ts` | 汉语词库 (TrainingItem) | zhWordBank, pickZhWords() |
+| `data/minimalPairBank.ts` | 结构化最小对立体训练材料 | minimalPairBank |
 | `utils/ipaParser.ts` | IPA 音素分词 | tokenizeIpa(), getUniquePhonemes() |
 | `utils/pinyinParser.ts` | 拼音解析 | parsePinyin(), parsePinyinSyllables(), diacriticsToNumbers() |
 | `utils/judge.ts` | 音素级判定 | phonemeJudge(), stringJudge() |
 | `utils/voice.ts` | TTS 语音管理 | getVoicesForLang(), selectBestVoice(), saveVoicePreference() |
 | `utils/phonemeGroups.ts` | 音素分组查询 | getItemsByPhoneme(), getPhonemeStats() |
 | `utils/trainingSession.ts` | 训练题组抽取、会话创建、答案追加、结果汇总 | pickItems(), refreshSession(), createTrainingAnswer(), buildSessionResult() |
+| `utils/minimalPairs.ts` | 最小对立体题目生成、答案记录、结果汇总 | createMinimalPairSession(), createMinimalPairAnswer(), buildMinimalPairResult() |
 | `utils/storage.ts` | 最近训练结果本地存储 | loadSessionResults(), saveSessionResult(), clearSessionResults() |
 | `l1/difficultyMap.ts` | L1×L2 难度注册表 | getDifficultyMap(), getTopHardPhonemes(), getHardFeatures() |
 | `l1/zh_en.ts` | 中文→英语映射 | zh_en |
 | `l1/en_zh.ts` | 英语→中文映射 | en_zh |
-| `scripts/validateData.ts` | 数据质量门禁：Profile / 词库 / L1 映射一致性校验 | `npm run validate:data` |
+| `scripts/validateData.ts` | 数据质量门禁：Profile / 词库 / L1 映射 / minimal pair 一致性校验 | `npm run validate:data` |
 
 ## 4. 关键架构边界
 
@@ -153,6 +173,7 @@
 | L1 Layer ↔ Profile | difficultyMap 接受 profile 参数但不修改 profile | 只读依赖 |
 | Training ↔ L1 Layer | 训练器不能依赖 L1；推荐层可以唤起训练器 | 保证独立训练闭环 |
 | Components ↔ Data | 组件不直接 import 词库；词库通过 profile.wordBank 访问 | 统一入口 |
+| Minimal Pair UI ↔ Data | 组件不直接 import `minimalPairBank`；通过 `utils/minimalPairs.ts` 生成 session | 保持 UI 展示职责 |
 | voice.ts ↔ Profile | voice 函数接受 lang 参数（来自 profile.ttsLang） | 多语言 |
 | Frontend ↔ Backend | MVP 不依赖后端；未来云端能力通过 storage/provider 替换 | 静态发布与渐进扩展 |
 
@@ -161,8 +182,8 @@
 | 限界上下文 | 当前代表模块 | 说明 |
 |---|---|---|
 | Language Catalog | `profiles/*`, `data/*`, parser utils | 目标语言如何被训练 |
-| Training | `utils/trainingSession.ts`, `App.tsx` session state | 一轮训练如何开始、推进、完成 |
-| Feedback | `utils/judge.ts`, planned result models | 用户错在哪里、训练结果说明什么 |
+| Training | `utils/trainingSession.ts`, `utils/minimalPairs.ts`, `App.tsx` session state | 一轮训练如何开始、推进、完成 |
+| Feedback | `utils/judge.ts`, `SessionResultView`, `MinimalPairView` result state | 用户错在哪里、训练结果说明什么 |
 | Coaching | `l1/*`, `SmartRecommend.tsx` | L1-aware 推荐，不阻塞训练 |
 | Learner Progress | planned `storage.ts`, `recommendation.ts` | 本地历史和掌握度 |
 | Delivery | `components/*`, `App.tsx`, `voice.ts` | React UI、TTS、localStorage 适配 |

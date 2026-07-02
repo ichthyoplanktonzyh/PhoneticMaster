@@ -80,6 +80,73 @@ export interface SessionResult {
   mistakes: TrainingAnswer[];
 }
 
+// ── Minimal Pair Training ───────────────────────────────────────
+
+export interface MinimalPairOption {
+  id: string;
+  display: string;
+  pronunciation: string;
+  pronunciationAlt?: string;
+  audioText?: string;
+  audioUrl?: string;
+  note?: string;
+}
+
+export interface MinimalPairSet {
+  id: string;
+  l2: string;
+  targetPhoneme: string;
+  contrastPhoneme: string;
+  difficulty: Difficulty;
+  options: [MinimalPairOption, MinimalPairOption, ...MinimalPairOption[]];
+  source: 'curated' | 'l1-map';
+  note?: string;
+}
+
+export interface MinimalPairQuestion {
+  id: string;
+  pairSetId: string;
+  targetPhoneme: string;
+  contrastPhoneme: string;
+  prompt: MinimalPairOption;
+  options: MinimalPairOption[];
+}
+
+export interface MinimalPairAnswer {
+  questionId: string;
+  question: MinimalPairQuestion;
+  selectedOptionId: string;
+  correctOptionId: string;
+  correct: boolean;
+  submittedAt: string;
+}
+
+export interface MinimalPairSession {
+  id: string;
+  createdAt: string;
+  completedAt?: string;
+  l1?: string;
+  l2: string;
+  topic: string | null;
+  questions: MinimalPairQuestion[];
+  answers: MinimalPairAnswer[];
+}
+
+export interface MinimalPairResult {
+  id: string;
+  sessionId: string;
+  createdAt: string;
+  completedAt: string;
+  l1?: string;
+  l2: string;
+  topic: string | null;
+  total: number;
+  correct: number;
+  accuracy: number;
+  answers: MinimalPairAnswer[];
+  mistakes: MinimalPairAnswer[];
+}
+
 // ── Backward compatibility ──────────────────────────────────────
 
 /**

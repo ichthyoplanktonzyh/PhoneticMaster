@@ -4,6 +4,19 @@ All notable project changes should be recorded here before each commit.
 
 Timestamp format: `YYYY-MM-DD HH:mm Z` using local project time, precise to the minute.
 
+## 2026-07-02 21:29 +0800
+
+### Added
+
+- Added Phase 2.4 publish-readiness plan, QA checklist, and completion summary.
+- Added structured minimal-pair training models, curated English/Mandarin minimal-pair data, question generation utilities, and an A/B listening view.
+- Added minimal-pair data validation to `npm run validate:data`.
+
+### Changed
+
+- Updated README, README_EN, PRD, index title, planning state, roadmap, and agent guide for the completed M2 release-readiness pass and completed Phase 3.1 minimal-pair slice.
+- Updated codebase docs for the new minimal-pair data model, architecture flow, structure, testing coverage, and TTS quality risk.
+
 ## 2026-07-02 16:55 +0800
 
 ### Added

@@ -5,9 +5,16 @@
  * Data validation entrypoint for language profiles, word banks, and L1/L2 maps.
  */
 
-import type { Difficulty, LanguageProfile, L1L2Difficulty, TrainingItem } from '../src/types';
+import type {
+  Difficulty,
+  LanguageProfile,
+  L1L2Difficulty,
+  MinimalPairSet,
+  TrainingItem,
+} from '../src/types';
 import { getAllProfiles, getSupportedL2Codes, SUPPORTED_L1 } from '../src/profiles';
 import { getAllDifficultyMaps } from '../src/l1/difficultyMap';
+import { minimalPairBank } from '../src/data/minimalPairBank';
 
 const TIERS: Difficulty[] = ['basic', 'intermediate', 'advanced'];
 
@@ -239,6 +246,92 @@ function validateDifficultyMaps(
   }
 }
 
+function validateMinimalPairBank(
+  pairs: MinimalPairSet[],
+  profiles: LanguageProfile[],
+  issues: ValidationIssue[],
+) {
+  const profileByCode = new Map(profiles.map(profile => [profile.code, profile]));
+  const pairIds = new Set<string>();
+
+  for (const pair of pairs) {
+    const scope = `minimalPair:${pair.id}`;
+    const profile = profileByCode.get(pair.l2);
+
+    if (!pair.id.trim()) addIssue(issues, scope, 'Missing id');
+    if (pairIds.has(pair.id)) addIssue(issues, scope, `Duplicate minimal pair id: ${pair.id}`);
+    pairIds.add(pair.id);
+
+    if (!profile) {
+      addIssue(issues, scope, `Unsupported L2 code: ${pair.l2}`);
+      continue;
+    }
+
+    const phonemeSet = new Set(profile.phonemes.map(p => p.symbol));
+    if (!phonemeSet.has(pair.targetPhoneme)) {
+      addIssue(issues, scope, `Target phoneme "${pair.targetPhoneme}" is not declared by ${pair.l2}`);
+    }
+    if (!phonemeSet.has(pair.contrastPhoneme)) {
+      addIssue(issues, scope, `Contrast phoneme "${pair.contrastPhoneme}" is not declared by ${pair.l2}`);
+    }
+    if (pair.options.length < 2) {
+      addIssue(issues, scope, 'Minimal pair needs at least two options');
+    }
+
+    const optionIds = new Set<string>();
+    const optionTokens: string[][] = [];
+    for (const [index, option] of pair.options.entries()) {
+      const optionScope = `${scope}:option:${index}`;
+      if (!option.id.trim()) addIssue(issues, optionScope, 'Missing option id');
+      if (optionIds.has(option.id)) addIssue(issues, optionScope, `Duplicate option id: ${option.id}`);
+      optionIds.add(option.id);
+      if (!option.display.trim()) addIssue(issues, optionScope, 'Missing display');
+      if (!option.pronunciation.trim()) addIssue(issues, optionScope, 'Missing pronunciation');
+      if (option.audioUrl !== undefined && !option.audioUrl.trim()) {
+        addIssue(issues, optionScope, 'audioUrl is present but empty');
+      }
+
+      const item: TrainingItem = {
+        display: option.display,
+        pronunciation: option.pronunciation,
+        pronunciationAlt: option.pronunciationAlt,
+        frequencyTier: pair.difficulty,
+      };
+
+      if (profile.notationName === 'IPA') {
+        const unknown = validateIpaCoverage(profile, item);
+        if (unknown.length > 0) {
+          addIssue(issues, optionScope, `IPA contains unrecognized symbols: ${[...new Set(unknown)].join(', ')}`);
+        }
+      }
+
+      if (profile.notationName === 'Pinyin') {
+        for (const issue of validateCanonicalPinyin(item)) {
+          addIssue(issues, optionScope, issue);
+        }
+      }
+
+      const tokens = profile.parseNotation(option.pronunciation);
+      optionTokens.push(tokens);
+      if (tokens.length === 0) {
+        addIssue(issues, optionScope, `Pronunciation did not parse into any ${profile.notationName} tokens`);
+      }
+      for (const token of tokens) {
+        if (!phonemeSet.has(token)) {
+          addIssue(issues, optionScope, `Parsed token "${token}" is not declared in profile phonemes`);
+        }
+      }
+    }
+
+    if (!optionTokens.some(tokens => tokens.includes(pair.targetPhoneme))) {
+      addIssue(issues, scope, `No option pronunciation contains target phoneme "${pair.targetPhoneme}"`);
+    }
+    if (!optionTokens.some(tokens => tokens.includes(pair.contrastPhoneme))) {
+      addIssue(issues, scope, `No option pronunciation contains contrast phoneme "${pair.contrastPhoneme}"`);
+    }
+  }
+}
+
 function main() {
   const issues: ValidationIssue[] = [];
   const profiles = getAllProfiles();
@@ -248,6 +341,7 @@ function main() {
     validateProfile(profile, issues);
   }
   validateDifficultyMaps(getAllDifficultyMaps(), profiles, issues);
+  validateMinimalPairBank(minimalPairBank, profiles, issues);
 
   if (issues.length > 0) {
     console.error(`Data validation failed with ${issues.length} issue(s):`);
@@ -261,7 +355,7 @@ function main() {
     (total, profile) => total + TIERS.reduce((sum, tier) => sum + profile.wordBank[tier].length, 0),
     0,
   );
-  console.log(`Data validation passed: ${profiles.length} profiles, ${wordCount} training items, ${getAllDifficultyMaps().length} L1/L2 maps.`);
+  console.log(`Data validation passed: ${profiles.length} profiles, ${wordCount} training items, ${getAllDifficultyMaps().length} L1/L2 maps, ${minimalPairBank.length} minimal pairs.`);
 }
 
 main();

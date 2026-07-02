@@ -61,6 +61,7 @@ ipa-spelling/
 | `PhoneticKeypad.tsx` | Profile-driven 音标/拼音键盘 | types |
 | `PhonemeDiffView.tsx` | 音素/拼音单元差异展示 | types |
 | `SessionResultView.tsx` | 会话结果页、错题复盘和最近记录 | types, PhonemeDiffView |
+| `MinimalPairView.tsx` | 最小对立体 A/B 听辨、即时反馈和本轮结果 | types |
 | `SmartRecommend.tsx` | L1-aware 推荐面板 | types, l1/difficultyMap, profiles |
 | `IPAKeypad.tsx` | 旧英语键盘（遗留，可删除） | — |
 
@@ -70,12 +71,13 @@ ipa-spelling/
 |------|------|------|
 | `wordBank.ts` | 英语词库（TrainingItem 格式，COCA 去重数据） | types |
 | `zhWordBank.ts` | 汉语词库（TrainingItem 格式，HSK 1-3） | types |
+| `minimalPairBank.ts` | 英语/中文结构化最小对立体材料 | types |
 
 ### `scripts/`
 
 | 文件 | 职责 | 依赖 |
 |------|------|------|
-| `validateData.ts` | 校验 profile、词库和 L1/L2 映射的数据一致性 | src/types, profiles, l1, pinyinParser |
+| `validateData.ts` | 校验 profile、词库、L1/L2 映射和 minimal pair 数据一致性 | src/types, profiles, l1, data, pinyinParser |
 
 ### `src/l1/`
 
@@ -103,6 +105,7 @@ ipa-spelling/
 | `voice.ts` | TTS 语音管理（获取、选择、持久化） | — |
 | `phonemeGroups.ts` | 音素分组查询（profile-driven） | types |
 | `trainingSession.ts` | 训练题组抽取、会话创建、答案追加和结果汇总 | types, phonemeGroups |
+| `minimalPairs.ts` | 最小对立体题目生成、答案记录和结果汇总 | types, minimalPairBank |
 | `storage.ts` | 最近训练结果 localStorage repository | types |
 
 ## 3. 命名约定
@@ -123,6 +126,7 @@ ipa-spelling/
 | 场景 | 位置 | 示例 |
 |------|------|------|
 | 添加新语言 | `src/profiles/{code}.ts` + `src/data/{code}WordBank.ts` | `ja.ts` + `jaWordBank.ts` |
+| 添加专项最小对立体数据 | `src/data/minimalPairBank.ts` | 新增 `MinimalPairSet` |
 | 添加新 L1×L2 映射 | `src/l1/{l1}_{l2}.ts` | `ja_en.ts` |
 | 添加新 UI 组件 | `src/components/{Name}.tsx` | `MinimalPairView.tsx` |
 | 添加新工具函数 | `src/utils/{name}.ts` | `statsCalculator.ts` |
@@ -138,6 +142,6 @@ ipa-spelling/
 | `AGENT.md` | AI 代理维护入口，压缩引用 `.planning/` 的核心规则 |
 | `src/types.ts` | 全局类型唯一来源，所有模块从此 import 类型 |
 | `src/profiles/index.ts` | Profile 注册中心，新增语言必须在此 import 并注册 |
-| `scripts/validateData.ts` | Phase 2.2 数据质量门禁，新增 profile/词库/L1 映射后必须通过 |
+| `scripts/validateData.ts` | 数据质量门禁，新增 profile/词库/L1 映射/minimal pair 后必须通过 |
 | `src/main.tsx` | React 入口，仅做 ReactDOM.createRoot + App 渲染 |
 | `server.ts` | Express 服务器，开发模式用 Vite 中间件，生产模式 serve dist/ |

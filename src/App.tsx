@@ -13,7 +13,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   Volume2, CheckCircle2, XCircle, RefreshCw, Trophy, Keyboard,
   ArrowRight, ChevronDown, Headphones, Pencil, Globe, Settings,
-  AlertTriangle,
+  AlertTriangle, Ear,
 } from 'lucide-react';
 import { TrainingView } from './components/TrainingView';
 import { PhoneticKeypad } from './components/PhoneticKeypad';
@@ -21,10 +21,14 @@ import { SmartRecommend } from './components/SmartRecommend';
 import { OnboardingView } from './components/OnboardingView';
 import { SessionResultView } from './components/SessionResultView';
 import { PhonemeDiffView } from './components/PhonemeDiffView';
+import { MinimalPairView } from './components/MinimalPairView';
 import type {
   Difficulty,
   JudgeResult,
   LanguageProfile,
+  MinimalPairOption,
+  MinimalPairResult,
+  MinimalPairSession,
   SessionResult,
   TrainingFeedback,
   TrainingMode,
@@ -43,11 +47,21 @@ import {
 } from './utils/trainingSession';
 import { clearSessionResults, loadSessionResults, saveSessionResult } from './utils/storage';
 import { getVoicesForLang, selectBestVoice, saveVoicePreference } from './utils/voice';
+import {
+  appendMinimalPairAnswer,
+  buildMinimalPairResult,
+  completeMinimalPairSession,
+  createMinimalPairAnswer,
+  createMinimalPairSession,
+  getMinimalPairAudioText,
+} from './utils/minimalPairs';
 
 // ── LocalStorage keys ──────────────────────────────────────────
 
 const LS_L1 = 'ipa-spelling-l1';
 const LS_L2 = 'ipa-spelling-l2';
+
+type AppMode = TrainingMode | 'minimal-pair';
 
 function loadL1(): string | null {
   try { return localStorage.getItem(LS_L1); } catch { return null; }
@@ -134,9 +148,15 @@ export default function App() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [showKeypad, setShowKeypad] = useState(true);
   const [selectedPhoneme, setSelectedPhoneme] = useState<string | null>(null);
-  const [mode, setMode] = useState<TrainingMode>('spelling');
+  const [mode, setMode] = useState<AppMode>('spelling');
   const [wordCount, setWordCount] = useState(10);
   const topicSelectRef = useRef<HTMLSelectElement | null>(null);
+
+  // ── Minimal-pair state ────────────────────────────────────────
+  const [minimalPairSession, setMinimalPairSession] = useState<MinimalPairSession | null>(null);
+  const [minimalPairResult, setMinimalPairResult] = useState<MinimalPairResult | null>(null);
+  const [minimalPairIndex, setMinimalPairIndex] = useState(0);
+  const [selectedPairOptionId, setSelectedPairOptionId] = useState<string | null>(null);
 
   // ── Voice management ──────────────────────────────────────────
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
@@ -170,6 +190,7 @@ export default function App() {
 
   const startFreshSession = useCallback((overrides: SessionOverrides = {}) => {
     if (!profile) return;
+    const sessionMode: TrainingMode = mode === 'minimal-pair' ? 'spelling' : mode;
 
     const session = refreshSession({
       profile,
@@ -177,15 +198,36 @@ export default function App() {
       difficulty: overrides.difficulty ?? difficulty,
       phoneme: overrides.phoneme ?? selectedPhoneme,
       wordCount: overrides.wordCount ?? wordCount,
-      mode: overrides.mode ?? mode,
+      mode: overrides.mode ?? sessionMode,
     });
 
     applySession(session);
   }, [profile, effectiveL1, difficulty, selectedPhoneme, wordCount, mode]);
 
+  const startMinimalPairSession = useCallback((topic: string | null = selectedPhoneme, count = wordCount) => {
+    if (!profile) return;
+
+    const session = createMinimalPairSession({
+      profile,
+      l1: effectiveL1,
+      topic,
+      questionCount: count,
+    });
+
+    setMinimalPairSession(session);
+    setMinimalPairResult(null);
+    setMinimalPairIndex(0);
+    setSelectedPairOptionId(null);
+    setSessionResult(null);
+  }, [profile, effectiveL1, selectedPhoneme, wordCount]);
+
   // ── Initialize word set when profile changes ─────────────────
   useEffect(() => {
-    startFreshSession();
+    if (mode === 'minimal-pair') {
+      startMinimalPairSession();
+    } else {
+      startFreshSession();
+    }
   }, [profile]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Load voices for current language ──────────────────────────
@@ -239,16 +281,28 @@ export default function App() {
 
   const changeDifficulty = (d: Difficulty) => {
     setDifficulty(d);
-    startFreshSession({ difficulty: d });
+    if (mode === 'minimal-pair') {
+      startMinimalPairSession();
+    } else {
+      startFreshSession({ difficulty: d });
+    }
   };
 
   const newWordSet = () => {
-    startFreshSession();
+    if (mode === 'minimal-pair') {
+      startMinimalPairSession();
+    } else {
+      startFreshSession();
+    }
   };
 
   const handlePhonemeChange = (phoneme: string | null) => {
     setSelectedPhoneme(phoneme);
-    startFreshSession({ phoneme });
+    if (mode === 'minimal-pair') {
+      startMinimalPairSession(phoneme);
+    } else {
+      startFreshSession({ phoneme });
+    }
   };
 
   const handleSmartPhonemeSelect = (phoneme: string) => {
@@ -257,15 +311,23 @@ export default function App() {
     startFreshSession({ phoneme, mode: 'spelling' });
   };
 
-  const handleModeChange = (nextMode: TrainingMode) => {
+  const handleModeChange = (nextMode: AppMode) => {
     setMode(nextMode);
-    startFreshSession({ mode: nextMode });
+    if (nextMode === 'minimal-pair') {
+      startMinimalPairSession();
+    } else {
+      startFreshSession({ mode: nextMode });
+    }
   };
 
   const handleWordCountChange = (value: string) => {
     const nextWordCount = Math.max(1, Math.min(50, parseInt(value) || 1));
     setWordCount(nextWordCount);
-    startFreshSession({ wordCount: nextWordCount });
+    if (mode === 'minimal-pair') {
+      startMinimalPairSession(selectedPhoneme, nextWordCount);
+    } else {
+      startFreshSession({ wordCount: nextWordCount });
+    }
   };
 
   const currentItem = items[currentIndex];
@@ -314,6 +376,47 @@ export default function App() {
 
     synth.speak(utterance);
   }, [currentItem, profile, isPlaying, selectedVoice, voices]);
+
+  const playMinimalPairPrompt = useCallback((option: MinimalPairOption) => {
+    if (!profile || isPlaying) return;
+
+    const synth = window.speechSynthesis;
+    if (!synth) {
+      setSpeechIssue({
+        title: '当前浏览器暂时不能播放语音',
+        detail: '请尝试用 Safari、Chrome 或 Samsung Internet 直接打开网页，避免微信、QQ、飞书等应用内浏览器。',
+        diagnostics: buildSpeechDiagnostics(profile, voices),
+      });
+      return;
+    }
+
+    setSpeechIssue(null);
+    synth.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(getMinimalPairAudioText(option));
+    utterance.lang = profile.ttsLang;
+    utterance.rate = 0.9;
+
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+    }
+
+    utterance.onstart = () => {
+      setSpeechIssue(null);
+      setIsPlaying(true);
+    };
+    utterance.onend = () => setIsPlaying(false);
+    utterance.onerror = (event) => {
+      setIsPlaying(false);
+      setSpeechIssue({
+        title: '语音播放失败',
+        detail: `浏览器返回了 ${event.error || 'unknown'}。当前最小对立体仍使用 Web Speech API，之后会接入标准音频字段。`,
+        diagnostics: buildSpeechDiagnostics(profile, voices),
+      });
+    };
+
+    synth.speak(utterance);
+  }, [profile, isPlaying, selectedVoice, voices]);
 
   const handleCharInsert = (char: string) => {
     if (feedback !== 'neutral') return;
@@ -388,6 +491,42 @@ export default function App() {
     }
   };
 
+  const handleMinimalPairSelect = (optionId: string) => {
+    if (!minimalPairSession || selectedPairOptionId) return;
+    const question = minimalPairSession.questions[minimalPairIndex];
+    if (!question) return;
+
+    const answer = createMinimalPairAnswer(question, optionId);
+    setSelectedPairOptionId(optionId);
+    setMinimalPairSession(prev => prev ? appendMinimalPairAnswer(prev, answer) : prev);
+  };
+
+  const finishMinimalPairSession = (sourceSession: MinimalPairSession | null = minimalPairSession) => {
+    if (!sourceSession) return;
+
+    const completedSession = completeMinimalPairSession(sourceSession);
+    const result = buildMinimalPairResult(completedSession);
+    setMinimalPairSession(completedSession);
+    setMinimalPairResult(result);
+    setSelectedPairOptionId(null);
+  };
+
+  const nextMinimalPair = () => {
+    if (!minimalPairSession) return;
+
+    if (minimalPairIndex < minimalPairSession.questions.length - 1) {
+      setMinimalPairIndex(prev => prev + 1);
+      setSelectedPairOptionId(null);
+    } else {
+      finishMinimalPairSession();
+    }
+  };
+
+  const clearMinimalPairTopic = () => {
+    setSelectedPhoneme(null);
+    startMinimalPairSession(null);
+  };
+
   useEffect(() => {
     if (!profile || showOnboarding || items.length === 0) return;
 
@@ -397,7 +536,7 @@ export default function App() {
 
       if (hasModifier) return;
 
-      if (sessionResult) {
+      if (sessionResult || minimalPairResult) {
         if (!isTyping && e.code === 'KeyN') {
           e.preventDefault();
           newWordSet();
@@ -423,7 +562,14 @@ export default function App() {
 
       if (e.code === 'Space') {
         e.preventDefault();
-        playAudio();
+        if (mode === 'minimal-pair') {
+          const question = minimalPairSession?.questions[minimalPairIndex];
+          if (question) {
+            playMinimalPairPrompt(question.prompt);
+          }
+        } else {
+          playAudio();
+        }
         return;
       }
 
@@ -459,6 +605,14 @@ export default function App() {
         e.preventDefault();
         prevTrainingWord();
         return;
+      }
+
+      if (mode === 'minimal-pair') {
+        if (e.code === 'ArrowRight' && selectedPairOptionId) {
+          e.preventDefault();
+          nextMinimalPair();
+          return;
+        }
       }
 
       if (e.code === 'KeyN') {
@@ -497,6 +651,12 @@ export default function App() {
         return;
       }
 
+      if (e.code === 'KeyM') {
+        e.preventDefault();
+        handleModeChange('minimal-pair');
+        return;
+      }
+
       if (mode === 'spelling' && e.code === 'KeyK') {
         e.preventDefault();
         setShowKeypad(prev => !prev);
@@ -524,6 +684,11 @@ export default function App() {
     selectedPhoneme,
     wordCount,
     sessionResult,
+    minimalPairSession,
+    minimalPairIndex,
+    minimalPairResult,
+    selectedPairOptionId,
+    playMinimalPairPrompt,
   ]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Render ────────────────────────────────────────────────────
@@ -540,7 +705,7 @@ export default function App() {
   }
 
   // Empty word set
-  if (items.length === 0) {
+  if (mode !== 'minimal-pair' && items.length === 0) {
     return (
       <div className="min-h-screen bg-[#F8F9FA] flex items-center justify-center font-sans tracking-tight">
         <div className="text-center space-y-6">
@@ -565,6 +730,10 @@ export default function App() {
   const l1Label = effectiveL1
     ? (SUPPORTED_L1.find(l => l.code === effectiveL1)?.label ?? effectiveL1)
     : '直接训练';
+  const progressItems = mode === 'minimal-pair'
+    ? (minimalPairSession?.questions ?? [])
+    : items;
+  const progressIndex = mode === 'minimal-pair' ? minimalPairIndex : currentIndex;
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] text-[#1A1A1A] font-sans flex flex-col overflow-hidden">
@@ -625,6 +794,18 @@ export default function App() {
             >
               <Headphones className="w-3 h-3" />
               训练
+            </button>
+            <button
+              onClick={() => handleModeChange('minimal-pair')}
+              title="听辨模式 (M)"
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all cursor-pointer ${
+                mode === 'minimal-pair'
+                  ? 'bg-white text-indigo-600 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-600'
+              }`}
+            >
+              <Ear className="w-3 h-3" />
+              听辨
             </button>
           </div>
 
@@ -718,10 +899,10 @@ export default function App() {
           <div className="flex flex-col items-end">
             <span className="text-[10px] text-slate-400 font-bold uppercase mb-1.5">Progress</span>
             <div className="flex gap-1">
-              {items.map((_, i) => (
+              {progressItems.map((_, i) => (
                 <div
                   key={i}
-                  className={`w-5 h-1.5 rounded-full transition-colors ${i <= currentIndex ? 'bg-indigo-600' : 'bg-indigo-100'}`}
+                  className={`w-5 h-1.5 rounded-full transition-colors ${i <= progressIndex ? 'bg-indigo-600' : 'bg-indigo-100'}`}
                 />
               ))}
             </div>
@@ -791,7 +972,21 @@ export default function App() {
               </motion.div>
             )}
           </AnimatePresence>
-          {sessionResult ? (
+          {mode === 'minimal-pair' ? (
+            <MinimalPairView
+              session={minimalPairSession}
+              result={minimalPairResult}
+              currentIndex={minimalPairIndex}
+              selectedOptionId={selectedPairOptionId}
+              profile={profile}
+              isPlaying={isPlaying}
+              onPlayPrompt={playMinimalPairPrompt}
+              onSelectOption={handleMinimalPairSelect}
+              onNext={nextMinimalPair}
+              onNewSet={newWordSet}
+              onClearTopic={clearMinimalPairTopic}
+            />
+          ) : sessionResult ? (
             <SessionResultView
               result={sessionResult}
               recentResults={recentResults}
