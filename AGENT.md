@@ -33,7 +33,7 @@ Read these as needed:
 
 - Product: PhoneticMaster, a lightweight pure-frontend multilingual phonetic perception trainer.
 - Current milestone: M3 — targeted practice and minimal pairs.
-- Current priority: Phase 3.3 — phoneme / Pinyin unit detail panel after completed minimal-pair listening and Chinese structured input.
+- Current priority: Research R1 — user-needs discovery before continuing Phase 3.3; validate training modes, IPA/Pinyin input, TTS trust, feedback explanations, and L1-aware recommendation value.
 - Core principle: the trainer must work on its own; L1-aware recommendation is an optional coach layer.
 - DDD direction: Training Core and Feedback are the core domains; Phase 3.1 added `MinimalPairSession` / `MinimalPairResult`; Phase 3.2 added structured Pinyin input while preserving free text entry and profile-driven parsing.
 - MVP deployment target: static frontend hosting. `server.ts` is useful for local preview/self-hosting, not a required backend.

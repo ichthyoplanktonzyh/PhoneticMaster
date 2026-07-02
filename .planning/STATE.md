@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: M3
 milestone_name: 专项训练 + 最小对立体
 status: in_progress
-last_updated: "2026-07-02T21:53:00+08:00"
+last_updated: "2026-07-02T22:18:00+08:00"
 progress:
   total_phases: 3
   completed_phases: 2
@@ -13,14 +13,14 @@ progress:
 # PhoneticMaster — 项目活记忆
 
 > 最后更新：2026-07-02
-> 更新原因：Phase 3.2 Chinese Structured Input 完成，下一步进入 Phase 3.3 Phoneme Detail Panel
+> 更新原因：产品焦点从继续推进 Phase 3.3 暂时切换为 Research R1 用户需求调研
 
 ## 当前位置
 
 | 维度 | 值 |
 |------|------|
 | 里程碑 | M3 — 专项训练 + 最小对立体 |
-| 阶段 | Phase 3.3 待开始 |
+| 阶段 | Research R1 — 用户需求调研（Phase 3.3 暂缓） |
 | 分支 | `main` (ipa-spelling) |
 | 版本 | v1.2 M3 in progress |
 
@@ -229,6 +229,7 @@ progress:
 21. **2026-07-02** — 3.1 QA 结论：Web Speech API 勉强可用，后续 minimal pair 应更换标准音频或更高质量 TTS
 22. **2026-07-02** — 中文结构化输入定位为教学辅助，不取消 `ni3 hao3` 自由输入兜底
 23. **2026-07-02** — 拼音结构化输入输出正字法 tone-number（如 `qu4`、`xue2`、`yue4`），解析层继续归一到内部 token
+24. **2026-07-02** — 产品焦点暂停继续推进 Phase 3.3，先进入 Research R1 用户需求调研，验证训练方式、TTS 信任、反馈解释和 L1-aware 推荐价值
 
 ## 当前阻塞项
 
@@ -236,9 +237,11 @@ progress:
 
 ## 下一步工作
 
-见 `ROADMAP.md` M3 阶段规划，当前优先级：
-- Phase 3.3：补充音素/拼音单元详情面板和例词说明
-- M4 前置观察：收集用户对结构化拼音输入默认展示是否直观的反馈
+当前优先级不再是直接推进 phase，而是执行 Research R1：
+
+- 调研计划：`.planning/research/USER_NEEDS_RESEARCH.md`
+- 目标：验证真实用户对训练方式、IPA/Pinyin 输入、最小对立体、TTS 音质、反馈解释和 L1-aware 推荐的需求
+- 后续：根据 R1 发现再决定继续 Phase 3.3、优先标准音频/录音反馈，或调整 M4 next-step 推荐
 
 ## 指标
 
