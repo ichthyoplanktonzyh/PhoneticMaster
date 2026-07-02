@@ -18,9 +18,10 @@ import { TrainingView } from './components/TrainingView';
 import { PhoneticKeypad } from './components/PhoneticKeypad';
 import { SmartRecommend } from './components/SmartRecommend';
 import { OnboardingView } from './components/OnboardingView';
-import type { TrainingItem, Difficulty, LanguageProfile, JudgeResult } from './types';
-import { getProfile, getAllProfiles, SUPPORTED_L1 } from './profiles';
-import { getItemsByPhoneme, getPhonemeStats } from './utils/phonemeGroups';
+import type { Difficulty, JudgeResult, LanguageProfile } from './types';
+import { getProfile, SUPPORTED_L1 } from './profiles';
+import { getPhonemeStats } from './utils/phonemeGroups';
+import { refreshSession, type SessionState, type TrainingConfig } from './utils/trainingSession';
 import { getVoicesForLang, selectBestVoice, saveVoicePreference } from './utils/voice';
 
 // ── LocalStorage keys ──────────────────────────────────────────
@@ -34,30 +35,15 @@ function loadL1(): string | null {
 function loadL2(): string | null {
   try { return localStorage.getItem(LS_L2); } catch { return null; }
 }
-function saveL1L2(l1: string, l2: string) {
+function saveLanguagePreferences(l1: string | null, l2: string) {
   try {
-    localStorage.setItem(LS_L1, l1);
     localStorage.setItem(LS_L2, l2);
+    if (l1) {
+      localStorage.setItem(LS_L1, l1);
+    } else {
+      localStorage.removeItem(LS_L1);
+    }
   } catch { /* ignore */ }
-}
-
-// ── Word picking ────────────────────────────────────────────────
-
-function pickItems(
-  profile: LanguageProfile,
-  difficulty: Difficulty,
-  phoneme: string | null,
-  count: number,
-): TrainingItem[] {
-  if (phoneme) {
-    const pool = getItemsByPhoneme(phoneme, profile, difficulty);
-    if (pool.length === 0) return [];
-    const shuffled = [...pool].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, Math.min(count, pool.length));
-  }
-  const bank = profile.wordBank[difficulty];
-  const shuffled = [...bank].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, Math.min(count, bank.length));
 }
 
 // ── App ─────────────────────────────────────────────────────────
@@ -66,13 +52,14 @@ export default function App() {
   // ── L1 / L2 state ────────────────────────────────────────────
   const [l1, setL1] = useState<string | null>(loadL1());
   const [l2, setL2] = useState<string | null>(loadL2());
-  const [showOnboarding, setShowOnboarding] = useState(!loadL1() || !loadL2());
+  const [showOnboarding, setShowOnboarding] = useState(!loadL2());
 
   const profile: LanguageProfile | undefined = l2 ? getProfile(l2) : undefined;
+  const effectiveL1 = profile && l1 === profile.code ? null : l1;
 
   // ── Training state ────────────────────────────────────────────
   const [difficulty, setDifficulty] = useState<Difficulty>('basic');
-  const [items, setItems] = useState<TrainingItem[]>([]);
+  const [items, setItems] = useState<SessionState['items']>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userInput, setUserInput] = useState('');
   const [feedback, setFeedback] = useState<'correct' | 'incorrect' | 'neutral'>('neutral');
@@ -94,16 +81,34 @@ export default function App() {
     [profile],
   );
 
+  const applySession = (session: SessionState) => {
+    setItems(session.items);
+    setCurrentIndex(session.currentIndex);
+    setScore(session.score);
+    setFeedback(session.feedback);
+    setUserInput(session.userInput);
+    setJudgeResult(null);
+  };
+
+  type SessionOverrides = Partial<Omit<TrainingConfig, 'profile'>>;
+
+  const startFreshSession = useCallback((overrides: SessionOverrides = {}) => {
+    if (!profile) return;
+
+    const session = refreshSession({
+      profile,
+      difficulty: overrides.difficulty ?? difficulty,
+      phoneme: overrides.phoneme ?? selectedPhoneme,
+      wordCount: overrides.wordCount ?? wordCount,
+      mode: overrides.mode ?? mode,
+    });
+
+    applySession(session);
+  }, [profile, difficulty, selectedPhoneme, wordCount, mode]);
+
   // ── Initialize word set when profile changes ─────────────────
   useEffect(() => {
-    if (profile) {
-      setItems(pickItems(profile, difficulty, selectedPhoneme, wordCount));
-      setCurrentIndex(0);
-      setScore(0);
-      setFeedback('neutral');
-      setJudgeResult(null);
-      setUserInput('');
-    }
+    startFreshSession();
   }, [profile]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Load voices for current language ──────────────────────────
@@ -131,10 +136,16 @@ export default function App() {
 
   // ── Callbacks ─────────────────────────────────────────────────
 
-  const handleOnboardingComplete = (newL1: string, newL2: string) => {
-    setL1(newL1);
+  const handleOnboardingComplete = (newL1: string | null, newL2: string) => {
+    const safeL1 = newL1 === newL2 ? null : newL1;
+    const languageChanged = newL2 !== l2;
+
+    setL1(safeL1);
     setL2(newL2);
-    saveL1L2(newL1, newL2);
+    saveLanguagePreferences(safeL1, newL2);
+    if (languageChanged) {
+      setSelectedPhoneme(null);
+    }
     setShowOnboarding(false);
   };
 
@@ -148,47 +159,34 @@ export default function App() {
   };
 
   const changeDifficulty = (d: Difficulty) => {
-    if (!profile) return;
     setDifficulty(d);
-    setItems(pickItems(profile, d, selectedPhoneme, wordCount));
-    setCurrentIndex(0);
-    setScore(0);
-    setFeedback('neutral');
-    setJudgeResult(null);
-    setUserInput('');
+    startFreshSession({ difficulty: d });
   };
 
   const newWordSet = () => {
-    if (!profile) return;
-    setItems(pickItems(profile, difficulty, selectedPhoneme, wordCount));
-    setCurrentIndex(0);
-    setScore(0);
-    setFeedback('neutral');
-    setJudgeResult(null);
-    setUserInput('');
+    startFreshSession();
   };
 
   const handlePhonemeChange = (phoneme: string | null) => {
-    if (!profile) return;
     setSelectedPhoneme(phoneme);
-    setItems(pickItems(profile, difficulty, phoneme, wordCount));
-    setCurrentIndex(0);
-    setScore(0);
-    setFeedback('neutral');
-    setJudgeResult(null);
-    setUserInput('');
+    startFreshSession({ phoneme });
   };
 
   const handleSmartPhonemeSelect = (phoneme: string) => {
-    if (!profile) return;
     setSelectedPhoneme(phoneme);
-    setItems(pickItems(profile, difficulty, phoneme, wordCount));
-    setCurrentIndex(0);
-    setScore(0);
-    setFeedback('neutral');
-    setJudgeResult(null);
-    setUserInput('');
     setMode('spelling');
+    startFreshSession({ phoneme, mode: 'spelling' });
+  };
+
+  const handleModeChange = (nextMode: 'spelling' | 'training') => {
+    setMode(nextMode);
+    startFreshSession({ mode: nextMode });
+  };
+
+  const handleWordCountChange = (value: string) => {
+    const nextWordCount = Math.max(1, Math.min(50, parseInt(value) || 1));
+    setWordCount(nextWordCount);
+    startFreshSession({ wordCount: nextWordCount });
   };
 
   const currentItem = items[currentIndex];
@@ -336,7 +334,9 @@ export default function App() {
   }
 
   // L1 label for header
-  const l1Label = SUPPORTED_L1.find(l => l.code === l1)?.label ?? l1 ?? '—';
+  const l1Label = effectiveL1
+    ? (SUPPORTED_L1.find(l => l.code === effectiveL1)?.label ?? effectiveL1)
+    : '直接训练';
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] text-[#1A1A1A] font-sans flex flex-col overflow-hidden">
@@ -375,7 +375,7 @@ export default function App() {
           {/* Mode Toggle */}
           <div className="flex items-center gap-0.5 bg-slate-100 rounded-lg p-0.5">
             <button
-              onClick={() => setMode('spelling')}
+              onClick={() => handleModeChange('spelling')}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all cursor-pointer ${
                 mode === 'spelling'
                   ? 'bg-white text-indigo-600 shadow-sm'
@@ -386,7 +386,7 @@ export default function App() {
               拼写
             </button>
             <button
-              onClick={() => setMode('training')}
+              onClick={() => handleModeChange('training')}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all cursor-pointer ${
                 mode === 'training'
                   ? 'bg-white text-indigo-600 shadow-sm'
@@ -445,7 +445,7 @@ export default function App() {
 
           {/* Phoneme Filter */}
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Phoneme</span>
+            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Topic</span>
             <div className="relative">
               <select
                 value={selectedPhoneme ?? ''}
@@ -475,16 +475,7 @@ export default function App() {
               min={1}
               max={50}
               value={wordCount}
-              onChange={(e) => {
-                const v = Math.max(1, Math.min(50, parseInt(e.target.value) || 1));
-                setWordCount(v);
-                setItems(pickItems(profile, difficulty, selectedPhoneme, v));
-                setCurrentIndex(0);
-                setScore(0);
-                setFeedback('neutral');
-                setJudgeResult(null);
-                setUserInput('');
-              }}
+              onChange={(e) => handleWordCountChange(e.target.value)}
               className="w-12 bg-slate-100 border-none rounded-lg px-1.5 py-1 text-[11px] text-slate-600 font-medium text-center focus:outline-none focus:ring-2 focus:ring-indigo-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
@@ -520,10 +511,10 @@ export default function App() {
       {/* Main Container */}
       <main className="flex-1 flex gap-8 p-8 overflow-y-auto">
         {/* Left: Smart Recommendations (sidebar) */}
-        {l1 && l1 !== profile.code && (
+        {effectiveL1 && (
           <aside className="w-72 shrink-0">
             <SmartRecommend
-              l1={l1}
+              l1={effectiveL1}
               l2={profile.code}
               profile={profile}
               onSelectPhoneme={handleSmartPhonemeSelect}
@@ -538,6 +529,7 @@ export default function App() {
               items={items}
               currentIndex={currentIndex}
               profile={profile}
+              onPrev={prevTrainingWord}
               onNext={nextTrainingWord}
               onPlayAudio={playAudio}
               isPlaying={isPlaying}

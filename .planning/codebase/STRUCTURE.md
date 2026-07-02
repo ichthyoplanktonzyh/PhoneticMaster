@@ -80,6 +80,7 @@ ipa-spelling/
 | `judge.ts` | 音素级判定 + 字符串判定 | types |
 | `voice.ts` | TTS 语音管理（获取、选择、持久化） | — |
 | `phonemeGroups.ts` | 音素分组查询（profile-driven） | types |
+| `trainingSession.ts` | 训练题组抽取与 fresh session 初始化 | types, phonemeGroups |
 
 ## 3. 命名约定
 

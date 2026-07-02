@@ -1,6 +1,6 @@
 # PhoneticMaster — 系统架构
 
-> 最后更新：2026-06-22
+> 最后更新：2026-07-02
 
 ## 1. 架构全景
 
@@ -51,10 +51,10 @@
 │  │  stringJudge)│  │              │  │               │         │
 │  └──────────────┘  └──────────────┘  └───────────────┘         │
 │                                                                  │
-│  ┌──────────────┐  ┌──────────────┐                             │
-│  │ voice.ts     │  │ phonemeGroups│                             │
-│  │ (TTS 管理)   │  │ (音素分组)   │                             │
-│  └──────────────┘  └──────────────┘                             │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
+│  │ voice.ts     │  │ phonemeGroups│  │trainingSession│         │
+│  │ (TTS 管理)   │  │ (音素分组)   │  │(抽题/会话)    │          │
+│  └──────────────┘  └──────────────┘  └──────────────┘          │
 │                                                                  │
 │  ┌───────────────────────────────────────────────┐              │
 │  │            Web Speech API (TTS)               │              │
@@ -129,6 +129,7 @@
 | `utils/judge.ts` | 音素级判定 | phonemeJudge(), stringJudge() |
 | `utils/voice.ts` | TTS 语音管理 | getVoicesForLang(), selectBestVoice(), saveVoicePreference() |
 | `utils/phonemeGroups.ts` | 音素分组查询 | getItemsByPhoneme(), getPhonemeStats() |
+| `utils/trainingSession.ts` | 训练题组抽取 + fresh session 初始化 | pickItems(), refreshSession(), createFreshSession() |
 | `l1/difficultyMap.ts` | L1×L2 难度注册表 | getDifficultyMap(), getTopHardPhonemes(), getHardFeatures() |
 | `l1/zh_en.ts` | 中文→英语映射 | zh_en |
 | `l1/en_zh.ts` | 英语→中文映射 | en_zh |
@@ -153,5 +154,4 @@
 | 1 | `data/wordBank.ts` 仍使用 WordData 格式 | en.ts 需要 convertWordBank() 运行时转换 | 直接迁移为 TrainingItem 格式 |
 | 2 | `components/IPAKeypad.tsx` 仍然存在但不再被引用 | 死代码 | 删除旧文件 |
 | 3 | phonemeGroups 有 GROUP_CACHE 但无失效机制 | 切换 profile 时可能返回旧数据 | 以 profile.code 做 key（已实现） |
-| 4 | App.tsx 中 pickItems 内联在文件中 | 逻辑散落 | 提取为 utils 函数 |
-| 5 | judge.ts 不处理长度差异较大的输入 | 可能误判 nearMatch | 增加长度差异惩罚 |
+| 4 | judge.ts 不处理长度差异较大的输入 | 可能误判 nearMatch | 增加长度差异惩罚 |

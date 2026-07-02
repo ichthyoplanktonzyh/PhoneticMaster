@@ -1,6 +1,6 @@
 # PhoneticMaster — 数据模型
 
-> 最后更新：2026-06-22
+> 最后更新：2026-07-02
 
 ## Identity Strategy
 
@@ -114,7 +114,7 @@ MasteryRecord (planned M4)
 
 | Key | 格式 | 用途 |
 |-----|------|------|
-| `ipa-spelling-l1` | string (ISO 639-1) | 用户母语选择 |
+| `ipa-spelling-l1` | string (ISO 639-1)，可缺省 | 用户母语选择；未选择 L1 时删除或不存在 |
 | `ipa-spelling-l2` | string (ISO 639-1) | 用户目标语言选择 |
 | `ipa-spelling-voice-{lang}` | string (voiceURI) | TTS 语音偏好（按语言） |
 | `phonetic-master-sessions` | TrainingSession[] | 最近训练会话（planned M2） |

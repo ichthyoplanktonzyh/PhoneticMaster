@@ -9,13 +9,14 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { Volume2, ArrowRight, RefreshCw } from 'lucide-react';
+import { Volume2, ArrowLeft, ArrowRight, RefreshCw } from 'lucide-react';
 import type { TrainingItem, LanguageProfile } from '../types';
 
 interface TrainingViewProps {
   items: TrainingItem[];
   currentIndex: number;
   profile: LanguageProfile;
+  onPrev: () => void;
   onNext: () => void;
   onPlayAudio: () => void;
   isPlaying: boolean;
@@ -26,6 +27,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
   items,
   currentIndex,
   profile,
+  onPrev,
   onNext,
   onPlayAudio,
   isPlaying,
@@ -113,13 +115,23 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
               <kbd className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-400 font-mono text-[10px]">←→</kbd> Navigate
             </span>
           </div>
-          <button
-            onClick={onNext}
-            className="px-12 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 uppercase text-xs tracking-widest cursor-pointer"
-          >
-            {currentIndex < items.length - 1 ? 'Next Word' : 'Complete Session'}
-            <ArrowRight className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onPrev}
+              disabled={currentIndex === 0}
+              className="px-6 py-3 text-slate-400 hover:text-slate-700 disabled:opacity-30 disabled:hover:text-slate-400 transition-colors flex items-center justify-center gap-2 uppercase text-xs font-bold tracking-widest cursor-pointer disabled:cursor-not-allowed"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Previous
+            </button>
+            <button
+              onClick={onNext}
+              className="px-12 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 uppercase text-xs tracking-widest cursor-pointer"
+            >
+              {currentIndex < items.length - 1 ? 'Next Word' : 'Complete Session'}
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
         </footer>
       </div>
 

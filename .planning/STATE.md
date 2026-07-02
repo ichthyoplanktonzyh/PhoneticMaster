@@ -2,40 +2,41 @@
 gsd_state_version: 1.0
 milestone: M2
 milestone_name: 纯前端独立训练器 MVP
-status: planned
-last_updated: "2026-06-22T13:58:16+08:00"
+status: in_progress
+last_updated: "2026-07-02T15:17:09+08:00"
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   in_progress_phases: 0
 ---
 
 # PhoneticMaster — 项目活记忆
 
-> 最后更新：2026-06-22
-> 更新原因：产品阶段重排，明确先做不依赖诊断的纯前端独立训练器
+> 最后更新：2026-07-02
+> 更新原因：Phase 2.1 完成，独立训练入口成立
 
 ## 当前位置
 
 | 维度 | 值 |
 |------|------|
 | 里程碑 | M2 — 纯前端独立训练器 MVP |
-| 阶段 | Phase 2.1 待开始 |
+| 阶段 | Phase 2.2 待开始 |
 | 分支 | `main` (ipa-spelling) |
-| 版本 | v1.1 planning |
+| 版本 | v1.1 M2 in progress |
 
 ## Phase 状态
 
-### Phase 2.1: Standalone Training Core 🧭
+### Phase 2.1: Standalone Training Core ✅
 
 - **目标**：用户无需 L1 诊断、无需账号、无需后端即可开始并完成训练
-- **状态**：计划已建立，待实施
+- **状态**：已完成（2026-07-02）
 - **计划文件**：`.planning/phases/2.1-standalone-training-core/2.1-PLAN.md`
+- **总结文件**：`.planning/phases/2.1-standalone-training-core/2.1-SUMMARY.md`
 
 ### Phase 2.2: Feedback & Session Results 🧭
 
 - **目标**：补齐 nearMatch/diff 反馈、会话结果页和本地最近训练记录
-- **状态**：计划已建立，待 Phase 2.1 后实施
+- **状态**：计划已建立，下一步实施
 - **计划文件**：`.planning/phases/2.2-feedback-session-results/2.2-PLAN.md`
 
 ### Phase 3.1: Targeted Minimal Pairs 🧭
@@ -51,6 +52,17 @@ progress:
 - **计划文件**：`.planning/phases/4.1-local-personalization/4.1-PLAN.md`
 
 ## 已完成历史
+
+### Phase 2.1: Standalone Training Core ✅
+
+- **目标**：用户无需 L1 诊断、无需账号、无需后端即可开始并完成训练
+- **完成日期**：2026-07-02
+- **交付物**：
+  - `src/components/OnboardingView.tsx` — L2 必选、L1 可选的入口
+  - `src/App.tsx` — 无 L1 直接训练、训练设置、推荐层降级
+  - `src/utils/trainingSession.ts` — 抽题与 fresh session 初始化工具
+  - `src/components/TrainingView.tsx` — 看词听音 Previous/Next 导航
+  - `npx tsc --noEmit` 和 `npm run build` 通过
 
 ### Phase 1.1: 类型系统 + Profile 架构 ✅
 
@@ -112,6 +124,8 @@ progress:
 6. **2026-06-22** — L1 数据结构：使用 PhonemeDifficulty (level 1-5) + FeatureDifficulty，不使用连续分数
 7. **2026-06-22** — WordData 兼容：保留旧类型 + 转换函数，渐进式迁移
 8. **2026-06-22** — IPAKeypad 旧组件：移除 require() 别名，App.tsx 直接使用 PhoneticKeypad
+9. **2026-07-02** — 独立训练入口：L2 是进入训练的最小必要选择，L1 仅启用可选推荐层
+10. **2026-07-02** — 抽题逻辑：训练题组初始化集中到 `src/utils/trainingSession.ts`
 
 ## 当前阻塞项
 
@@ -120,7 +134,6 @@ progress:
 ## 下一步工作
 
 见 `ROADMAP.md` M2 阶段规划，当前优先级：
-- Phase 2.1：独立训练入口，允许用户无 L1 诊断开始训练
 - Phase 2.2：nearMatch/diff 反馈、会话结果页、本地最近训练记录
 - Phase 2.3：公网静态发布准备，统一 README/PRD 对外叙事
 
@@ -133,4 +146,4 @@ progress:
 | 英语词库条目 | ~100 (原始 wordBank) |
 | 汉语词库条目 | ~250 (HSK 1-3) |
 | TypeScript 编译错误 | 0 |
-| 构建产物大小 | ~668 KB (gzip ~193 KB) |
+| 构建产物大小 | ~670 KB (gzip ~193 KB) |

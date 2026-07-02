@@ -4,6 +4,21 @@ All notable project changes should be recorded here before each commit.
 
 Timestamp format: `YYYY-MM-DD HH:mm Z` using local project time, precise to the minute.
 
+## 2026-07-02 15:17 +0800
+
+### Added
+
+- Added `src/utils/trainingSession.ts` to centralize training item picking and fresh session initialization.
+- Added the Phase 2.1 completion summary under `.planning/phases/2.1-standalone-training-core/`.
+
+### Changed
+
+- Made L1 optional in onboarding; users can now start training with only a target language selected.
+- Updated the main training shell so no-L1 sessions show direct training and do not render the recommendation sidebar.
+- Reset sessions through a shared training-session utility when changing mode, difficulty, topic, word count, or word set.
+- Added explicit Previous navigation to the browse/listen training mode.
+- Updated planning and codebase documentation for Phase 2.1 completion.
+
 ## 2026-07-02 15:06 +0800
 
 ### Added
