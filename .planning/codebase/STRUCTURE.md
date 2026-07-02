@@ -1,7 +1,7 @@
 # PhoneticMaster — 代码库物理结构
 
 > 回答"文件放在哪"。概念分层见 ARCHITECTURE.md。
-> 最后更新：2026-06-22
+> 最后更新：2026-07-02
 
 ## 1. 顶层目录布局
 
@@ -27,6 +27,7 @@ ipa-spelling/
 │   ├── index.css           ← 全局样式
 │   ├── main.tsx            ← React 渲染入口
 │   └── types.ts            ← 全局类型定义
+├── AGENT.md                ← AI 代理维护指南
 ├── index.html              ← HTML 入口
 ├── package.json
 ├── server.ts               ← Express 开发/生产服务器
@@ -108,6 +109,7 @@ ipa-spelling/
 
 | 文件 | 说明 |
 |------|------|
+| `AGENT.md` | AI 代理维护入口，压缩引用 `.planning/` 的核心规则 |
 | `src/types.ts` | 全局类型唯一来源，所有模块从此 import 类型 |
 | `src/profiles/index.ts` | Profile 注册中心，新增语言必须在此 import 并注册 |
 | `src/main.tsx` | React 入口，仅做 ReactDOM.createRoot + App 渲染 |

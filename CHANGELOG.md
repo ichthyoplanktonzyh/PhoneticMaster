@@ -4,6 +4,16 @@ All notable project changes should be recorded here before each commit.
 
 Timestamp format: `YYYY-MM-DD HH:mm Z` using local project time, precise to the minute.
 
+## 2026-07-02 15:06 +0800
+
+### Added
+
+- Added root-level `AGENT.md` as a compact maintenance guide for future AI agents and maintainers.
+
+### Changed
+
+- Updated `.planning/codebase/STRUCTURE.md` to include the new agent guide.
+
 ## 2026-06-22 14:00 +0800
 
 ### Changed
