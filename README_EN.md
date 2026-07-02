@@ -28,8 +28,8 @@ An interactive training tool for learning American English IPA (International Ph
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/ichthyoplanktonzyh/ipa-spelling-master.git
-cd ipa-spelling-master
+git clone https://github.com/ichthyoplanktonzyh/PhoneticMaster.git
+cd PhoneticMaster
 
 # 2. Install dependencies
 npm install

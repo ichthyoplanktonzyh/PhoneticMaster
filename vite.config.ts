@@ -5,7 +5,7 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
-    base: process.env.GITHUB_PAGES === 'true' ? '/ipa-spelling-master/' : '/',
+    base: process.env.GITHUB_PAGES === 'true' ? '/PhoneticMaster/' : '/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
