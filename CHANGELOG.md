@@ -4,28 +4,28 @@ All notable project changes should be recorded here before each commit.
 
 Timestamp format: `YYYY-MM-DD HH:mm Z` using local project time, precise to the minute.
 
-## 2026-07-02 15:36 +0800
+## 2026-07-02 15:42 +0800
 
 ### Added
 
-- Added Phase 2.2 MVP Scope Triage to classify necessary features, delayed features, long-term enhancements, and pseudo-requirements before implementation continues.
-- Added context for the new scope-triage phase.
+- Added Phase 2.2 Data Cleaning to clean and validate word banks, language profiles, and L1/L2 mappings before implementation continues.
+- Added context for the new data-cleaning phase.
 
 ### Changed
 
 - Moved Feedback & Session Results from Phase 2.2 to Phase 2.3.
-- Updated roadmap, state, DDD, and agent guidance to make scope triage the next step.
+- Updated roadmap, state, DDD, and agent guidance to make data cleaning the next step.
 
 ## 2026-07-02 15:23 +0800
 
 ### Added
 
-- Added `.planning/codebase/DDD-ARCHITECTURE.md` to establish DDD subdomains, bounded contexts, aggregate candidates, and Phase 2.2 architecture guidance.
+- Added `.planning/codebase/DDD-ARCHITECTURE.md` to establish DDD subdomains, bounded contexts, aggregate candidates, and Feedback/Session Results architecture guidance.
 
 ### Changed
 
 - Updated architecture, structure, and state planning docs to reference the DDD model before starting Feedback & Session Results.
-- Updated maintenance and agent guides so new sessions read the DDD architecture before Phase 2.2 implementation.
+- Updated maintenance and agent guides so new sessions read the DDD architecture before feedback/session implementation.
 
 ## 2026-07-02 15:17 +0800
 

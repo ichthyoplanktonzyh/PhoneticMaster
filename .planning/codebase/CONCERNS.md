@@ -11,7 +11,7 @@
 - **问题**：英语词库仍使用 `WordData` 格式，en.ts 需要运行时 `convertWordBank()` 转换
 - **影响**：每次 import englishProfile 都执行转换；类型不一致增加认知负担
 - **修复方向**：将 wordBank.ts 直接迁移为 TrainingItem 格式，删除 convertWordBank()
-- **当前状态**：可工作，M2 前清理
+- **当前状态**：纳入 Phase 2.2 Data Cleaning
 
 ### 1.2 旧 IPAKeypad 组件残留
 
@@ -53,7 +53,7 @@
 - **脆弱原因**：映射数据基于语言学文献但未经大规模验证，可能有遗漏或过度简化
 - **常见失败**：某些难点音素未覆盖；minimalPairs 列表可能不够典型
 - **安全修改方式**：逐步补充，不删除现有条目；新增条目需标注来源
-- **测试覆盖**：❌ 无（结构正确性由 TypeScript 保证）
+- **测试覆盖**：❌ 无（纳入 Phase 2.2 Data Cleaning 的结构校验）
 
 ## 3. 测试覆盖缺口
 

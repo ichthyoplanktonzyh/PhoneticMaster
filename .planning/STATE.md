@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: M2
 milestone_name: 纯前端独立训练器 MVP
 status: in_progress
-last_updated: "2026-07-02T15:36:11+08:00"
+last_updated: "2026-07-02T15:42:23+08:00"
 progress:
   total_phases: 4
   completed_phases: 1
@@ -13,7 +13,7 @@ progress:
 # PhoneticMaster — 项目活记忆
 
 > 最后更新：2026-07-02
-> 更新原因：新增 Phase 2.2 MVP Scope Triage，Feedback 顺延为 Phase 2.3
+> 更新原因：新增 Phase 2.2 Data Cleaning，Feedback 顺延为 Phase 2.3
 
 ## 当前位置
 
@@ -33,17 +33,17 @@ progress:
 - **计划文件**：`.planning/phases/2.1-standalone-training-core/2.1-PLAN.md`
 - **总结文件**：`.planning/phases/2.1-standalone-training-core/2.1-SUMMARY.md`
 
-### Phase 2.2: MVP Scope Triage 🧭
+### Phase 2.2: Data Cleaning 🧭
 
-- **目标**：明确 MVP 必要需求、必要但不急、远期增强和伪需求，作为后续实现边界
+- **目标**：清洗并校验训练数据、语言 Profile 数据和 L1×L2 映射数据，为反馈/结果/推荐提供可信数据基础
 - **状态**：计划已建立，下一步实施
-- **计划文件**：`.planning/phases/2.2-mvp-scope-triage/2.2-PLAN.md`
-- **上下文文件**：`.planning/phases/2.2-mvp-scope-triage/2.2-CONTEXT.md`
+- **计划文件**：`.planning/phases/2.2-data-cleaning/2.2-PLAN.md`
+- **上下文文件**：`.planning/phases/2.2-data-cleaning/2.2-CONTEXT.md`
 
 ### Phase 2.3: Feedback & Session Results 🧭
 
 - **目标**：补齐 nearMatch/diff 反馈、会话结果页和本地最近训练记录
-- **状态**：计划已建立，待 Phase 2.2 范围裁剪后实施
+- **状态**：计划已建立，待 Phase 2.2 数据清洗后实施
 - **计划文件**：`.planning/phases/2.3-feedback-session-results/2.3-PLAN.md`
 
 ### Phase 3.1: Targeted Minimal Pairs 🧭
@@ -134,7 +134,7 @@ progress:
 9. **2026-07-02** — 独立训练入口：L2 是进入训练的最小必要选择，L1 仅启用可选推荐层
 10. **2026-07-02** — 抽题逻辑：训练题组初始化集中到 `src/utils/trainingSession.ts`
 11. **2026-07-02** — DDD 架构：核心域确认为 Training Core + Feedback，Feedback 阶段应以 `TrainingSession` 和 `SessionResult` 为模型中心
-12. **2026-07-02** — 路线调整：新增 Phase 2.2 MVP Scope Triage，先裁剪必要需求/伪需求，再进入 Feedback & Session Results
+12. **2026-07-02** — 路线调整：新增 Phase 2.2 Data Cleaning，先清理训练数据、Profile 和 L1×L2 映射，再进入 Feedback & Session Results
 
 ## 当前阻塞项
 
@@ -143,7 +143,7 @@ progress:
 ## 下一步工作
 
 见 `ROADMAP.md` M2 阶段规划，当前优先级：
-- Phase 2.2：MVP Scope Triage，明确必要需求、必要但不急、远期增强和伪需求
+- Phase 2.2：Data Cleaning，迁移英语旧词库格式并建立训练数据/Profile/L1 映射校验入口
 - Phase 2.3：按 `codebase/DDD-ARCHITECTURE.md` 确立的 Training/Feedback 边界，实现 nearMatch/diff 反馈、会话结果页、本地最近训练记录
 - Phase 2.4：公网静态发布准备，统一 README/PRD 对外叙事
 
