@@ -4,6 +4,19 @@ All notable project changes should be recorded here before each commit.
 
 Timestamp format: `YYYY-MM-DD HH:mm Z` using local project time, precise to the minute.
 
+## 2026-07-02 21:53 +0800
+
+### Added
+
+- Added Phase 3.2 planning, context, QA checklist, and completion summary.
+- Added `pinyinBuilder` for structured tone-number Pinyin generation.
+- Added a Mandarin structured input panel for initial -> final -> tone spelling input.
+
+### Changed
+
+- Replaced the Mandarin on-screen spelling keypad with the structured Pinyin input panel while keeping direct text entry available.
+- Updated README, PRD, roadmap, state, agent guide, and codebase docs for completed Phase 3.2.
+
 ## 2026-07-02 21:29 +0800
 
 ### Added

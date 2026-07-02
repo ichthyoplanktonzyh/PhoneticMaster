@@ -55,12 +55,21 @@
 - **安全修改方式**：`MinimalPairOption.audioUrl` 已预留；核心 pair 后续应接入人工审校标准音频或高质量 TTS 音频
 - **测试覆盖**：✅ 数据结构校验；❌ 发音质量不可自动验证
 
+### 2.4 结构化拼音输入仍允许非法组合
+
+- **文件**：`src/components/StructuredPinyinInput.tsx`、`src/utils/pinyinBuilder.ts`
+- **脆弱原因**：Phase 3.2 先实现声母 → 韵母 → 声调的组合辅助，但尚未按普通话拼音规则过滤所有非法声韵组合
+- **常见失败**：用户可组合出 `bv4`、`fer2` 等非自然拼音；最终会由 `zhJudge` 判错，但输入辅助本身未阻止
+- **安全修改方式**：后续添加合法声韵组合表，或按 profile 提供 allowedCombinations
+- **测试覆盖**：✅ 关键正字法规则手动检查；❌ 无 fixture-based 单元测试
+
 ## 3. 测试覆盖缺口
 
 | 优先级 | 文件 | 风险 |
 |--------|------|------|
 | P0 | `scripts/validateData.ts` | 当前作为脚本运行，无单元测试覆盖各类失败样例 |
 | P0 | `src/utils/pinyinParser.ts` | 边界音节解析错误直接影响汉语训练 |
+| P1 | `src/utils/pinyinBuilder.ts` | 结构化拼音生成规则缺少自动测试 |
 | P0 | `src/utils/judge.ts` | 判定逻辑错误影响所有语言的反馈 |
 | P0 | `src/utils/storage.ts` | localStorage 异常、坏数据或历史上限逻辑回归会影响最近记录 |
 | P0 | `src/utils/ipaParser.ts` | 双字符音素匹配顺序影响英语训练 |
@@ -68,6 +77,7 @@
 | P1 | `src/profiles/zh.ts` | zhJudge 声调容错逻辑 |
 | P2 | `src/utils/minimalPairs.ts` | 题目生成和结果汇总缺少 fixture-based 单元测试 |
 | P2 | `src/components/MinimalPairView.tsx` | A/B 选择、完成状态和复盘 UI 缺少组件测试 |
+| P2 | `src/components/StructuredPinyinInput.tsx` | 结构化输入选择状态和提交行为缺少组件测试 |
 | P2 | `src/components/OnboardingView.tsx` | L1===L2 阻断逻辑 |
 
 ## 4. 依赖风险

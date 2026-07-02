@@ -3,24 +3,24 @@ gsd_state_version: 1.0
 milestone: M3
 milestone_name: 专项训练 + 最小对立体
 status: in_progress
-last_updated: "2026-07-02T21:15:00+08:00"
+last_updated: "2026-07-02T21:53:00+08:00"
 progress:
   total_phases: 3
-  completed_phases: 1
+  completed_phases: 2
   in_progress_phases: 0
 ---
 
 # PhoneticMaster — 项目活记忆
 
 > 最后更新：2026-07-02
-> 更新原因：Phase 3.1 Targeted Minimal Pairs 完成，下一步进入 Phase 3.2 Chinese Structured Input
+> 更新原因：Phase 3.2 Chinese Structured Input 完成，下一步进入 Phase 3.3 Phoneme Detail Panel
 
 ## 当前位置
 
 | 维度 | 值 |
 |------|------|
 | 里程碑 | M3 — 专项训练 + 最小对立体 |
-| 阶段 | Phase 3.2 待开始 |
+| 阶段 | Phase 3.3 待开始 |
 | 分支 | `main` (ipa-spelling) |
 | 版本 | v1.2 M3 in progress |
 
@@ -67,6 +67,15 @@ progress:
 ### Phase 3.2: Chinese Structured Input 🧭
 
 - **目标**：将中文拼音输入从简单字符串追加演进为声母 → 韵母 → 声调的结构化输入原型
+- **状态**：已完成（2026-07-02）
+- **计划文件**：`.planning/phases/3.2-chinese-structured-input/3.2-PLAN.md`
+- **上下文文件**：`.planning/phases/3.2-chinese-structured-input/3.2-CONTEXT.md`
+- **总结文件**：`.planning/phases/3.2-chinese-structured-input/3.2-SUMMARY.md`
+- **QA 文件**：`.planning/phases/3.2-chinese-structured-input/3.2-QA.md`
+
+### Phase 3.3: Phoneme Detail Panel 🧭
+
+- **目标**：补充音素/拼音单元详情、PAM/SLM 原因和例词/最小对立体入口
 - **状态**：待开始
 - **计划文件**：待建立
 
@@ -77,6 +86,17 @@ progress:
 - **计划文件**：`.planning/phases/4.1-local-personalization/4.1-PLAN.md`
 
 ## 已完成历史
+
+### Phase 3.2: Chinese Structured Input ✅
+
+- **目标**：将中文拼音输入升级为声母 → 韵母 → 声调结构化辅助
+- **完成日期**：2026-07-02
+- **交付物**：
+  - `src/utils/pinyinBuilder.ts` — 结构化拼音生成、零声母、`j/q/x + ü` 正字法和轻声处理
+  - `src/components/StructuredPinyinInput.tsx` — 中文三段式输入面板
+  - `src/App.tsx` — 中文拼写模式接入结构化输入，英语保持原 IPA keypad
+  - `.planning/phases/3.2-chinese-structured-input/3.2-QA.md` — 自动检查、规则检查和浏览器冒烟清单
+  - `npm run validate:data`、`npm run lint`、`npm run build` 通过
 
 ### Phase 3.1: Targeted Minimal Pairs ✅
 
@@ -207,6 +227,9 @@ progress:
 18. **2026-07-02** — M3 启动：Phase 3.1 先做结构化 minimal pair 数据、A/B 听辨和本轮结果统计，仍不引入后端音频服务
 19. **2026-07-02** — Minimal pair 数据独立为 `minimalPairBank`，不再把练习生成建立在 L1 映射里的 `"ship/sheep"` 字符串上
 20. **2026-07-02** — Minimal pair 当前使用 Web Speech API，`MinimalPairOption.audioUrl` 预留给未来标准音频
+21. **2026-07-02** — 3.1 QA 结论：Web Speech API 勉强可用，后续 minimal pair 应更换标准音频或更高质量 TTS
+22. **2026-07-02** — 中文结构化输入定位为教学辅助，不取消 `ni3 hao3` 自由输入兜底
+23. **2026-07-02** — 拼音结构化输入输出正字法 tone-number（如 `qu4`、`xue2`、`yue4`），解析层继续归一到内部 token
 
 ## 当前阻塞项
 
@@ -215,8 +238,8 @@ progress:
 ## 下一步工作
 
 见 `ROADMAP.md` M3 阶段规划，当前优先级：
-- Phase 3.2：推进中文声母 → 韵母 → 声调三步输入原型
 - Phase 3.3：补充音素/拼音单元详情面板和例词说明
+- M4 前置观察：收集用户对结构化拼音输入默认展示是否直观的反馈
 
 ## 指标
 

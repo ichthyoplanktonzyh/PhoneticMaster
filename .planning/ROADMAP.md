@@ -17,7 +17,7 @@
 |------|------|
 | 已完成里程碑 | M0 (原始英语工具) → M1 (多语言架构) → M2 (纯前端独立训练器 MVP) |
 | 当前里程碑 | M3 — 专项训练 + 最小对立体 |
-| 下一个 phase | 3.2 — Chinese Structured Input |
+| 下一个 phase | 3.3 — Phoneme Detail Panel |
 | 技术栈 | React 19 + TypeScript + Vite 6 + Tailwind 4 |
 | 架构模式 | LanguageProfile-driven SPA |
 | 发布策略 | MVP 纯前端静态部署，无账号、无数据库、无后端依赖 |
@@ -119,13 +119,13 @@ graph LR
 
 ## 8. M3 — 专项训练 + 最小对立体
 
-> 状态：🚧 进行中。Phase 3.1 已完成（2026-07-02），下一步进入 Phase 3.2。
+> 状态：🚧 进行中。Phase 3.1、3.2 已完成（2026-07-02），下一步进入 Phase 3.3。
 
 - **目标**：把训练器从“通用练习”升级为“针对具体声音问题的专项练习”。
 - **覆盖需求**：TRAIN-001 ~ TRAIN-003, FEED-003
 - **主要 phase**：
   - ✅ 3.1 Targeted Minimal Pairs：最小对立体 A/B 听辨训练（2026-07-02 完成）
-  - 3.2 Chinese Structured Input：声母 → 韵母 → 声调三步输入
+  - ✅ 3.2 Chinese Structured Input：声母 → 韵母 → 声调三步输入（2026-07-02 完成）
   - 3.3 Phoneme Detail Panel：音素详情、PAM/SLM 原因、例词
 - **交付物**：
   - 最小对立体听辨模式

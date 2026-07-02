@@ -22,6 +22,7 @@ import { OnboardingView } from './components/OnboardingView';
 import { SessionResultView } from './components/SessionResultView';
 import { PhonemeDiffView } from './components/PhonemeDiffView';
 import { MinimalPairView } from './components/MinimalPairView';
+import { StructuredPinyinInput } from './components/StructuredPinyinInput';
 import type {
   Difficulty,
   JudgeResult,
@@ -55,6 +56,7 @@ import {
   createMinimalPairSession,
   getMinimalPairAudioText,
 } from './utils/minimalPairs';
+import { appendPinyinSyllable } from './utils/pinyinBuilder';
 
 // ── LocalStorage keys ──────────────────────────────────────────
 
@@ -426,6 +428,11 @@ export default function App() {
   const handleDelete = () => {
     if (feedback !== 'neutral') return;
     setUserInput(prev => prev.slice(0, -1));
+  };
+
+  const handlePinyinSyllableCommit = (syllable: string) => {
+    if (feedback !== 'neutral') return;
+    setUserInput(prev => appendPinyinSyllable(prev, syllable));
   };
 
   const finishCurrentSession = (sourceSession: TrainingSession | null = session) => {
@@ -1148,7 +1155,15 @@ export default function App() {
                           exit={{ height: 0, opacity: 0 }}
                           className="overflow-hidden pb-4"
                         >
-                          <PhoneticKeypad profile={profile} onInsert={handleCharInsert} />
+                          {profile.notationName === 'Pinyin' ? (
+                            <StructuredPinyinInput
+                              profile={profile}
+                              disabled={feedback !== 'neutral'}
+                              onCommitSyllable={handlePinyinSyllableCommit}
+                            />
+                          ) : (
+                            <PhoneticKeypad profile={profile} onInsert={handleCharInsert} />
+                          )}
                         </motion.div>
                       )}
                     </AnimatePresence>

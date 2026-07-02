@@ -23,6 +23,7 @@ The app has no required backend and no external API dependency. Word banks are b
   - Spelling: listen, type IPA or Pinyin, then get phoneme-level feedback.
   - Listen: view the word and notation while replaying the audio.
 - **Minimal-pair listening**: choose what you heard from A/B candidates, then review accuracy and missed pairs.
+- **Structured Mandarin input**: Mandarin spelling mode provides an initial -> final -> tone input panel while keeping direct `ni3 hao3` typing available.
 - **Session results**: exact score, near matches, mistakes, review, and recent local history.
 - **Topic filtering**: focus a session on a specific English phoneme or Pinyin unit.
 - **Adjustable round size**: 1 to 50 items per session.
