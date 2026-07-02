@@ -77,12 +77,34 @@ components -> profiles -> utils / data / l1
 | `npm run validate:data` | validate profiles, word banks, and L1/L2 maps |
 | `npx tsc --noEmit` | direct type check |
 | `npm run build` | production build plus bundled `server.ts` |
+| `GITHUB_PAGES=true npm run build` | build with GitHub Pages asset base (`/PhoneticMaster/`) |
 | `npm run start` | run `dist/server.cjs` after build |
 | `npm run clean` | remove build artifacts |
 
 There is no unit test framework yet. `.planning/codebase/TESTING.md` recommends Vitest when parser, judge, profile, or component tests are added.
 
-## 6. Documentation Maintenance
+## 6. CI/CD And Deployment
+
+- Canonical GitHub repository: `https://github.com/ichthyoplanktonzyh/PhoneticMaster`.
+- Public GitHub Pages URL: `https://ichthyoplanktonzyh.github.io/PhoneticMaster/`.
+- Local `origin` should point to `https://github.com/ichthyoplanktonzyh/PhoneticMaster.git`; the old `ipa-spelling-master` URL redirects but should not be used for new setup.
+- Deployment workflow: `.github/workflows/deploy.yml`.
+- Trigger: every push to `main`, plus manual `workflow_dispatch`.
+- Workflow checks: `npm ci` → `npm run validate:data` → `npm run lint` → `npm run build` with `GITHUB_PAGES=true` → upload `dist/` → deploy Pages.
+- GitHub Pages must be enabled with build type `workflow`; if `actions/configure-pages` returns a Pages Not Found error, enable Pages for the repository first.
+- `vite.config.ts` uses `process.env.GITHUB_PAGES === 'true'` to set `base: '/PhoneticMaster/'`. Keep this value aligned with the repository name and public Pages path.
+- Before changing the repository name, custom domain, or Pages path, update all of these together: `vite.config.ts`, `README.md`, `README_EN.md`, Git remote URL, and this section.
+- To verify a Pages deployment locally, run `GITHUB_PAGES=true npm run build` and inspect `dist/index.html`; asset URLs should start with `/PhoneticMaster/assets/`.
+- After deployment, verify the public page and assets with:
+
+```bash
+curl -I -L https://ichthyoplanktonzyh.github.io/PhoneticMaster/
+curl -L https://ichthyoplanktonzyh.github.io/PhoneticMaster/ | sed -n '1,40p'
+```
+
+- GitHub Actions currently emits Node/action deprecation annotations for some upstream actions being forced to newer Node runtimes; these are warnings unless the run fails.
+
+## 7. Documentation Maintenance
 
 `.planning/MAINTENANCE.md` defines the full rules. The short version:
 
@@ -101,7 +123,7 @@ There is no unit test framework yet. `.planning/codebase/TESTING.md` recommends 
 - Use relative links between planning documents.
 - Prefer tables for structured planning data and ASCII diagrams for architecture sketches.
 
-## 7. What To Update When
+## 8. What To Update When
 
 | Change | Required docs |
 |---|---|
@@ -117,8 +139,9 @@ There is no unit test framework yet. `.planning/codebase/TESTING.md` recommends 
 | Coding rules changed | `.planning/codebase/CONVENTIONS.md` |
 | New or resolved technical debt | `.planning/codebase/CONCERNS.md` |
 | Tests added or testing strategy changed | `.planning/codebase/TESTING.md` |
+| CI/CD, Pages URL, or repository path changed | `AGENT.md`, `.planning/codebase/STACK.md`, README files |
 
-## 8. Known Fragile Areas
+## 9. Known Fragile Areas
 
 Check `.planning/codebase/CONCERNS.md` before touching:
 
@@ -127,9 +150,10 @@ Check `.planning/codebase/CONCERNS.md` before touching:
 - `src/utils/judge.ts` — `nearMatch` behavior can be too lenient for large length differences.
 - `src/l1/zh_en.ts`, `src/l1/en_zh.ts` — L1/L2 mapping data is structurally validated but not linguistically exhaustive.
 - `scripts/validateData.ts` — data validation gate has no fixture-based unit tests yet.
+- `.github/workflows/deploy.yml` + `vite.config.ts` — Pages deployment depends on the `/PhoneticMaster/` base path matching the repository name.
 - `src/components/IPAKeypad.tsx` — legacy component, currently dead code.
 
-## 9. Working Style
+## 10. Working Style
 
 - Keep changes scoped to the active phase or explicit user request.
 - Preserve user edits in the working tree. Do not revert unrelated changes.

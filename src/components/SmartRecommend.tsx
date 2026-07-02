@@ -25,6 +25,10 @@ const L1_LABELS: Record<string, string> = Object.fromEntries(
   SUPPORTED_L1.map(l => [l.code, l.label]),
 );
 
+function getTrainingUnitLabel(profile: LanguageProfile): string {
+  return profile.notationName === 'Pinyin' ? '拼音单元' : '音素';
+}
+
 function DifficultyStars({ level }: { level: number }) {
   return (
     <span className="inline-flex gap-0.5">
@@ -46,6 +50,7 @@ export const SmartRecommend: React.FC<SmartRecommendProps> = ({
 }) => {
   const topPhonemes = getTopHardPhonemes(l1, l2, profile, 6);
   const hardFeatures = getHardFeatures(l1, l2).slice(0, 3);
+  const trainingUnitLabel = getTrainingUnitLabel(profile);
 
   if (!l1 || l1 === l2) {
     return (
@@ -86,7 +91,7 @@ export const SmartRecommend: React.FC<SmartRecommendProps> = ({
       {topPhonemes.length > 0 && (
         <div className="space-y-2">
           <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-            你最容易混淆的音素
+            你最容易混淆的{trainingUnitLabel}
           </h4>
           <div className="space-y-1.5">
             {topPhonemes.map(item => (
@@ -97,7 +102,7 @@ export const SmartRecommend: React.FC<SmartRecommendProps> = ({
               >
                 <DifficultyStars level={item.level} />
                 <span className="ipa-text text-sm font-medium text-slate-700 min-w-[3rem]">
-                  /{item.phoneme}/
+                  {profile.notationName === 'Pinyin' ? item.phoneme : `/${item.phoneme}/`}
                 </span>
                 <span className="text-[11px] text-slate-400 flex-1 truncate">
                   {item.reason}

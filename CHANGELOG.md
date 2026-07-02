@@ -4,6 +4,13 @@ All notable project changes should be recorded here before each commit.
 
 Timestamp format: `YYYY-MM-DD HH:mm Z` using local project time, precise to the minute.
 
+## 2026-07-02 16:42 +0800
+
+### Changed
+
+- Reworded user-facing Pinyin terminology from phonemes to Pinyin units/training units.
+- Clarified in README that the 61 Pinyin units are 21 initials, 35 finals, and 5 tones.
+
 ## 2026-07-02 16:32 +0800
 
 ### Added

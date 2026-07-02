@@ -487,7 +487,9 @@ export default function App() {
           <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center mx-auto">
             <RefreshCw className="w-8 h-8 text-amber-500" />
           </div>
-          <p className="text-slate-600 font-medium text-sm">该音素在当前难度下没有匹配单词</p>
+          <p className="text-slate-600 font-medium text-sm">
+            {profile.notationName === 'Pinyin' ? '该拼音单元' : '该音素'}在当前难度下没有匹配单词
+          </p>
           <button
             onClick={() => handlePhonemeChange(null)}
             className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-indigo-700 transition-colors cursor-pointer"
@@ -612,7 +614,7 @@ export default function App() {
 
           <div className="h-10 w-px bg-slate-100"></div>
 
-          {/* Phoneme Filter */}
+          {/* Topic Filter */}
           <div className="flex items-center gap-1.5">
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Topic</span>
             <div className="relative">

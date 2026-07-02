@@ -12,6 +12,7 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Globe, ArrowRight, Sparkles } from 'lucide-react';
 import { getAllProfiles, SUPPORTED_L1 } from '../profiles';
+import type { LanguageProfile } from '../types';
 
 interface OnboardingViewProps {
   /** Currently selected L2 code (if any). */
@@ -21,6 +22,10 @@ interface OnboardingViewProps {
   /** Callback when user confirms selection and enters training.
    *  l1 may be null if the user skips it. */
   onComplete: (l1: string | null, l2: string) => void;
+}
+
+function getTrainingUnitLabel(profile: LanguageProfile): string {
+  return profile.notationName === 'Pinyin' ? '拼音单元' : '音素';
 }
 
 export const OnboardingView: React.FC<OnboardingViewProps> = ({
@@ -90,7 +95,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
               >
                 <div className="font-bold text-lg mb-0.5">{profile.displayName}</div>
                 <div className={`text-[11px] ${selectedL2 === profile.code ? 'text-indigo-200' : 'text-slate-400'}`}>
-                  {profile.notationName} 训练 • {profile.phonemes.length} 个音素
+                  {profile.notationName} 训练 • {profile.phonemes.length} 个{getTrainingUnitLabel(profile)}
                 </div>
               </button>
             ))}
@@ -105,7 +110,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
             </div>
             <div>
               <h2 className="text-lg font-bold text-slate-800">你的母语</h2>
-              <p className="text-[11px] text-slate-400">用于智能推荐你最容易混淆的音素（可选）</p>
+              <p className="text-[11px] text-slate-400">用于智能推荐你最容易混淆的训练重点（可选）</p>
             </div>
             <span className="ml-auto text-[10px] font-bold text-slate-400 uppercase tracking-wider bg-slate-50 px-2 py-0.5 rounded">可选</span>
           </div>
