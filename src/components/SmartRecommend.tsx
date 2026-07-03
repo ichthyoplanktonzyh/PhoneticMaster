@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import { Star, AlertTriangle, ArrowRight } from 'lucide-react';
+import { Star, AlertTriangle, ArrowRight, Info, Target } from 'lucide-react';
 import type { LanguageProfile, PhonemeDifficulty, FeatureDifficulty } from '../types';
 import { getTopHardPhonemes, getHardFeatures, hasDifficultyMap } from '../l1/difficultyMap';
 import { SUPPORTED_L1 } from '../profiles';
@@ -19,6 +19,8 @@ interface SmartRecommendProps {
   profile: LanguageProfile;
   /** Callback when user clicks a phoneme to start training. */
   onSelectPhoneme: (phoneme: string) => void;
+  /** Callback when user opens the phoneme explanation drawer. */
+  onInspectPhoneme?: (phoneme: string) => void;
 }
 
 const L1_LABELS: Record<string, string> = Object.fromEntries(
@@ -47,6 +49,7 @@ export const SmartRecommend: React.FC<SmartRecommendProps> = ({
   l2,
   profile,
   onSelectPhoneme,
+  onInspectPhoneme,
 }) => {
   const topPhonemes = getTopHardPhonemes(l1, l2, profile, 6);
   const hardFeatures = getHardFeatures(l1, l2).slice(0, 3);
@@ -81,7 +84,7 @@ export const SmartRecommend: React.FC<SmartRecommendProps> = ({
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-5">
       <div className="flex items-center gap-2">
-        <span className="text-lg">🎯</span>
+        <Target className="h-4 w-4 text-indigo-500" />
         <h3 className="text-sm font-bold text-slate-700">
           为你推荐（{L1_LABELS[l1] ?? l1}母语者学{profile.displayName}）
         </h3>
@@ -95,20 +98,35 @@ export const SmartRecommend: React.FC<SmartRecommendProps> = ({
           </h4>
           <div className="space-y-1.5">
             {topPhonemes.map(item => (
-              <button
+              <div
                 key={item.phoneme}
-                onClick={() => onSelectPhoneme(item.phoneme)}
-                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-indigo-50 transition-colors text-left cursor-pointer group"
+                className="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors hover:bg-indigo-50"
               >
-                <DifficultyStars level={item.level} />
-                <span className="ipa-text text-sm font-medium text-slate-700 min-w-[3rem]">
-                  {profile.notationName === 'Pinyin' ? item.phoneme : `/${item.phoneme}/`}
-                </span>
-                <span className="text-[11px] text-slate-400 flex-1 truncate">
-                  {item.reason}
-                </span>
-                <ArrowRight className="w-3 h-3 text-slate-300 group-hover:text-indigo-500 transition-colors flex-shrink-0" />
-              </button>
+                <button
+                  type="button"
+                  onClick={() => onSelectPhoneme(item.phoneme)}
+                  className="group flex min-w-0 flex-1 items-center gap-3 rounded-md px-1 py-1 text-left cursor-pointer"
+                >
+                  <DifficultyStars level={item.level} />
+                  <span className="ipa-text text-sm font-medium text-slate-700 min-w-[3rem]">
+                    {profile.notationName === 'Pinyin' ? item.phoneme : `/${item.phoneme}/`}
+                  </span>
+                  <span className="text-[11px] text-slate-400 flex-1 truncate">
+                    {item.reason}
+                  </span>
+                  <ArrowRight className="w-3 h-3 text-slate-300 group-hover:text-indigo-500 transition-colors flex-shrink-0" />
+                </button>
+                {onInspectPhoneme && (
+                  <button
+                    type="button"
+                    onClick={() => onInspectPhoneme(item.phoneme)}
+                    title="查看详情"
+                    className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-slate-300 transition-colors hover:bg-white hover:text-indigo-500 cursor-pointer"
+                  >
+                    <Info className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
             ))}
           </div>
         </div>

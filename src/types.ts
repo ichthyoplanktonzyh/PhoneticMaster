@@ -147,6 +147,20 @@ export interface MinimalPairResult {
   mistakes: MinimalPairAnswer[];
 }
 
+// ── Phoneme Detail ─────────────────────────────────────────────
+
+export interface PhonemeDetail {
+  symbol: string;
+  label: string;
+  category: string;
+  profileCode: string;
+  notationName: string;
+  difficulty?: PhonemeDifficulty;
+  examples: TrainingItem[];
+  exampleCount: number;
+  minimalPairs: MinimalPairSet[];
+}
+
 // ── Backward compatibility ──────────────────────────────────────
 
 /**

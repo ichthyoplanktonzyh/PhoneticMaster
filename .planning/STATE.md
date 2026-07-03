@@ -2,27 +2,27 @@
 gsd_state_version: 1.0
 milestone: M3
 milestone_name: 专项训练 + 最小对立体
-status: in_progress
-last_updated: "2026-07-02T22:18:00+08:00"
+status: completed
+last_updated: "2026-07-03T11:22:00+08:00"
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   in_progress_phases: 0
 ---
 
 # PhoneticMaster — 项目活记忆
 
-> 最后更新：2026-07-02
-> 更新原因：产品焦点从继续推进 Phase 3.3 暂时切换为 Research R1 用户需求调研
+> 最后更新：2026-07-03
+> 更新原因：Phase 3.3 Phoneme Detail Panel 完成，M3 专项训练收口
 
 ## 当前位置
 
 | 维度 | 值 |
 |------|------|
-| 里程碑 | M3 — 专项训练 + 最小对立体 |
-| 阶段 | Research R1 — 用户需求调研（Phase 3.3 暂缓） |
+| 里程碑 | M3 — 专项训练 + 最小对立体（已完成） |
+| 阶段 | 下一步：M4 / Phase 4.1 Local Personalization |
 | 分支 | `main` (ipa-spelling) |
-| 版本 | v1.2 M3 in progress |
+| 版本 | v1.2 M3 complete |
 
 ## Phase 状态
 
@@ -76,16 +76,30 @@ progress:
 ### Phase 3.3: Phoneme Detail Panel 🧭
 
 - **目标**：补充音素/拼音单元详情、PAM/SLM 原因和例词/最小对立体入口
-- **状态**：待开始
-- **计划文件**：待建立
+- **状态**：已完成（2026-07-03）
+- **计划文件**：`.planning/phases/3.3-phoneme-detail-panel/3.3-PLAN.md`
+- **总结文件**：`.planning/phases/3.3-phoneme-detail-panel/3.3-SUMMARY.md`
+- **QA 文件**：`.planning/phases/3.3-phoneme-detail-panel/3.3-QA.md`
 
 ### Phase 4.1: Local Personalization 🧭
 
 - **目标**：用本地训练历史和 L1-aware 难点生成下一步推荐
-- **状态**：计划已建立，等待 M3 专项训练完成
+- **状态**：计划已建立，建议作为下一阶段启动
 - **计划文件**：`.planning/phases/4.1-local-personalization/4.1-PLAN.md`
 
 ## 已完成历史
+
+### Phase 3.3: Phoneme Detail Panel ✅
+
+- **目标**：补充音素/拼音单元详情、PAM/SLM 原因、例词和最小对立体入口
+- **完成日期**：2026-07-03
+- **交付物**：
+  - `src/types.ts` — 新增 `PhonemeDetail` read model
+  - `src/utils/phonemeDetails.ts` — 聚合 profile 元数据、L1 难点、例词和 minimal pairs
+  - `src/components/PhonemeDetailPanel.tsx` — 新增详情抽屉，支持 Practice / Listen 行动
+  - `src/App.tsx` — 新增主题、推荐、diff、minimal pair 复盘的详情入口
+  - `src/components/SmartRecommend.tsx`、`src/components/PhonemeDiffView.tsx`、`src/components/SessionResultView.tsx`、`src/components/MinimalPairView.tsx` — 接入音素详情打开回调
+  - `npm run validate:data`、`npm run lint`、`npm run build` 通过
 
 ### Phase 3.2: Chinese Structured Input ✅
 
@@ -230,6 +244,7 @@ progress:
 22. **2026-07-02** — 中文结构化输入定位为教学辅助，不取消 `ni3 hao3` 自由输入兜底
 23. **2026-07-02** — 拼音结构化输入输出正字法 tone-number（如 `qu4`、`xue2`、`yue4`），解析层继续归一到内部 token
 24. **2026-07-02** — 产品焦点暂停继续推进 Phase 3.3，先进入 Research R1 用户需求调研，验证训练方式、TTS 信任、反馈解释和 L1-aware 推荐价值
+25. **2026-07-03** — Phase 3.3 恢复产品主线并完成：音素详情作为 Feedback/Coaching read model，不要求 L1，也不改变 Training Core
 
 ## 当前阻塞项
 
@@ -237,11 +252,11 @@ progress:
 
 ## 下一步工作
 
-当前优先级不再是直接推进 phase，而是执行 Research R1：
+建议启动 M4 的 Phase 4.1 Local Personalization：
 
-- 调研计划：`.planning/research/USER_NEEDS_RESEARCH.md`
-- 目标：验证真实用户对训练方式、IPA/Pinyin 输入、最小对立体、TTS 音质、反馈解释和 L1-aware 推荐的需求
-- 后续：根据 R1 发现再决定继续 Phase 3.3、优先标准音频/录音反馈，或调整 M4 next-step 推荐
+- 计划文件：`.planning/phases/4.1-local-personalization/4.1-PLAN.md`
+- 目标：用本地训练历史计算音素掌握度，并结合 L1-aware 难点生成下一步训练建议
+- 注意：继续保持纯前端、本地存储失败可降级；推荐不能阻塞基础训练
 
 ## 指标
 

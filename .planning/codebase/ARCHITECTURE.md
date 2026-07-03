@@ -1,6 +1,6 @@
 # PhoneticMaster — 系统架构
 
-> 最后更新：2026-07-02
+> 最后更新：2026-07-03
 > DDD 分析与目标分层见 `DDD-ARCHITECTURE.md`
 
 ## 1. 架构全景
@@ -60,6 +60,10 @@
 │  │ storage.ts   │  │ result views │  │minimalPairs  │          │
 │  │ (本地历史)   │  │ (反馈复盘)   │  │(A/B题目)     │          │
 │  └──────────────┘  └──────────────┘  └──────────────┘          │
+│  ┌──────────────┐                                               │
+│  │phonemeDetails│  ← profile + L1 + examples + minimal pairs    │
+│  │(详情读模型)  │                                               │
+│  └──────────────┘                                               │
 │                                                                  │
 │  ┌───────────────────────────────────────────────┐              │
 │  │            Web Speech API (TTS)               │              │
@@ -142,6 +146,21 @@
 约束：当前使用 Web Speech API，MinimalPairOption.audioUrl 已预留给未来标准音频。
 ```
 
+### 2.5 音素详情流程
+
+```
+主题 / 推荐 / diff / minimal pair 复盘点击音素
+       → App.inspectedPhoneme
+       → buildPhonemeDetail(profile, l1, phoneme, difficulty)
+       → profile.phonemes 元数据 + getDifficultyMap L1 原因
+       → getItemsByPhoneme 例词 + getMinimalPairSets 听辨材料
+       → PhonemeDetailPanel 展示
+       ├── Practice：启动该音素拼写训练
+       └── Listen：启动该音素 minimal pair 听辨
+
+约束：无 L1 或无 difficultyMap 时仍展示 profile 标签、类别、例词和可用 minimal pairs。
+```
+
 ## 3. 模块职责
 
 | 模块 | 职责 | 关键导出 |
@@ -158,6 +177,7 @@
 | `utils/judge.ts` | 音素级判定 | phonemeJudge(), stringJudge() |
 | `utils/voice.ts` | TTS 语音管理 | getVoicesForLang(), selectBestVoice(), saveVoicePreference() |
 | `utils/phonemeGroups.ts` | 音素分组查询 | getItemsByPhoneme(), getPhonemeStats() |
+| `utils/phonemeDetails.ts` | 音素详情读模型查询 | buildPhonemeDetail() |
 | `utils/trainingSession.ts` | 训练题组抽取、会话创建、答案追加、结果汇总 | pickItems(), refreshSession(), createTrainingAnswer(), buildSessionResult() |
 | `utils/minimalPairs.ts` | 最小对立体题目生成、答案记录、结果汇总 | createMinimalPairSession(), createMinimalPairAnswer(), buildMinimalPairResult() |
 | `utils/storage.ts` | 最近训练结果本地存储 | loadSessionResults(), saveSessionResult(), clearSessionResults() |
@@ -177,6 +197,7 @@
 | Training ↔ L1 Layer | 训练器不能依赖 L1；推荐层可以唤起训练器 | 保证独立训练闭环 |
 | Components ↔ Data | 组件不直接 import 词库；词库通过 profile.wordBank 访问 | 统一入口 |
 | Minimal Pair UI ↔ Data | 组件不直接 import `minimalPairBank`；通过 `utils/minimalPairs.ts` 生成 session | 保持 UI 展示职责 |
+| Phoneme Detail ↔ Data | 详情面板不直接 import 词库或 `minimalPairBank`；通过 `utils/phonemeDetails.ts` 读取聚合后的 read model | 避免展示组件变成数据拼装层 |
 | voice.ts ↔ Profile | voice 函数接受 lang 参数（来自 profile.ttsLang） | 多语言 |
 | Frontend ↔ Backend | MVP 不依赖后端；未来云端能力通过 storage/provider 替换 | 静态发布与渐进扩展 |
 
@@ -186,7 +207,7 @@
 |---|---|---|
 | Language Catalog | `profiles/*`, `data/*`, parser utils | 目标语言如何被训练 |
 | Training | `utils/trainingSession.ts`, `utils/minimalPairs.ts`, `App.tsx` session state | 一轮训练如何开始、推进、完成 |
-| Feedback | `utils/judge.ts`, `SessionResultView`, `MinimalPairView` result state | 用户错在哪里、训练结果说明什么 |
+| Feedback | `utils/judge.ts`, `SessionResultView`, `MinimalPairView` result state, `PhonemeDetailPanel` | 用户错在哪里、训练结果说明什么 |
 | Coaching | `l1/*`, `SmartRecommend.tsx` | L1-aware 推荐，不阻塞训练 |
 | Learner Progress | planned `storage.ts`, `recommendation.ts` | 本地历史和掌握度 |
 | Delivery | `components/*`, `App.tsx`, `voice.ts` | React UI、TTS、localStorage 适配 |

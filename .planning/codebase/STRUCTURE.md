@@ -1,7 +1,7 @@
 # PhoneticMaster — 代码库物理结构
 
 > 回答"文件放在哪"。概念分层见 ARCHITECTURE.md。
-> 最后更新：2026-07-02
+> 最后更新：2026-07-03
 
 ## 1. 顶层目录布局
 
@@ -60,6 +60,7 @@ ipa-spelling/
 | `TrainingView.tsx` | 训练模式视图：卡片 + 播放 + 导航 | types |
 | `PhoneticKeypad.tsx` | Profile-driven 音标/拼音键盘 | types |
 | `PhonemeDiffView.tsx` | 音素/拼音单元差异展示 | types |
+| `PhonemeDetailPanel.tsx` | 音素/拼音单元详情抽屉，展示 L1 难点、例词和最小对立体入口 | types |
 | `SessionResultView.tsx` | 会话结果页、错题复盘和最近记录 | types, PhonemeDiffView |
 | `MinimalPairView.tsx` | 最小对立体 A/B 听辨、即时反馈和本轮结果 | types |
 | `SmartRecommend.tsx` | L1-aware 推荐面板 | types, l1/difficultyMap, profiles |
@@ -104,6 +105,7 @@ ipa-spelling/
 | `judge.ts` | 音素级判定 + 字符串判定 | types |
 | `voice.ts` | TTS 语音管理（获取、选择、持久化） | — |
 | `phonemeGroups.ts` | 音素分组查询（profile-driven） | types |
+| `phonemeDetails.ts` | 音素详情读模型查询：profile 元数据、L1 难点、例词和 minimal pairs | types, l1, phonemeGroups, minimalPairs |
 | `trainingSession.ts` | 训练题组抽取、会话创建、答案追加和结果汇总 | types, phonemeGroups |
 | `minimalPairs.ts` | 最小对立体题目生成、答案记录和结果汇总 | types, minimalPairBank |
 | `storage.ts` | 最近训练结果 localStorage repository | types |

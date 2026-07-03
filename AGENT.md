@@ -1,6 +1,6 @@
 # AGENT.md — PhoneticMaster Agent Guide
 
-> Last updated: 2026-07-02
+> Last updated: 2026-07-03
 > Source of truth: `.planning/`, especially `.planning/MAINTENANCE.md`
 
 This file is a compact operating guide for AI agents and maintainers working in this repository. If this file conflicts with `.planning/`, follow the more specific `.planning/` document and update this guide later.
@@ -32,10 +32,10 @@ Read these as needed:
 ## 2. Current Project Snapshot
 
 - Product: PhoneticMaster, a lightweight pure-frontend multilingual phonetic perception trainer.
-- Current milestone: M3 — targeted practice and minimal pairs.
-- Current priority: Research R1 — user-needs discovery before continuing Phase 3.3; validate training modes, IPA/Pinyin input, TTS trust, feedback explanations, and L1-aware recommendation value.
+- Current milestone: M3 — targeted practice and minimal pairs, completed.
+- Current priority: Start M4 Phase 4.1 Local Personalization; use local training history plus L1-aware difficulty to recommend the next practice topic.
 - Core principle: the trainer must work on its own; L1-aware recommendation is an optional coach layer.
-- DDD direction: Training Core and Feedback are the core domains; Phase 3.1 added `MinimalPairSession` / `MinimalPairResult`; Phase 3.2 added structured Pinyin input while preserving free text entry and profile-driven parsing.
+- DDD direction: Training Core and Feedback are the core domains; Phase 3.1 added `MinimalPairSession` / `MinimalPairResult`; Phase 3.2 added structured Pinyin input while preserving free text entry; Phase 3.3 added `PhonemeDetail` as a Feedback/Coaching read model.
 - MVP deployment target: static frontend hosting. `server.ts` is useful for local preview/self-hosting, not a required backend.
 
 ## 3. Architecture Guardrails
@@ -149,6 +149,7 @@ Check `.planning/codebase/CONCERNS.md` before touching:
 - `src/utils/pinyinParser.ts` — pinyin syllable parsing has many edge cases.
 - `src/utils/judge.ts` — `nearMatch` behavior can be too lenient for large length differences.
 - `src/l1/zh_en.ts`, `src/l1/en_zh.ts` — L1/L2 mapping data is structurally validated but not linguistically exhaustive.
+- `src/utils/phonemeDetails.ts`, `src/components/PhonemeDetailPanel.tsx` — new Phase 3.3 read model/UI; still lacks fixture-based unit/component tests.
 - `scripts/validateData.ts` — data validation gate has no fixture-based unit tests yet.
 - `.github/workflows/deploy.yml` + `vite.config.ts` — Pages deployment depends on the `/PhoneticMaster/` base path matching the repository name.
 - `src/components/IPAKeypad.tsx` — legacy component, currently dead code.

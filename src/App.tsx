@@ -13,7 +13,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   Volume2, CheckCircle2, XCircle, RefreshCw, Trophy, Keyboard,
   ArrowRight, ChevronDown, Headphones, Pencil, Globe, Settings,
-  AlertTriangle, Ear,
+  AlertTriangle, Ear, Info,
 } from 'lucide-react';
 import { TrainingView } from './components/TrainingView';
 import { PhoneticKeypad } from './components/PhoneticKeypad';
@@ -22,6 +22,7 @@ import { OnboardingView } from './components/OnboardingView';
 import { SessionResultView } from './components/SessionResultView';
 import { PhonemeDiffView } from './components/PhonemeDiffView';
 import { MinimalPairView } from './components/MinimalPairView';
+import { PhonemeDetailPanel } from './components/PhonemeDetailPanel';
 import type {
   Difficulty,
   JudgeResult,
@@ -55,6 +56,7 @@ import {
   createMinimalPairSession,
   getMinimalPairAudioText,
 } from './utils/minimalPairs';
+import { buildPhonemeDetail } from './utils/phonemeDetails';
 
 // ── LocalStorage keys ──────────────────────────────────────────
 
@@ -164,6 +166,7 @@ export default function App() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [showKeypad, setShowKeypad] = useState(true);
   const [selectedPhoneme, setSelectedPhoneme] = useState<string | null>(null);
+  const [inspectedPhoneme, setInspectedPhoneme] = useState<string | null>(null);
   const [mode, setMode] = useState<AppMode>('spelling');
   const [wordCount, setWordCount] = useState(10);
   const topicSelectRef = useRef<HTMLSelectElement | null>(null);
@@ -183,6 +186,18 @@ export default function App() {
   const phonemeStats = useMemo(
     () => profile ? getPhonemeStats(profile) : [],
     [profile],
+  );
+
+  const phonemeDetail = useMemo(
+    () => profile && inspectedPhoneme
+      ? buildPhonemeDetail({
+        profile,
+        l1: effectiveL1,
+        phoneme: inspectedPhoneme,
+        difficulty,
+      })
+      : null,
+    [profile, effectiveL1, inspectedPhoneme, difficulty],
   );
 
   const score = useMemo(
@@ -282,6 +297,7 @@ export default function App() {
     saveLanguagePreferences(safeL1, newL2);
     if (languageChanged) {
       setSelectedPhoneme(null);
+      setInspectedPhoneme(null);
     }
     setShowOnboarding(false);
   };
@@ -325,6 +341,23 @@ export default function App() {
     setSelectedPhoneme(phoneme);
     setMode('spelling');
     startFreshSession({ phoneme, mode: 'spelling' });
+  };
+
+  const inspectPhoneme = (phoneme: string) => {
+    if (!profile?.phonemes.some(item => item.symbol === phoneme)) return;
+    setInspectedPhoneme(phoneme);
+  };
+
+  const startSpellingFromDetail = (phoneme: string) => {
+    setInspectedPhoneme(null);
+    handleSmartPhonemeSelect(phoneme);
+  };
+
+  const startMinimalPairsFromDetail = (phoneme: string) => {
+    setInspectedPhoneme(null);
+    setSelectedPhoneme(phoneme);
+    setMode('minimal-pair');
+    startMinimalPairSession(phoneme);
   };
 
   const handleModeChange = (nextMode: AppMode) => {
@@ -897,6 +930,16 @@ export default function App() {
               </select>
               <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
             </div>
+            {selectedPhoneme && (
+              <button
+                type="button"
+                onClick={() => inspectPhoneme(selectedPhoneme)}
+                title="查看主题详情"
+                className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-400 transition-colors hover:bg-indigo-50 hover:text-indigo-600 cursor-pointer"
+              >
+                <Info className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
 
           <div className="h-10 w-px bg-slate-100"></div>
@@ -952,6 +995,7 @@ export default function App() {
               l2={profile.code}
               profile={profile}
               onSelectPhoneme={handleSmartPhonemeSelect}
+              onInspectPhoneme={inspectPhoneme}
             />
           </aside>
         )}
@@ -1005,6 +1049,7 @@ export default function App() {
               onNext={nextMinimalPair}
               onNewSet={newWordSet}
               onClearTopic={clearMinimalPairTopic}
+              onInspectPhoneme={inspectPhoneme}
             />
           ) : sessionResult ? (
             <SessionResultView
@@ -1014,6 +1059,7 @@ export default function App() {
               onPracticeAgain={handlePracticeAgain}
               onNewWordSet={newWordSet}
               onClearHistory={handleClearSessionHistory}
+              onInspectPhoneme={inspectPhoneme}
             />
           ) : mode === 'training' ? (
             <TrainingView
@@ -1153,6 +1199,7 @@ export default function App() {
                           diffs={judgeResult.diffs}
                           profile={profile}
                           tone={feedback === 'near' ? 'amber' : 'red'}
+                          onInspectPhoneme={inspectPhoneme}
                         />
                       </div>
                     )}
@@ -1236,6 +1283,20 @@ export default function App() {
           )}
         </div>
       </main>
+
+      <AnimatePresence>
+        {phonemeDetail && (
+          <PhonemeDetailPanel
+            key={phonemeDetail.symbol}
+            detail={phonemeDetail}
+            profile={profile}
+            l1Label={effectiveL1 ? l1Label : null}
+            onClose={() => setInspectedPhoneme(null)}
+            onStartSpelling={startSpellingFromDetail}
+            onStartMinimalPairs={startMinimalPairsFromDetail}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

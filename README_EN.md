@@ -25,6 +25,7 @@ The app has no required backend and no external API dependency. Word banks are b
 - **Minimal-pair listening**: choose what you heard from A/B candidates, then review accuracy and missed pairs.
 - **Structured Mandarin input hint**: Mandarin spelling mode keeps the initial/final/tone keypad and hints the initial -> final -> tone order in the input box.
 - **Session results**: exact score, near matches, mistakes, review, and recent local history.
+- **Phoneme details**: open a sound-unit drawer from topics, recommendations, mistakes, or minimal-pair review to see L1-aware explanations, examples, and practice actions.
 - **Topic filtering**: focus a session on a specific English phoneme or Pinyin unit.
 - **Adjustable round size**: 1 to 50 items per session.
 - **Profile-driven keypad**: IPA vowels/consonants/stress marks for English, initials/finals/tones for Mandarin.

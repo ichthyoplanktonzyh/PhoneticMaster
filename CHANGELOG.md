@@ -4,6 +4,18 @@ All notable project changes should be recorded here before each commit.
 
 Timestamp format: `YYYY-MM-DD HH:mm Z` using local project time, precise to the minute.
 
+## 2026-07-03 11:22 +0800
+
+### Added
+
+- Added Phase 3.3 planning, QA checklist, and completion summary.
+- Added a phoneme detail read model and drawer showing profile metadata, L1-aware explanations, examples, and minimal-pair practice entry points.
+- Added phoneme detail entry points from topic selection, smart recommendations, spelling diffs, and minimal-pair review.
+
+### Changed
+
+- Updated planning, roadmap, state, agent guide, and codebase docs for completed M3 and the next M4 local-personalization phase.
+
 ## 2026-07-02 21:53 +0800
 
 ### Added

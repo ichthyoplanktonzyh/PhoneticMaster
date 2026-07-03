@@ -36,6 +36,7 @@ interface MinimalPairViewProps {
   onNext: () => void;
   onNewSet: () => void;
   onClearTopic: () => void;
+  onInspectPhoneme?: (phoneme: string) => void;
 }
 
 function formatNotation(profile: LanguageProfile, option: MinimalPairOption): string {
@@ -48,6 +49,34 @@ function formatNotation(profile: LanguageProfile, option: MinimalPairOption): st
 function formatTopic(profile: LanguageProfile, topic: string | null): string {
   if (!topic) return 'All pairs';
   return profile.notationName === 'Pinyin' ? topic : `/${topic}/`;
+}
+
+function PhonemeChip({
+  profile,
+  phoneme,
+  onInspectPhoneme,
+}: {
+  profile: LanguageProfile;
+  phoneme: string;
+  onInspectPhoneme?: (phoneme: string) => void;
+}) {
+  const label = formatTopic(profile, phoneme);
+  const className = `${profile.notationName === 'Pinyin' ? '' : 'ipa-text'} rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1 text-[11px] font-bold text-indigo-700`;
+
+  if (!onInspectPhoneme) {
+    return <span className={className}>{label}</span>;
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => onInspectPhoneme(phoneme)}
+      title="查看详情"
+      className={`${className} transition-colors hover:border-indigo-200 hover:bg-white cursor-pointer`}
+    >
+      {label}
+    </button>
+  );
 }
 
 function findOption(session: MinimalPairSession, optionId: string): MinimalPairOption | undefined {
@@ -70,6 +99,7 @@ export const MinimalPairView: React.FC<MinimalPairViewProps> = ({
   onNext,
   onNewSet,
   onClearTopic,
+  onInspectPhoneme,
 }) => {
   if (!session || session.questions.length === 0) {
     return (
@@ -119,6 +149,15 @@ export const MinimalPairView: React.FC<MinimalPairViewProps> = ({
               <p className="mt-2 text-sm font-medium text-slate-400">
                 {profile.displayName} - {formatTopic(profile, result.topic)}
               </p>
+              {result.topic && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <PhonemeChip
+                    profile={profile}
+                    phoneme={result.topic}
+                    onInspectPhoneme={onInspectPhoneme}
+                  />
+                </div>
+              )}
             </div>
             <div className="flex flex-wrap gap-3">
               <button
@@ -183,6 +222,18 @@ export const MinimalPairView: React.FC<MinimalPairViewProps> = ({
                         <p className={`${isIpa ? 'ipa-text' : ''} mt-1 text-sm font-bold text-slate-400`}>
                           {formatNotation(profile, answer.question.prompt)}
                         </p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <PhonemeChip
+                            profile={profile}
+                            phoneme={answer.question.targetPhoneme}
+                            onInspectPhoneme={onInspectPhoneme}
+                          />
+                          <PhonemeChip
+                            profile={profile}
+                            phoneme={answer.question.contrastPhoneme}
+                            onInspectPhoneme={onInspectPhoneme}
+                          />
+                        </div>
                       </div>
                       <div className="grid gap-3 text-right text-xs">
                         <div>
@@ -224,6 +275,18 @@ export const MinimalPairView: React.FC<MinimalPairViewProps> = ({
             <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
               Minimal Pair Listening
             </h2>
+            <div className="mt-4 flex justify-center gap-2">
+              <PhonemeChip
+                profile={profile}
+                phoneme={question.targetPhoneme}
+                onInspectPhoneme={onInspectPhoneme}
+              />
+              <PhonemeChip
+                profile={profile}
+                phoneme={question.contrastPhoneme}
+                onInspectPhoneme={onInspectPhoneme}
+              />
+            </div>
           </div>
 
           <motion.button

@@ -1,7 +1,7 @@
 # PhoneticMaster — 代码库问题清单
 
 > 记录已知的技术债、脆弱区域和需要关注的问题。**每条必须包含文件路径。**
-> 最后更新：2026-07-02
+> 最后更新：2026-07-03
 
 ## 1. 技术债
 
@@ -67,7 +67,9 @@
 | P1 | `src/l1/difficultyMap.ts` | 排序/降级逻辑错误影响推荐 |
 | P1 | `src/profiles/zh.ts` | zhJudge 声调容错逻辑 |
 | P2 | `src/utils/minimalPairs.ts` | 题目生成和结果汇总缺少 fixture-based 单元测试 |
+| P2 | `src/utils/phonemeDetails.ts` | 音素详情 read model 的无 L1 降级、例词 fallback 和 minimal pair 聚合缺少单元测试 |
 | P2 | `src/components/MinimalPairView.tsx` | A/B 选择、完成状态和复盘 UI 缺少组件测试 |
+| P2 | `src/components/PhonemeDetailPanel.tsx` | 详情面板入口、空状态和 action 回调缺少组件测试 |
 | P2 | `src/components/OnboardingView.tsx` | L1===L2 阻断逻辑 |
 
 ## 4. 依赖风险

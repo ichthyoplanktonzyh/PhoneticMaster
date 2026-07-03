@@ -1,6 +1,6 @@
 # PhoneticMaster — 数据模型
 
-> 最后更新：2026-07-02
+> 最后更新：2026-07-03
 
 ## Identity Strategy
 
@@ -16,6 +16,7 @@
 | MinimalPairOption | `MinimalPairSet.id` + `option.id` | 同一 pair 内候选项唯一 |
 | MinimalPairSession | generated `id` | 一轮最小对立体听辨会话 |
 | MasteryRecord | `l2` + `topic` + `phoneme` | 本地掌握度聚合记录 |
+| PhonemeDetail | `profileCode` + `symbol` | 音素详情 read model，不持久化 |
 
 ## Core Type Relationships
 
@@ -152,6 +153,17 @@ MinimalPairResult (M3 Phase 3.1)
 ├── accuracy: number
 ├── answers: MinimalPairAnswer[]
 └── mistakes: MinimalPairAnswer[]
+
+PhonemeDetail (M3 Phase 3.3, read model)
+├── symbol: string                       ← profile phoneme symbol
+├── label: string                        ← profile phoneme label
+├── category: string                     ← vowel/consonant/initial/final/tone...
+├── profileCode: string
+├── notationName: string
+├── difficulty?: PhonemeDifficulty       ← current L1→L2 explanation if available
+├── examples: TrainingItem[]             ← word-bank examples containing this symbol
+├── exampleCount: number                 ← all available examples in profile word bank
+└── minimalPairs: MinimalPairSet[]        ← curated pair sets containing this symbol
 
 MasteryRecord (planned M4)
 ├── l1?: string

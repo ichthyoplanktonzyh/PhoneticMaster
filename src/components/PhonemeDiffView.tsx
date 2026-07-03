@@ -13,10 +13,37 @@ interface PhonemeDiffViewProps {
   profile: LanguageProfile;
   tone?: 'amber' | 'red';
   limit?: number;
+  onInspectPhoneme?: (phoneme: string) => void;
 }
 
 function renderSymbol(symbol: string): string {
   return symbol || 'missing';
+}
+
+function PhonemeToken({
+  symbol,
+  isIpa,
+  onInspectPhoneme,
+}: {
+  symbol: string;
+  isIpa: boolean;
+  onInspectPhoneme?: (phoneme: string) => void;
+}) {
+  const className = `${isIpa ? 'ipa-text' : ''} font-bold`;
+  if (!symbol || !onInspectPhoneme) {
+    return <span className={className}>{renderSymbol(symbol)}</span>;
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => onInspectPhoneme(symbol)}
+      className={`${className} rounded-md px-1 underline decoration-current/20 underline-offset-4 transition-colors hover:bg-white hover:text-indigo-600 cursor-pointer`}
+      title="查看详情"
+    >
+      {renderSymbol(symbol)}
+    </button>
+  );
 }
 
 export const PhonemeDiffView: React.FC<PhonemeDiffViewProps> = ({
@@ -24,6 +51,7 @@ export const PhonemeDiffView: React.FC<PhonemeDiffViewProps> = ({
   profile,
   tone = 'red',
   limit = 6,
+  onInspectPhoneme,
 }) => {
   if (diffs.length === 0) return null;
 
@@ -57,17 +85,21 @@ export const PhonemeDiffView: React.FC<PhonemeDiffViewProps> = ({
               <span className="mr-1 text-[10px] font-bold uppercase tracking-widest opacity-50">
                 Expected
               </span>
-              <span className={`${isIpa ? 'ipa-text' : ''} font-bold`}>
-                {renderSymbol(diff.expected)}
-              </span>
+              <PhonemeToken
+                symbol={diff.expected}
+                isIpa={isIpa}
+                onInspectPhoneme={onInspectPhoneme}
+              />
             </span>
             <span>
               <span className="mr-1 text-[10px] font-bold uppercase tracking-widest opacity-50">
                 Yours
               </span>
-              <span className={`${isIpa ? 'ipa-text' : ''} font-bold`}>
-                {renderSymbol(diff.actual)}
-              </span>
+              <PhonemeToken
+                symbol={diff.actual}
+                isIpa={isIpa}
+                onInspectPhoneme={onInspectPhoneme}
+              />
             </span>
           </div>
         ))}

@@ -25,6 +25,7 @@ interface SessionResultViewProps {
   onPracticeAgain: () => void;
   onNewWordSet: () => void;
   onClearHistory: () => void;
+  onInspectPhoneme?: (phoneme: string) => void;
 }
 
 function formatDate(iso: string): string {
@@ -59,6 +60,7 @@ export const SessionResultView: React.FC<SessionResultViewProps> = ({
   onPracticeAgain,
   onNewWordSet,
   onClearHistory,
+  onInspectPhoneme,
 }) => {
   const isSpelling = result.config.mode === 'spelling';
   const isIpa = profile.notationName !== 'Pinyin';
@@ -175,6 +177,7 @@ export const SessionResultView: React.FC<SessionResultViewProps> = ({
                       diffs={answer.judgeResult.diffs}
                       profile={profile}
                       tone={answer.judgeResult.nearMatch ? 'amber' : 'red'}
+                      onInspectPhoneme={onInspectPhoneme}
                     />
                   </div>
                 </article>
