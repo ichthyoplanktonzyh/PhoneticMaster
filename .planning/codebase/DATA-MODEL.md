@@ -165,15 +165,31 @@ PhonemeDetail (M3 Phase 3.3, read model)
 ├── exampleCount: number                 ← all available examples in profile word bank
 └── minimalPairs: MinimalPairSet[]        ← curated pair sets containing this symbol
 
-MasteryRecord (planned M4)
+MasteryRecord (M4 Phase 4.1)
 ├── l1?: string
 ├── l2: string
 ├── topic: string
 ├── phoneme?: string
 ├── attempts: number
 ├── correct: number
+├── accuracy: number                      ← percent correct / attempts
 ├── lastPracticedAt: string
 └── source: 'local'
+
+Recommendation (M4 Phase 4.1, read model)
+├── phoneme: string
+├── label: string
+├── category: string
+├── score: number
+├── source: 'personalized' | 'history' | 'l1' | 'fallback'
+├── attempts?: number
+├── accuracy?: number
+├── lastPracticedAt?: string
+├── l1Level?: number
+├── wordCount: number
+└── reasons: RecommendationReason[]
+    ├── kind: 'history' | 'l1' | 'fallback'
+    └── text: string
 ```
 
 ## Notation Semantics
@@ -204,13 +220,13 @@ MasteryRecord (planned M4)
 | `ipa-spelling-l2` | string (ISO 639-1) | 用户目标语言选择 |
 | `ipa-spelling-voice-{lang}` | string (voiceURI) | TTS 语音偏好（按语言） |
 | `phonetic-master-sessions` | SessionResult[] | 最近训练结果（M2 Phase 2.3） |
-| `phonetic-master-mastery` | MasteryRecord[] | 本地掌握度（planned M4） |
+| `phonetic-master-mastery` | MasteryRecord[] | 本地掌握度（M4 Phase 4.1） |
 
 所有 localStorage 操作均有 try/catch 保护，隐私模式下静默失败。
 
-MVP 约束：训练流程不能依赖 localStorage 成功写入。存储失败时只丢失历史记录，不影响当前训练。
+MVP 约束：训练流程不能依赖 localStorage 成功写入。存储失败时只丢失历史/个性化记录，不影响当前训练。
 
-Phase 2.3 实现说明：最近训练记录保存 `SessionResult[]`，保留结果页和后续本地个性化所需的会话摘要、答案和错题事实；完整 mastery 聚合仍留到 Phase 4.1。
+Phase 4.1 实现说明：最近训练记录继续保存 `SessionResult[]`；本地个性化新增 `MasteryRecord[]` 聚合表。普通拼写结果按 `profile.parseNotation(answer.expected)` 更新 topic 聚合和音素/声调聚合；minimal pair 结果按每题的 target/contrast phoneme 更新。看词听音模式没有正确率事实来源，因此不写入 mastery。
 
 ## Backward Compatibility
 

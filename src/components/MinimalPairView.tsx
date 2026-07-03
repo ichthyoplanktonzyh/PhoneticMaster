@@ -11,8 +11,10 @@ import {
   ArrowRight,
   CheckCircle2,
   Ear,
+  Info,
   RefreshCw,
   RotateCcw,
+  Target,
   Trophy,
   Volume2,
   XCircle,
@@ -22,6 +24,7 @@ import type {
   MinimalPairOption,
   MinimalPairResult,
   MinimalPairSession,
+  Recommendation,
 } from '../types';
 
 interface MinimalPairViewProps {
@@ -37,6 +40,8 @@ interface MinimalPairViewProps {
   onNewSet: () => void;
   onClearTopic: () => void;
   onInspectPhoneme?: (phoneme: string) => void;
+  nextRecommendations?: Recommendation[];
+  onSelectRecommendation?: (phoneme: string) => void;
 }
 
 function formatNotation(profile: LanguageProfile, option: MinimalPairOption): string {
@@ -100,6 +105,8 @@ export const MinimalPairView: React.FC<MinimalPairViewProps> = ({
   onNewSet,
   onClearTopic,
   onInspectPhoneme,
+  nextRecommendations = [],
+  onSelectRecommendation,
 }) => {
   if (!session || session.questions.length === 0) {
     return (
@@ -185,6 +192,65 @@ export const MinimalPairView: React.FC<MinimalPairViewProps> = ({
             </div>
           </div>
         </section>
+
+        {nextRecommendations.length > 0 && onSelectRecommendation && (
+          <section className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-indigo-500" />
+              <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500">
+                下一步建议
+              </h3>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-3">
+              {nextRecommendations.slice(0, 3).map(item => (
+                <article
+                  key={item.phoneme}
+                  className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className={`${isIpa ? 'ipa-text' : ''} text-2xl font-bold text-slate-900`}>
+                        {formatTopic(profile, item.phoneme)}
+                      </p>
+                      <p className="mt-1 truncate text-xs font-bold text-slate-400">
+                        {item.label}
+                      </p>
+                    </div>
+                    {onInspectPhoneme && (
+                      <button
+                        type="button"
+                        onClick={() => onInspectPhoneme(item.phoneme)}
+                        title="查看详情"
+                        className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-400 transition-colors hover:bg-indigo-50 hover:text-indigo-600 cursor-pointer"
+                      >
+                        <Info className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="mt-4 space-y-2">
+                    {item.reasons.slice(0, 2).map(reason => (
+                      <p
+                        key={`${item.phoneme}-${reason.kind}`}
+                        className="text-xs font-medium leading-5 text-slate-500"
+                      >
+                        {reason.text}
+                      </p>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onSelectRecommendation(item.phoneme)}
+                    className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-indigo-100 transition-colors hover:bg-indigo-700 cursor-pointer"
+                  >
+                    Practice
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
 
         <section className="space-y-4">
           <div className="flex items-center justify-between">

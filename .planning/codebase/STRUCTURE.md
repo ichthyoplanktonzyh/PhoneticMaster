@@ -61,9 +61,9 @@ ipa-spelling/
 | `PhoneticKeypad.tsx` | Profile-driven 音标/拼音键盘 | types |
 | `PhonemeDiffView.tsx` | 音素/拼音单元差异展示 | types |
 | `PhonemeDetailPanel.tsx` | 音素/拼音单元详情抽屉，展示 L1 难点、例词和最小对立体入口 | types |
-| `SessionResultView.tsx` | 会话结果页、错题复盘和最近记录 | types, PhonemeDiffView |
+| `SessionResultView.tsx` | 会话结果页、错题复盘、下一步建议和最近记录 | types, PhonemeDiffView |
 | `MinimalPairView.tsx` | 最小对立体 A/B 听辨、即时反馈和本轮结果 | types |
-| `SmartRecommend.tsx` | L1-aware 推荐面板 | types, l1/difficultyMap, profiles |
+| `SmartRecommend.tsx` | 可选 Coach 面板，展示本地历史 + L1-aware 推荐和清除个性化数据入口 | types, l1/difficultyMap, profiles |
 | `IPAKeypad.tsx` | 旧英语键盘（遗留，可删除） | — |
 
 ### `src/data/`
@@ -108,7 +108,8 @@ ipa-spelling/
 | `phonemeDetails.ts` | 音素详情读模型查询：profile 元数据、L1 难点、例词和 minimal pairs | types, l1, phonemeGroups, minimalPairs |
 | `trainingSession.ts` | 训练题组抽取、会话创建、答案追加和结果汇总 | types, phonemeGroups |
 | `minimalPairs.ts` | 最小对立体题目生成、答案记录和结果汇总 | types, minimalPairBank |
-| `storage.ts` | 最近训练结果 localStorage repository | types |
+| `storage.ts` | 最近训练结果与本地 mastery 的 localStorage repository | types |
+| `recommendation.ts` | 本地 mastery 聚合与下一步推荐排序 | types, l1/difficultyMap, phonemeGroups |
 
 ## 3. 命名约定
 

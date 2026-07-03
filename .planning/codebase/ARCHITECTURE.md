@@ -58,12 +58,12 @@
 │  └──────────────┘  └──────────────┘  └──────────────┘          │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
 │  │ storage.ts   │  │ result views │  │minimalPairs  │          │
-│  │ (本地历史)   │  │ (反馈复盘)   │  │(A/B题目)     │          │
+│  │(历史/mastery)│  │ (反馈复盘)   │  │(A/B题目)     │          │
 │  └──────────────┘  └──────────────┘  └──────────────┘          │
-│  ┌──────────────┐                                               │
-│  │phonemeDetails│  ← profile + L1 + examples + minimal pairs    │
-│  │(详情读模型)  │                                               │
-│  └──────────────┘                                               │
+│  ┌──────────────┐  ┌──────────────┐                            │
+│  │phonemeDetails│  │recommendation│                            │
+│  │(详情读模型)  │  │(下一步建议)  │                            │
+│  └──────────────┘  └──────────────┘                            │
 │                                                                  │
 │  ┌───────────────────────────────────────────────┐              │
 │  │            Web Speech API (TTS)               │              │
@@ -106,12 +106,12 @@
 ### 2.2 L1 推荐流程
 
 ```
-用户选择 L1 + L2 → getTopHardPhonemes(l1, l2, profile, n)
+用户选择 L1 + L2 + 本地 mastery → buildRecommendations(profile, l1, mastery)
                                     │
                 difficultyMap 查询 → L1L2Difficulty
                                     │
-                hardPhonemes[] → 星级 + PAM/SLM 原因
-                hardFeatures[] → 星级 + 原因
+                Recommendation[] → 历史正确率 + L1 level + fallback reason
+                hardFeatures[] → Coach 面板补充展示
                                     │
                 用户点击音素 → handleSmartPhonemeSelect → 启动训练
 ```
@@ -161,11 +161,27 @@
 约束：无 L1 或无 difficultyMap 时仍展示 profile 标签、类别、例词和可用 minimal pairs。
 ```
 
+### 2.6 本地个性化流程
+
+```
+普通拼写完成 → SessionResult → updateMasteryFromSessionResult(profile)
+                                │
+Minimal pair 完成 → MinimalPairResult → updateMasteryFromMinimalPairResult()
+                                │
+                    MasteryRecord[] → try save localStorage
+                                │
+         buildRecommendations(profile, L1, mastery)
+                                │
+              训练完成页“下一步建议” + 可选 Coach 面板
+
+约束：看词听音模式没有正确率事实来源，不写入 mastery；localStorage 失败时只丢失持久化，当前训练和内存态推荐不受影响。
+```
+
 ## 3. 模块职责
 
 | 模块 | 职责 | 关键导出 |
 |------|------|----------|
-| `types.ts` | 全局类型定义 | TrainingItem, LanguageProfile, JudgeResult, L1L2Difficulty, MinimalPairSet, Difficulty |
+| `types.ts` | 全局类型定义 | TrainingItem, LanguageProfile, JudgeResult, L1L2Difficulty, MinimalPairSet, MasteryRecord, Recommendation, Difficulty |
 | `profiles/index.ts` | Profile 注册表 + L1 列表 | getProfile(), getAllProfiles(), SUPPORTED_L1 |
 | `profiles/en.ts` | 英语 Profile | englishProfile |
 | `profiles/zh.ts` | 汉语 Profile | chineseProfile |
@@ -180,7 +196,8 @@
 | `utils/phonemeDetails.ts` | 音素详情读模型查询 | buildPhonemeDetail() |
 | `utils/trainingSession.ts` | 训练题组抽取、会话创建、答案追加、结果汇总 | pickItems(), refreshSession(), createTrainingAnswer(), buildSessionResult() |
 | `utils/minimalPairs.ts` | 最小对立体题目生成、答案记录、结果汇总 | createMinimalPairSession(), createMinimalPairAnswer(), buildMinimalPairResult() |
-| `utils/storage.ts` | 最近训练结果本地存储 | loadSessionResults(), saveSessionResult(), clearSessionResults() |
+| `utils/storage.ts` | 最近训练结果与本地 mastery 存储 | loadSessionResults(), saveSessionResult(), loadMasteryRecords(), saveMasteryRecords(), clearMasteryRecords() |
+| `utils/recommendation.ts` | 本地 mastery 聚合和下一步推荐排序 | updateMasteryFromSessionResult(), updateMasteryFromMinimalPairResult(), buildRecommendations() |
 | `l1/difficultyMap.ts` | L1×L2 难度注册表 | getDifficultyMap(), getTopHardPhonemes(), getHardFeatures() |
 | `l1/zh_en.ts` | 中文→英语映射 | zh_en |
 | `l1/en_zh.ts` | 英语→中文映射 | en_zh |
@@ -209,7 +226,7 @@
 | Training | `utils/trainingSession.ts`, `utils/minimalPairs.ts`, `App.tsx` session state | 一轮训练如何开始、推进、完成 |
 | Feedback | `utils/judge.ts`, `SessionResultView`, `MinimalPairView` result state, `PhonemeDetailPanel` | 用户错在哪里、训练结果说明什么 |
 | Coaching | `l1/*`, `SmartRecommend.tsx` | L1-aware 推荐，不阻塞训练 |
-| Learner Progress | planned `storage.ts`, `recommendation.ts` | 本地历史和掌握度 |
+| Learner Progress | `storage.ts`, `recommendation.ts` | 本地历史、掌握度和推荐排序 |
 | Delivery | `components/*`, `App.tsx`, `voice.ts` | React UI、TTS、localStorage 适配 |
 
 架构决策：Phase 2.3 Feedback & Session Results 已让 `TrainingSession` 和 `SessionResult` 成为明确模型；结果页、live score 和历史记录都从 `TrainingSession.answers` 推导，避免从临时 React state 拼接。

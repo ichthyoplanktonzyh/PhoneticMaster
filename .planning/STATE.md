@@ -1,28 +1,28 @@
 ---
 gsd_state_version: 1.0
-milestone: M3
-milestone_name: 专项训练 + 最小对立体
+milestone: M4
+milestone_name: 本地个性化 + L1-aware 教练
 status: completed
-last_updated: "2026-07-03T11:22:00+08:00"
+last_updated: "2026-07-03T11:39:00+08:00"
 progress:
-  total_phases: 3
-  completed_phases: 3
+  total_phases: 1
+  completed_phases: 1
   in_progress_phases: 0
 ---
 
 # PhoneticMaster — 项目活记忆
 
 > 最后更新：2026-07-03
-> 更新原因：Phase 3.3 Phoneme Detail Panel 完成，M3 专项训练收口
+> 更新原因：Phase 4.1 Local Personalization 完成，M4 本地个性化 MVP 收口
 
 ## 当前位置
 
 | 维度 | 值 |
 |------|------|
-| 里程碑 | M3 — 专项训练 + 最小对立体（已完成） |
-| 阶段 | 下一步：M4 / Phase 4.1 Local Personalization |
+| 里程碑 | M4 — 本地个性化 + L1-aware 教练（已完成） |
+| 阶段 | 下一步：M5 新语言与内容扩展 |
 | 分支 | `main` (ipa-spelling) |
-| 版本 | v1.2 M3 complete |
+| 版本 | v1.3 M4 complete |
 
 ## Phase 状态
 
@@ -84,10 +84,24 @@ progress:
 ### Phase 4.1: Local Personalization 🧭
 
 - **目标**：用本地训练历史和 L1-aware 难点生成下一步推荐
-- **状态**：计划已建立，建议作为下一阶段启动
+- **状态**：已完成（2026-07-03）
 - **计划文件**：`.planning/phases/4.1-local-personalization/4.1-PLAN.md`
+- **总结文件**：`.planning/phases/4.1-local-personalization/4.1-SUMMARY.md`
 
 ## 已完成历史
+
+### Phase 4.1: Local Personalization ✅
+
+- **目标**：用本地训练历史和 L1-aware 难点生成下一步推荐
+- **完成日期**：2026-07-03
+- **交付物**：
+  - `src/types.ts` — 新增 `MasteryRecord`、`Recommendation` 等本地个性化模型
+  - `src/utils/storage.ts` — 新增 guarded mastery localStorage repository
+  - `src/utils/recommendation.ts` — 新增普通拼写/minimal pair mastery 更新和推荐排序服务
+  - `src/App.tsx` — 训练完成时更新 mastery，完成页展示下一步建议，Coach 面板改为手动打开
+  - `src/components/SmartRecommend.tsx` — 改为可选 Coach，并提供清除个性化数据入口
+  - `src/components/SessionResultView.tsx`、`src/components/MinimalPairView.tsx` — 展示“下一步建议”
+  - `npm run validate:data`、`npm run lint`、`npm run build` 通过
 
 ### Phase 3.3: Phoneme Detail Panel ✅
 
@@ -245,6 +259,7 @@ progress:
 23. **2026-07-02** — 拼音结构化输入输出正字法 tone-number（如 `qu4`、`xue2`、`yue4`），解析层继续归一到内部 token
 24. **2026-07-02** — 产品焦点暂停继续推进 Phase 3.3，先进入 Research R1 用户需求调研，验证训练方式、TTS 信任、反馈解释和 L1-aware 推荐价值
 25. **2026-07-03** — Phase 3.3 恢复产品主线并完成：音素详情作为 Feedback/Coaching read model，不要求 L1，也不改变 Training Core
+26. **2026-07-03** — Phase 4.1 完成：本地 mastery 成为 Learner Progress 聚合，推荐排序融合历史正确率与 L1 difficulty level；SmartRecommend 降级为手动打开的 Coach 层
 
 ## 当前阻塞项
 
@@ -252,11 +267,11 @@ progress:
 
 ## 下一步工作
 
-建议启动 M4 的 Phase 4.1 Local Personalization：
+建议进入 M5 新语言与内容扩展：
 
-- 计划文件：`.planning/phases/4.1-local-personalization/4.1-PLAN.md`
-- 目标：用本地训练历史计算音素掌握度，并结合 L1-aware 难点生成下一步训练建议
-- 注意：继续保持纯前端、本地存储失败可降级；推荐不能阻塞基础训练
+- 方向：选择第 3 个目标语言（如日语或西语）并验证 Profile-driven 扩展路径
+- 注意：新语言应继续只通过 profile + word bank + 可选 L1 map 接入，不修改训练 UI 框架
+- 技术债：为 `src/utils/recommendation.ts` 和 `src/utils/storage.ts` 添加 fixture-based 单元测试仍建议优先排入后续
 
 ## 指标
 

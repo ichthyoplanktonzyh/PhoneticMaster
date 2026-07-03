@@ -13,7 +13,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   Volume2, CheckCircle2, XCircle, RefreshCw, Trophy, Keyboard,
   ArrowRight, ChevronDown, Headphones, Pencil, Globe, Settings,
-  AlertTriangle, Ear, Info,
+  AlertTriangle, Ear, Info, Target,
 } from 'lucide-react';
 import { TrainingView } from './components/TrainingView';
 import { PhoneticKeypad } from './components/PhoneticKeypad';
@@ -46,7 +46,19 @@ import {
   type SessionState,
   type TrainingConfig,
 } from './utils/trainingSession';
-import { clearSessionResults, loadSessionResults, saveSessionResult } from './utils/storage';
+import {
+  clearMasteryRecords,
+  clearSessionResults,
+  loadMasteryRecords,
+  loadSessionResults,
+  saveMasteryRecords,
+  saveSessionResult,
+} from './utils/storage';
+import {
+  buildRecommendations,
+  updateMasteryFromMinimalPairResult,
+  updateMasteryFromSessionResult,
+} from './utils/recommendation';
 import { getVoicesForLang, selectBestVoice, saveVoicePreference } from './utils/voice';
 import {
   appendMinimalPairAnswer,
@@ -158,6 +170,7 @@ export default function App() {
   const [session, setSession] = useState<TrainingSession | null>(null);
   const [sessionResult, setSessionResult] = useState<SessionResult | null>(null);
   const [recentResults, setRecentResults] = useState<SessionResult[]>(loadSessionResults);
+  const [masteryRecords, setMasteryRecords] = useState(loadMasteryRecords);
   const [items, setItems] = useState<SessionState['items']>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userInput, setUserInput] = useState('');
@@ -169,6 +182,7 @@ export default function App() {
   const [inspectedPhoneme, setInspectedPhoneme] = useState<string | null>(null);
   const [mode, setMode] = useState<AppMode>('spelling');
   const [wordCount, setWordCount] = useState(10);
+  const [showCoach, setShowCoach] = useState(false);
   const topicSelectRef = useRef<HTMLSelectElement | null>(null);
 
   // ── Minimal-pair state ────────────────────────────────────────
@@ -198,6 +212,18 @@ export default function App() {
       })
       : null,
     [profile, effectiveL1, inspectedPhoneme, difficulty],
+  );
+
+  const recommendations = useMemo(
+    () => profile
+      ? buildRecommendations({
+        profile,
+        l1: effectiveL1,
+        masteryRecords,
+        limit: 6,
+      })
+      : [],
+    [profile, effectiveL1, masteryRecords],
   );
 
   const score = useMemo(
@@ -340,6 +366,7 @@ export default function App() {
   const handleSmartPhonemeSelect = (phoneme: string) => {
     setSelectedPhoneme(phoneme);
     setMode('spelling');
+    setShowCoach(false);
     startFreshSession({ phoneme, mode: 'spelling' });
   };
 
@@ -490,6 +517,14 @@ export default function App() {
     setSession(completedSession);
     setSessionResult(result);
 
+    if (profile) {
+      setMasteryRecords(prev => {
+        const next = updateMasteryFromSessionResult(prev, result, profile);
+        saveMasteryRecords(next);
+        return next;
+      });
+    }
+
     if (saveSessionResult(result)) {
       setRecentResults(loadSessionResults());
     } else {
@@ -500,6 +535,11 @@ export default function App() {
   const handleClearSessionHistory = () => {
     clearSessionResults();
     setRecentResults([]);
+  };
+
+  const handleClearPersonalizationData = () => {
+    clearMasteryRecords();
+    setMasteryRecords([]);
   };
 
   const checkAnswer = () => {
@@ -562,6 +602,12 @@ export default function App() {
     setMinimalPairSession(completedSession);
     setMinimalPairResult(result);
     setSelectedPairOptionId(null);
+
+    setMasteryRecords(prev => {
+      const next = updateMasteryFromMinimalPairResult(prev, result);
+      saveMasteryRecords(next);
+      return next;
+    });
   };
 
   const nextMinimalPair = () => {
@@ -820,6 +866,20 @@ export default function App() {
             </button>
           </div>
 
+          <button
+            type="button"
+            onClick={() => setShowCoach(prev => !prev)}
+            title="打开教练建议"
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer ${
+              showCoach
+                ? 'bg-indigo-50 text-indigo-600'
+                : 'bg-slate-100 text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            <Target className="w-3 h-3" />
+            Coach
+          </button>
+
           <div className="h-10 w-px bg-slate-100"></div>
 
           {/* Mode Toggle */}
@@ -988,14 +1048,17 @@ export default function App() {
       {/* Main Container */}
       <main className="flex-1 flex gap-8 p-8 overflow-y-auto">
         {/* Left: Smart Recommendations (sidebar) */}
-        {effectiveL1 && (
-          <aside className="w-72 shrink-0">
+        {showCoach && (
+          <aside className="w-80 shrink-0">
             <SmartRecommend
               l1={effectiveL1}
               l2={profile.code}
               profile={profile}
               onSelectPhoneme={handleSmartPhonemeSelect}
               onInspectPhoneme={inspectPhoneme}
+              recommendations={recommendations}
+              masteryRecordCount={masteryRecords.length}
+              onClearPersonalization={handleClearPersonalizationData}
             />
           </aside>
         )}
@@ -1050,6 +1113,8 @@ export default function App() {
               onNewSet={newWordSet}
               onClearTopic={clearMinimalPairTopic}
               onInspectPhoneme={inspectPhoneme}
+              nextRecommendations={recommendations}
+              onSelectRecommendation={handleSmartPhonemeSelect}
             />
           ) : sessionResult ? (
             <SessionResultView
@@ -1060,6 +1125,8 @@ export default function App() {
               onNewWordSet={newWordSet}
               onClearHistory={handleClearSessionHistory}
               onInspectPhoneme={inspectPhoneme}
+              nextRecommendations={recommendations}
+              onSelectRecommendation={handleSmartPhonemeSelect}
             />
           ) : mode === 'training' ? (
             <TrainingView

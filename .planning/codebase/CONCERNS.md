@@ -55,6 +55,14 @@
 - **安全修改方式**：`MinimalPairOption.audioUrl` 已预留；核心 pair 后续应接入人工审校标准音频或高质量 TTS 音频
 - **测试覆盖**：✅ 数据结构校验；❌ 发音质量不可自动验证
 
+### 2.4 本地推荐权重仍为启发式
+
+- **文件**：`src/utils/recommendation.ts`
+- **脆弱原因**：Phase 4.1 先用历史正确率、低样本提示和 L1 difficulty level 做启发式融合，尚未经过真实学习数据校准。
+- **常见失败**：推荐过度偏向低样本历史、过度保守地重复已掌握音素，或 L1 难点权重不符合实际用户感受。
+- **安全修改方式**：先为普通拼写和 minimal pair fixture 补单元测试，再调整权重；保持无 L1、无历史、无 storage 三种降级路径。
+- **测试覆盖**：✅ 手动函数冒烟；❌ 无 fixture-based 单元测试
+
 ## 3. 测试覆盖缺口
 
 | 优先级 | 文件 | 风险 |
@@ -64,6 +72,7 @@
 | P0 | `src/utils/judge.ts` | 判定逻辑错误影响所有语言的反馈 |
 | P0 | `src/utils/storage.ts` | localStorage 异常、坏数据或历史上限逻辑回归会影响最近记录 |
 | P0 | `src/utils/ipaParser.ts` | 双字符音素匹配顺序影响英语训练 |
+| P1 | `src/utils/recommendation.ts` | 本地 mastery 聚合和推荐排序缺少 fixture-based 单元测试 |
 | P1 | `src/l1/difficultyMap.ts` | 排序/降级逻辑错误影响推荐 |
 | P1 | `src/profiles/zh.ts` | zhJudge 声调容错逻辑 |
 | P2 | `src/utils/minimalPairs.ts` | 题目生成和结果汇总缺少 fixture-based 单元测试 |

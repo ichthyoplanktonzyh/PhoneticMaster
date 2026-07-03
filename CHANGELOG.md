@@ -4,6 +4,20 @@ All notable project changes should be recorded here before each commit.
 
 Timestamp format: `YYYY-MM-DD HH:mm Z` using local project time, precise to the minute.
 
+## 2026-07-03 11:39 +0800
+
+### Added
+
+- Added local mastery records stored in guarded localStorage and updated from spelling and minimal-pair results.
+- Added recommendation ranking that combines local accuracy history with optional L1 difficulty levels and falls back to ordinary topics.
+- Added next-step recommendation cards to spelling and minimal-pair completion views.
+- Added a clear-personalization-data entry in the optional Coach panel.
+
+### Changed
+
+- Changed SmartRecommend from an automatic pre-training sidebar into a manually opened Coach layer.
+- Updated Phase 4.1 planning summary, state, roadmap, and codebase docs for M4 completion.
+
 ## 2026-07-03 11:22 +0800
 
 ### Added

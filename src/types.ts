@@ -161,6 +161,43 @@ export interface PhonemeDetail {
   minimalPairs: MinimalPairSet[];
 }
 
+// ── Local Personalization ──────────────────────────────────────
+
+export interface MasteryRecord {
+  l1?: string;
+  l2: string;
+  topic: string;
+  phoneme?: string;
+  attempts: number;
+  correct: number;
+  accuracy: number;
+  lastPracticedAt: string;
+  source: 'local';
+}
+
+export type RecommendationSource = 'personalized' | 'history' | 'l1' | 'fallback';
+
+export type RecommendationReasonKind = 'history' | 'l1' | 'fallback';
+
+export interface RecommendationReason {
+  kind: RecommendationReasonKind;
+  text: string;
+}
+
+export interface Recommendation {
+  phoneme: string;
+  label: string;
+  category: string;
+  score: number;
+  source: RecommendationSource;
+  attempts?: number;
+  accuracy?: number;
+  lastPracticedAt?: string;
+  l1Level?: number;
+  wordCount: number;
+  reasons: RecommendationReason[];
+}
+
 // ── Backward compatibility ──────────────────────────────────────
 
 /**

@@ -6,9 +6,10 @@
  * Storage is optional infrastructure: failures must never block a session.
  */
 
-import type { SessionResult } from '../types';
+import type { MasteryRecord, SessionResult } from '../types';
 
 const SESSION_HISTORY_KEY = 'phonetic-master-sessions';
+const MASTERY_KEY = 'phonetic-master-mastery';
 const SESSION_HISTORY_LIMIT = 12;
 
 function isSessionResult(value: unknown): value is SessionResult {
@@ -23,6 +24,19 @@ function isSessionResult(value: unknown): value is SessionResult {
     && typeof result.incorrect === 'number'
     && Array.isArray(result.answers)
     && Array.isArray(result.mistakes);
+}
+
+function isMasteryRecord(value: unknown): value is MasteryRecord {
+  if (!value || typeof value !== 'object') return false;
+  const record = value as Partial<MasteryRecord>;
+  return typeof record.l2 === 'string'
+    && typeof record.topic === 'string'
+    && (typeof record.phoneme === 'undefined' || typeof record.phoneme === 'string')
+    && typeof record.attempts === 'number'
+    && typeof record.correct === 'number'
+    && typeof record.accuracy === 'number'
+    && typeof record.lastPracticedAt === 'string'
+    && record.source === 'local';
 }
 
 export function loadSessionResults(): SessionResult[] {
@@ -53,6 +67,38 @@ export function saveSessionResult(result: SessionResult): boolean {
 export function clearSessionResults(): boolean {
   try {
     localStorage.removeItem(SESSION_HISTORY_KEY);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function loadMasteryRecords(): MasteryRecord[] {
+  try {
+    const raw = localStorage.getItem(MASTERY_KEY);
+    if (!raw) return [];
+
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed.filter(isMasteryRecord);
+  } catch {
+    return [];
+  }
+}
+
+export function saveMasteryRecords(records: MasteryRecord[]): boolean {
+  try {
+    localStorage.setItem(MASTERY_KEY, JSON.stringify(records));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function clearMasteryRecords(): boolean {
+  try {
+    localStorage.removeItem(MASTERY_KEY);
     return true;
   } catch {
     return false;
