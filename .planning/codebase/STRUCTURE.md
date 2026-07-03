@@ -24,6 +24,7 @@ ipa-spelling/
 │   ├── l1/                 ← L1×L2 难度映射
 │   ├── profiles/           ← 语言 Profile 定义
 │   ├── utils/              ← 工具函数（解析、判定、语音）
+│   │   └── __tests__/      ← Vitest 单元测试（utils fixture / smoke）
 │   ├── App.tsx             ← 应用入口组件
 │   ├── index.css           ← 全局样式
 │   ├── main.tsx            ← React 渲染入口
@@ -111,6 +112,14 @@ ipa-spelling/
 | `storage.ts` | 最近训练结果与本地 mastery 的 localStorage repository | types |
 | `recommendation.ts` | 本地 mastery 聚合与下一步推荐排序 | types, l1/difficultyMap, phonemeGroups |
 
+### `src/utils/__tests__/`
+
+| 文件 | 职责 | 覆盖 |
+|------|------|------|
+| `recommendation.test.ts` | Phase 4.1 本地个性化 fixture 单测 | mastery 聚合、nearMatch/incorrect 音素归因、minimal pair、推荐降级/排序、training mode 不写入 |
+| `storage.test.ts` | localStorage repository 单测 | 读写失败静默降级、malformed JSON、clear、history limit、mastery load/save/clear |
+| `judge.test.ts` | parser/judge 冒烟测试 | IPA 双字符 token、phonemeJudge nearMatch |
+
 ## 3. 命名约定
 
 | 维度 | 约定 | 示例 |
@@ -133,6 +142,7 @@ ipa-spelling/
 | 添加新 L1×L2 映射 | `src/l1/{l1}_{l2}.ts` | `ja_en.ts` |
 | 添加新 UI 组件 | `src/components/{Name}.tsx` | `MinimalPairView.tsx` |
 | 添加新工具函数 | `src/utils/{name}.ts` | `statsCalculator.ts` |
+| 添加工具函数单元测试 | `src/utils/__tests__/{name}.test.ts` | `recommendation.test.ts` |
 | 添加本地浏览器存储 adapter | `src/utils/{name}.ts` | `storage.ts` |
 | 添加维护/校验脚本 | `scripts/{name}.ts` | `validateData.ts` |
 | 添加新类型 | `src/types.ts`（同一文件） | 新增接口 |

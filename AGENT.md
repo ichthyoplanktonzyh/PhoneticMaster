@@ -74,6 +74,7 @@ components -> profiles -> utils / data / l1
 |---|---|
 | `npm run dev` | start the Vite/Express dev server on port 3000 |
 | `npm run lint` | TypeScript check via `tsc --noEmit` |
+| `npm run test` | run Vitest unit tests |
 | `npm run validate:data` | validate profiles, word banks, and L1/L2 maps |
 | `npx tsc --noEmit` | direct type check |
 | `npm run build` | production build plus bundled `server.ts` |
@@ -81,7 +82,7 @@ components -> profiles -> utils / data / l1
 | `npm run start` | run `dist/server.cjs` after build |
 | `npm run clean` | remove build artifacts |
 
-There is no unit test framework yet. `.planning/codebase/TESTING.md` recommends Vitest when parser, judge, profile, or component tests are added.
+Unit tests use Vitest. Current coverage focuses on Phase 4.1 storage/recommendation behavior plus parser/judge smoke tests; see `.planning/codebase/TESTING.md`.
 
 ## 6. CI/CD And Deployment
 
@@ -150,7 +151,7 @@ Check `.planning/codebase/CONCERNS.md` before touching:
 - `src/utils/judge.ts` — `nearMatch` behavior can be too lenient for large length differences.
 - `src/l1/zh_en.ts`, `src/l1/en_zh.ts` — L1/L2 mapping data is structurally validated but not linguistically exhaustive.
 - `src/utils/phonemeDetails.ts`, `src/components/PhonemeDetailPanel.tsx` — Phase 3.3 read model/UI; still lacks fixture-based unit/component tests.
-- `src/utils/recommendation.ts`, `src/utils/storage.ts` — Phase 4.1 local personalization; storage and recommendation ranking still need fixture-based unit tests.
+- `src/utils/recommendation.ts`, `src/utils/storage.ts` — Phase 4.1 local personalization; fixture-based unit tests exist and should be updated before changing ranking or persistence semantics.
 - `scripts/validateData.ts` — data validation gate has no fixture-based unit tests yet.
 - `.github/workflows/deploy.yml` + `vite.config.ts` — Pages deployment depends on the `/PhoneticMaster/` base path matching the repository name.
 - `src/components/IPAKeypad.tsx` — legacy component, currently dead code.

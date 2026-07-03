@@ -1,6 +1,6 @@
 # PhoneticMaster — 技术栈
 
-> 最后更新：2026-07-02
+> 最后更新：2026-07-03
 
 ## 1. 总览
 
@@ -40,6 +40,7 @@
 | @types/express | Express 类型声明 |
 | @types/node | Node.js 类型声明 |
 | autoprefixer | CSS 前缀 |
+| vitest | Vite/TypeScript 兼容的轻量单元测试框架 |
 
 ## 3. Web API 依赖
 
@@ -68,5 +69,6 @@ MVP 目标是纯前端静态发布。`server.ts` / Express 用于本地开发、
 | `npm run start` | 运行生产构建 (node dist/server.cjs) |
 | `npm run preview` | 同 start |
 | `npm run lint` | TypeScript 类型检查 (tsc --noEmit) |
+| `npm run test` | 运行 Vitest 单元测试 |
 | `npm run validate:data` | 校验 profile、词库和 L1/L2 映射数据一致性 |
 | `npm run clean` | 清理 dist/ |

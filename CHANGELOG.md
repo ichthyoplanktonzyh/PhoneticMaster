@@ -4,6 +4,18 @@ All notable project changes should be recorded here before each commit.
 
 Timestamp format: `YYYY-MM-DD HH:mm Z` using local project time, precise to the minute.
 
+## 2026-07-03 11:52 +0800
+
+### Added
+
+- Added Vitest and `npm run test` for lightweight TypeScript unit tests.
+- Added fixture-based tests for local recommendation/mastery updates and guarded storage behavior.
+- Added parser/judge smoke tests for IPA tokenization and near-match feedback.
+
+### Changed
+
+- Updated testing, concerns, structure, stack, and agent docs for the new test suite.
+
 ## 2026-07-03 11:39 +0800
 
 ### Added

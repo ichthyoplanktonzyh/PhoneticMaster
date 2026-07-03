@@ -60,8 +60,8 @@
 - **文件**：`src/utils/recommendation.ts`
 - **脆弱原因**：Phase 4.1 先用历史正确率、低样本提示和 L1 difficulty level 做启发式融合，尚未经过真实学习数据校准。
 - **常见失败**：推荐过度偏向低样本历史、过度保守地重复已掌握音素，或 L1 难点权重不符合实际用户感受。
-- **安全修改方式**：先为普通拼写和 minimal pair fixture 补单元测试，再调整权重；保持无 L1、无历史、无 storage 三种降级路径。
-- **测试覆盖**：✅ 手动函数冒烟；❌ 无 fixture-based 单元测试
+- **安全修改方式**：调整权重前先更新 `src/utils/__tests__/recommendation.test.ts` fixture；保持无 L1、无历史、无 storage 三种降级路径。
+- **测试覆盖**：✅ `src/utils/__tests__/recommendation.test.ts` 覆盖普通拼写、minimal pair、training mode 不写入 mastery 和 L1/history/fallback 排序；❌ 权重仍未由真实学习数据校准
 
 ## 3. 测试覆盖缺口
 
@@ -69,10 +69,8 @@
 |--------|------|------|
 | P0 | `scripts/validateData.ts` | 当前作为脚本运行，无单元测试覆盖各类失败样例 |
 | P0 | `src/utils/pinyinParser.ts` | 边界音节解析错误直接影响汉语训练 |
-| P0 | `src/utils/judge.ts` | 判定逻辑错误影响所有语言的反馈 |
-| P0 | `src/utils/storage.ts` | localStorage 异常、坏数据或历史上限逻辑回归会影响最近记录 |
-| P0 | `src/utils/ipaParser.ts` | 双字符音素匹配顺序影响英语训练 |
-| P1 | `src/utils/recommendation.ts` | 本地 mastery 聚合和推荐排序缺少 fixture-based 单元测试 |
+| P0 | `src/utils/judge.ts` | 已有 nearMatch smoke，但 correct/incorrect/长度差异矩阵仍缺 |
+| P0 | `src/utils/ipaParser.ts` | 已有双字符音素 smoke，但变体标准化矩阵仍缺 |
 | P1 | `src/l1/difficultyMap.ts` | 排序/降级逻辑错误影响推荐 |
 | P1 | `src/profiles/zh.ts` | zhJudge 声调容错逻辑 |
 | P2 | `src/utils/minimalPairs.ts` | 题目生成和结果汇总缺少 fixture-based 单元测试 |
@@ -100,5 +98,5 @@
 
 ---
 
-*清单更新：2026-07-02*
+*清单更新：2026-07-03*
 *问题解决后删除对应条目，新发现问题随时追加*
