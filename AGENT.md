@@ -9,12 +9,13 @@ This file is a compact operating guide for AI agents and maintainers working in 
 
 For every new session, read these first:
 
-1. `.planning/STATE.md` — current milestone, phase, next work
-2. `.planning/codebase/ARCHITECTURE.md` — system map, data flow, module boundaries
-3. `.planning/codebase/DDD-ARCHITECTURE.md` — bounded contexts, domain model, next architecture moves
-4. `.planning/codebase/STRUCTURE.md` — where files live and where new code belongs
-5. `.planning/codebase/STACK.md` — dependencies and commands
-6. `.planning/codebase/DATA-MODEL.md` — core types and storage semantics
+1. `CONTEXT.md` — stable domain language for Training, Curriculum, Evidence, and Coaching
+2. `.planning/STATE.md` — current milestone, phase, next work
+3. `.planning/codebase/ARCHITECTURE.md` — system map, data flow, module boundaries
+4. `.planning/codebase/DDD-ARCHITECTURE.md` — bounded contexts, domain model, next architecture moves
+5. `.planning/codebase/STRUCTURE.md` — where files live and where new code belongs
+6. `.planning/codebase/STACK.md` — dependencies and commands
+7. `.planning/codebase/DATA-MODEL.md` — core types and storage semantics
 
 Read these as needed:
 
@@ -32,8 +33,8 @@ Read these as needed:
 ## 2. Current Project Snapshot
 
 - Product: PhoneticMaster, a lightweight pure-frontend multilingual phonetic perception trainer.
-- Current milestone: M5 — trusted content and practice-experience expansion, planned.
-- Current priority: Start Phase 5.1 content foundation, then progress through trusted audio, guided phoneme lessons, local record/review, data-driven exercises, and a new-language pilot while keeping Phase 4.1 local personalization stable.
+- Current milestone: M5 — optional curriculum and trusted learning content, planned.
+- Current priority: Start Phase 5.1 curriculum foundation, then validate an English IPA course pilot, trusted content/audio, optional delivery/progress, local record/review, and course-aligned exercises/assessment while keeping free training independent.
 - Core principle: the trainer must work on its own; L1-aware recommendation is an optional coach layer.
 - DDD direction: Training Core and Feedback are the core domains; Phase 3.3 added `PhonemeDetail` as a Feedback/Coaching read model; Phase 4.1 added `MasteryRecord` and `Recommendation` as Learner Progress/Coaching read models.
 - MVP deployment target: static frontend hosting. `server.ts` is useful for local preview/self-hosting, not a required backend.
@@ -41,6 +42,8 @@ Read these as needed:
 ## 3. Architecture Guardrails
 
 - The app is `LanguageProfile`-driven. UI behavior should come from profiles, not language-specific branching scattered through components.
+- Curriculum is optional: it organizes objectives, content, TrainingActivity references, and assessment criteria, but must never become a prerequisite for free training.
+- Dependency direction for courses is `curriculum -> stable training application interfaces`; Training Core must not depend on course/lesson state or duplicate course-specific spelling/minimal-pair logic.
 - Dependency direction:
 
 ```text

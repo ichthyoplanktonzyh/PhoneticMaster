@@ -4,6 +4,20 @@ All notable project changes should be recorded here before each commit.
 
 Timestamp format: `YYYY-MM-DD HH:mm Z` using local project time, precise to the minute.
 
+## 2026-07-15 09:54 +0800
+
+### Added
+
+- Added the root domain glossary for Curriculum, Course, Lesson, Training Activity, Training Evidence, Learning Path, and Course Progress.
+- Added stable optional-curriculum requirements covering free-training independence, objective/content/activity/assessment alignment, training reuse, soft sequencing, and local progress.
+
+### Changed
+
+- Repositioned M5 as an optional curriculum and trusted-learning-content milestone rather than a course-bound product flow.
+- Reworked Phase 5.1-5.6 around curriculum foundations, an English IPA course pilot, trusted content/audio, optional delivery/progress, local recording, and course-aligned exercises/assessment.
+- Defined the dependency direction as Curriculum calling stable Training interfaces while Training Core remains independent of course state.
+- Moved new-language expansion to M6 and optional cloud/ASR work to M7.
+
 ## 2026-07-15 09:31 +0800
 
 ### Added

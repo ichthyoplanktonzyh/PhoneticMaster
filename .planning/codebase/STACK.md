@@ -1,6 +1,6 @@
 # PhoneticMaster — 技术栈
 
-> 最后更新：2026-07-03
+> 最后更新：2026-07-15
 
 ## 1. 总览
 
@@ -62,7 +62,7 @@ MVP 目标是纯前端静态发布。`server.ts` / Express 用于本地开发、
 |----------|------|------|
 | 静态托管 | 推荐 | Vercel / Netlify / Cloudflare Pages / GitHub Pages |
 | Express serve dist | 可用 | 适合本地 preview 或自托管 |
-| 数据库 / API 后端 | 暂不需要 | 进入 M6 云端增强再评估 |
+| 数据库 / API 后端 | 暂不需要 | 进入 M7 云端增强再评估 |
 
 ## 4. 构建与测试
 

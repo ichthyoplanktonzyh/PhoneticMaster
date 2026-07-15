@@ -1,7 +1,7 @@
 # PhoneticMaster — 项目级代码约定
 
 > 回答"怎么写"。编码风格由 TypeScript + Tailwind 隐式约束，本文件记录工具管不到的架构级约定。
-> 最后更新：2026-06-22
+> 最后更新：2026-07-15
 
 ## 1. 依赖方向
 
@@ -195,3 +195,12 @@ npm run validate:data
  * SPDX-License-Identifier: Apache-2.0
  */
 ```
+
+## 8. Curriculum 约定（M5）
+
+- Curriculum 只组织 LearningObjective、LearningContent、TrainingActivity reference 和 AssessmentCriterion。
+- 依赖方向是 `curriculum -> stable training application interfaces`；Training Core 不得 import curriculum 模型或要求 course/lesson 状态。
+- 课程中的拼写、minimal pair 和训练浏览必须复用现有 session、作答、判定和结果逻辑，禁止创建课程专用副本。
+- CourseProgress 可以单向引用 session/result；`TrainingSession`、`MinimalPairSession` 不得以 `courseId` / `lessonId` 作为必填身份。
+- Learning Path 使用软顺序：可以建议先后和复习，但不能锁课或阻止自由训练。
+- 浏览 LearningContent 不等于掌握；只有明确的 TrainingEvidence 才能用于 AssessmentCriterion。

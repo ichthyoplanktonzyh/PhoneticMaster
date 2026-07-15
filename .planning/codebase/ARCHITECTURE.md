@@ -1,6 +1,6 @@
 # PhoneticMaster — 系统架构
 
-> 最后更新：2026-07-03
+> 最后更新：2026-07-15
 > DDD 分析与目标分层见 `DDD-ARCHITECTURE.md`
 
 ## 1. 架构全景
@@ -226,6 +226,7 @@ Minimal pair 完成 → MinimalPairResult → updateMasteryFromMinimalPairResult
 | Training | `utils/trainingSession.ts`, `utils/minimalPairs.ts`, `App.tsx` session state | 一轮训练如何开始、推进、完成 |
 | Feedback | `utils/judge.ts`, `SessionResultView`, `MinimalPairView` result state, `PhonemeDetailPanel` | 用户错在哪里、训练结果说明什么 |
 | Coaching | `l1/*`, `SmartRecommend.tsx` | L1-aware 推荐，不阻塞训练 |
+| Curriculum（M5 planned） | Course/Module/Lesson、LearningObjective、LearningContent、TrainingActivity reference、AssessmentCriterion | 可选组织目标—内容—训练—评价；只调用 Training application interface，不成为训练前置条件 |
 | Learner Progress | `storage.ts`, `recommendation.ts` | 本地历史、掌握度和推荐排序 |
 | Delivery | `components/*`, `App.tsx`, `voice.ts` | React UI、TTS、localStorage 适配 |
 

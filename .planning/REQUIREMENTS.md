@@ -25,6 +25,10 @@
 | nearMatch | 大部分音素正确但有少量差异的判定结果 |
 | PAM | 感知同化模型 (Perceptual Assimilation Model) |
 | SLM | 语音学习模型 (Speech Learning Model) |
+| Curriculum | 组织目标、内容、训练活动和评价标准的可选教学结构 |
+| Learning Path | Curriculum 在 UI 中的可选软顺序，不锁课、不限制自由训练 |
+| Training Activity | 可独立运行，也可被课程或 Coach 引用的训练形式 |
+| Training Evidence | 训练结果中可用于掌握度或课程目标评价的证据 |
 
 ## 3. 需求总览映射
 
@@ -39,6 +43,7 @@
 | TRAIN | 3 | TRAIN-001 ~ TRAIN-003 |
 | DATA-LOCAL | 2 | DATA-LOCAL-001 ~ DATA-LOCAL-002 |
 | DATA | 3 | DATA-001 ~ DATA-003 |
+| CURR | 5 | CURR-001 ~ CURR-005 |
 | CONTENT | 2 | CONTENT-001 ~ CONTENT-002 |
 | AUDIO | 2 | AUDIO-001 ~ AUDIO-002 |
 | PRACTICE | 2 | PRACTICE-001 ~ PRACTICE-002 |
@@ -149,7 +154,7 @@
 ### REQ ARCH-005: 零框架改动扩展
 
 - 优先级：P0
-- 阶段：M5
+- 阶段：M6
 - 需求：添加新语言时不需要修改任何框架/UI 代码
 - 验收标准：
   - 新语言 = 1 个 profile 文件 + 1 个词库文件 + 1 行 import
@@ -260,7 +265,7 @@
 ### REQ LANG-004: 新语言接入
 
 - 优先级：P1
-- 阶段：M5
+- 阶段：M6
 - 需求：支持接入日语、西语等第 3/4 种语言
 - 验收标准：
   - 每种新语言仅需 profile + 词库文件
@@ -460,7 +465,7 @@
 - 验收标准：
   - 训练历史通过 storage/provider 抽象访问
   - 词库通过 profile/data provider 访问
-  - 云端能力被标记为 M6 可选增强
+  - 云端能力被标记为 M7 可选增强
 - 依赖：DATA-LOCAL-002
 
 ---
@@ -470,7 +475,7 @@
 ### REQ PLAT-001: 移动端适配
 
 - 优先级：P2
-- 阶段：M6
+- 阶段：M7
 - 需求：支持手机浏览器使用
 - 验收标准：
   - 键盘布局在窄屏可用（折叠/滚动）
@@ -480,7 +485,7 @@
 ### REQ PLAT-002: PWA 离线支持
 
 - 优先级：P2
-- 阶段：M6
+- 阶段：M7
 - 需求：可离线使用训练功能
 - 验收标准：
   - Service Worker 缓存静态资源
@@ -490,7 +495,7 @@
 ### REQ PLAT-003: 社区映射贡献
 
 - 优先级：P2
-- 阶段：M6
+- 阶段：M7
 - 需求：允许社区贡献 L1×L2 映射数据
 - 验收标准：
   - 定义 JSON Schema
@@ -500,7 +505,7 @@
 ### REQ PLAT-004: 产出训练
 
 - 优先级：P2
-- 阶段：M6
+- 阶段：M7
 - 需求：集成 ASR 评估用户发音
 - 验收标准：
   - 使用 Web Speech Recognition 或 Whisper
@@ -509,7 +514,67 @@
 
 ---
 
-## 15. CONTENT — 可信学习内容
+## 15. CURR — 可选课程体系
+
+### REQ CURR-001: 课程为可选入口
+
+- 优先级：P0
+- 阶段：M5
+- 需求：课程作为学习内容的组织与引导入口，不成为基础训练的前置条件
+- 验收标准：
+  - 用户不选择 Course 仍可完成所有基础训练模式
+  - 没有课程内容的 LanguageProfile 仍可正常训练
+  - 课程入口与自由训练、Coach 入口并列，不强制 onboarding
+- 依赖：TRAIN-CORE-001, TRAIN-CORE-005
+
+### REQ CURR-002: 目标—内容—活动—评价对齐
+
+- 优先级：P0
+- 阶段：M5
+- 需求：Course/Module/Lesson 按可观察 LearningObjective 组织 LearningContent、TrainingActivity 和 AssessmentCriterion
+- 验收标准：
+  - 每个试点 Lesson 至少包含一个可观察目标
+  - 每个目标至少对应一份内容、一项训练活动和一个评价标准
+  - 可从目标追踪到内容、活动和评价证据
+- 依赖：CONTENT-001
+
+### REQ CURR-003: 课程复用训练活动
+
+- 优先级：P0
+- 阶段：M5
+- 需求：课程通过稳定的 TrainingActivity interface 引用现有拼写、minimal pair 和训练浏览能力
+- 验收标准：
+  - 课程与自由训练使用相同的 session 创建、作答、判定和结果逻辑
+  - 不创建课程专用的拼写或 minimal pair 判题实现
+  - `TrainingSession`、`MinimalPairSession` 不要求 courseId/lessonId 才能成立
+- 依赖：TRAIN-CORE-003, TRAIN-001
+
+### REQ CURR-004: 软顺序与自由访问
+
+- 优先级：P1
+- 阶段：M5
+- 需求：Learning Path 可以建议学习顺序，但不锁课、不限制主题或训练访问
+- 验收标准：
+  - 用户可以跳课、回看或直接开始任意可用训练
+  - 未达标产生复习建议而不是访问阻断
+  - 先备目标只作为解释和推荐信息
+- 依赖：CURR-001
+
+### REQ CURR-005: 本地课程进度与训练证据
+
+- 优先级：P1
+- 阶段：M5
+- 需求：用户选择课程后可在本地查看内容进度、训练证据和目标达标状态
+- 验收标准：
+  - 内容浏览与目标达标状态分开记录
+  - CourseProgress 单向引用训练 session/result；Training Core 不反向依赖 Course
+  - 兼容的自由训练结果可以成为课程 TrainingEvidence
+  - 本地进度写入失败不阻断课程内容或训练
+- 依赖：CURR-002, CURR-003, DATA-LOCAL-002
+
+---
+
+## 16. CONTENT — 可信学习内容
 
 ### REQ CONTENT-001: 内容来源与授权可追溯
 
@@ -522,21 +587,22 @@
   - `npm run validate:data` 能拒绝缺失必需来源元数据的外部内容
 - 依赖：—
 
-### REQ CONTENT-002: 引导式音素学习路径
+### REQ CONTENT-002: 课程学习内容
 
 - 优先级：P1
 - 阶段：M5
-- 需求：用户可围绕一个目标音素/拼音单元完成认识、示范、上下文例词和专项练习的连续路径
+- 需求：LearningContent 可为课程目标提供解释、示范、上下文例词、对比材料和可选扩展信息
 - 验收标准：
-  - 学习步骤来自 profile-facing 内容接口
+  - 内容通过 Curriculum/profile-facing 查询接口访问
   - 英语可选展示词首/词中/词尾、音节和重音信息
   - 不支持位置或重音概念的语言不会出现英语专属空步骤
-  - 缺少扩展课程内容时降级为现有音素详情
-- 依赖：FEED-003, CONTENT-001
+  - `PhonemeDetail` 可以被 Lesson 引用，但不等同于 Lesson
+  - 缺少课程内容时降级为现有音素详情或自由训练
+- 依赖：FEED-003, CONTENT-001, CURR-002
 
 ---
 
-## 16. AUDIO — 可信音频体验
+## 17. AUDIO — 可信音频体验
 
 ### REQ AUDIO-001: 标准音频优先与 TTS 降级
 
@@ -563,7 +629,7 @@
 
 ---
 
-## 17. PRACTICE — 练习体验扩展
+## 18. PRACTICE — 练习体验扩展
 
 ### REQ PRACTICE-001: 本地录音与回放
 
@@ -575,7 +641,7 @@
   - 麦克风权限拒绝、存储失败或浏览器不支持时基础训练仍可用
   - UI 明确说明录音不上传且不提供机器发音评分
   - 停止或离开页面时释放媒体资源
-- 依赖：CONTENT-002
+- 依赖：CONTENT-002, CURR-003
 
 ### REQ PRACTICE-002: 数据驱动练习模板
 
@@ -587,11 +653,12 @@
   - 练习数据来自 profile/content provider
   - 组件不包含目标语言专属题目或判断分支
   - 只有具备明确正确答案的练习结果才更新 mastery
-- 依赖：TRAIN-CORE-003, CONTENT-001
+  - 课程目标评价读取练习原生结果，不另建课程判题器
+- 依赖：TRAIN-CORE-003, CONTENT-001, CURR-003
 
 ---
 
-## 18. OOS — 明确排除
+## 19. OOS — 明确排除
 
 | ID | 排除项 | 原因 |
 |----|--------|------|
@@ -600,4 +667,6 @@
 | OOS-003 | 社交功能 | 不属于核心训练场景 |
 | OOS-004 | 多人协作 | 不属于核心训练场景 |
 | OOS-005 | 未确认授权的第三方课程/媒体复制 | 代码许可证不自动覆盖教育内容、词表、音频和视频 |
-| OOS-006 | M5 自动发音评分 | Electron/Python/ASR 模型会突破当前纯前端边界，保留到 M6 决策 |
+| OOS-006 | M5 自动发音评分 | Electron/Python/ASR 模型会突破当前纯前端边界，保留到 M7 决策 |
+| OOS-007 | 强制课程路径或锁课 | Curriculum 是可选内容组织，不能限制自由训练和主题访问 |
+| OOS-008 | 课程专用训练逻辑 | 课程必须引用 Training Core，不能复制拼写、minimal pair 或计分实现 |

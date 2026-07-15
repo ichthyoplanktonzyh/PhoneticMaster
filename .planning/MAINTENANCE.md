@@ -1,6 +1,6 @@
 # PhoneticMaster — 文档体系维护规则
 
-> 最后更新：2026-07-02
+> 最后更新：2026-07-15
 > 基于 LLPlayerNext 的 GSD 文件结构体系，结合本项目实践制定
 
 ---
@@ -9,6 +9,7 @@
 
 | 文件 | 更新频率 | 职责 | 语气 |
 |---|---|---|---|
+| 根目录 `CONTEXT.md` | 领域术语确定或变更时 | 统一语言词汇表：定义项目特有概念，不记录实现细节 | 定义性 |
 | `STATE.md` | 每个 phase 完成时 | 记录现在在哪、下一步干什么。项目活记忆。 | 情境描述 |
 | `PROJECT.md` | 产品方向变化时 | 战略描述：愿景、定位、核心概念、非目标 | 宏观 |
 | `REQUIREMENTS.md` | 需求增删改时 | 战术描述：可实施、可测试的需求项 | 精确 |
@@ -192,6 +193,7 @@ YYYY-MM-DD
 - [ ] 更新 `REQUIREMENTS.md`（战术层面：新增/修改/废弃需求）
 - [ ] 更新 `ROADMAP.md`（阶段重排）
 - [ ] 在 `STATE.md` 中记录变化摘要和时间戳
+- [ ] 如领域术语发生变化，立即更新根目录 `CONTEXT.md`
 
 ### 架构变化
 
@@ -215,13 +217,14 @@ YYYY-MM-DD
 新开发会话（包括 AI 辅助会话）启动时，按以下顺序阅读文档：
 
 ```
-1. STATE.md            ← 当前在哪？下一步做什么？
-2. ARCHITECTURE.md     ← 系统骨架是什么？模块怎么关联？
-3. DDD-ARCHITECTURE.md ← 领域边界和下一阶段模型怎么切？
-4. STRUCTURE.md        ← 文件在哪？新代码放哪？
-5. STACK.md            ← 用了什么技术？怎么构建？
-6. DATA-MODEL.md       ← 核心类型长什么样？怎么存的？
-7. 按需深入 →
+1. CONTEXT.md          ← 项目统一语言是什么？
+2. STATE.md            ← 当前在哪？下一步做什么？
+3. ARCHITECTURE.md     ← 系统骨架是什么？模块怎么关联？
+4. DDD-ARCHITECTURE.md ← 领域边界和下一阶段模型怎么切？
+5. STRUCTURE.md        ← 文件在哪？新代码放哪？
+6. STACK.md            ← 用了什么技术？怎么构建？
+7. DATA-MODEL.md       ← 核心类型长什么样？怎么存的？
+8. 按需深入 →
    ├── ROADMAP.md      ← 整体路线规划
    ├── REQUIREMENTS.md ← 具体需求条目和验收标准
    ├── CONVENTIONS.md  ← 代码约定和规则
@@ -234,9 +237,10 @@ YYYY-MM-DD
 
 如果时间有限，只读：
 
-1. **STATE.md** — 当前位置 + 下一步
-2. **ARCHITECTURE.md** 第 1-2 节 — 全景图 + 数据流
-3. **DDD-ARCHITECTURE.md** 第 4、7 节 — 限界上下文 + 当前 phase 架构准则
+1. **CONTEXT.md** — 统一语言和核心概念边界
+2. **STATE.md** — 当前位置 + 下一步
+3. **ARCHITECTURE.md** 第 1-2 节 — 全景图 + 数据流
+4. **DDD-ARCHITECTURE.md** 第 4、7 节 — 限界上下文 + 当前 phase 架构准则
 
 ---
 
