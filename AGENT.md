@@ -34,7 +34,7 @@ Read these as needed:
 
 - Product: PhoneticMaster, a lightweight pure-frontend multilingual phonetic perception trainer.
 - Current milestone: M5 — optional curriculum and trusted learning content, planned.
-- Current priority: Start Phase 5.1 curriculum foundation, then validate an English IPA course pilot, trusted content/audio, optional delivery/progress, local record/review, and course-aligned exercises/assessment while keeping free training independent.
+- Current priority: Start Phase 5.1 curriculum foundation and content-provenance gate, then validate an English IPA course pilot, trusted content/audio, optional delivery/progress, local record/review, and course-aligned exercises/assessment while keeping free training independent.
 - Core principle: the trainer must work on its own; L1-aware recommendation is an optional coach layer.
 - DDD direction: Training Core and Feedback are the core domains; Phase 3.3 added `PhonemeDetail` as a Feedback/Coaching read model; Phase 4.1 added `MasteryRecord` and `Recommendation` as Learner Progress/Coaching read models.
 - MVP deployment target: static frontend hosting. `server.ts` is useful for local preview/self-hosting, not a required backend.
@@ -71,6 +71,8 @@ components -> profiles -> utils / data / l1
 - New word banks should use `TrainingItem[]`, not legacy `WordData[]`.
 - Avoid adding backend, account, database, cloud sync, ASR, or analytics unless the roadmap explicitly moves into the relevant future milestone.
 - Do not copy third-party course text, word lists, audio, or video based only on a repository code license. M5 external content must record source, license, attribution requirements, and redistribution status.
+- iSpeakerReact may inform course hierarchy, lesson sequencing, activity orchestration, recording/review flow, and interaction patterns. Its Oxford-derived text, word-list selection, audio, and video are reference-only unless a separate redistribution grant is verified.
+- Prefer original course writing and a mixed open-content supply: CMUdict or independently sourced pronunciation data, per-file verified Wikimedia/Lingua Libre audio, and CC BY materials whose exceptions have been checked. A resource being free to access is not evidence that it may be bundled.
 
 ## 5. Commands
 

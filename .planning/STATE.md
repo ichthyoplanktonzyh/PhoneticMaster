@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: M5
 milestone_name: 可选课程体系与可信学习内容
 status: planned
-last_updated: "2026-07-15T09:54:00+08:00"
+last_updated: "2026-07-15T10:41:00+08:00"
 progress:
   total_phases: 6
   completed_phases: 0
@@ -13,7 +13,7 @@ progress:
 # PhoneticMaster — 项目活记忆
 
 > 最后更新：2026-07-15
-> 更新原因：将 M5 修正为可选课程体系，明确 Curriculum 编排 Training 但不绑定自由训练
+> 更新原因：明确 iSpeakerReact 的可参考边界，并将开放内容策略与授权门禁前置到 Phase 5.1
 
 ## 当前位置
 
@@ -90,7 +90,7 @@ progress:
 
 ### Phase 5.1: Curriculum Foundation 🧭
 
-- **目标**：建立课程目标—内容—训练活动—评价模型、软顺序和英语 IPA 课程地图
+- **目标**：建立课程目标—内容—训练活动—评价模型、软顺序、内容授权门禁和英语 IPA 课程地图
 - **状态**：已规划，待开始
 - **计划文件**：`.planning/phases/5.1-curriculum-foundation/5.1-PLAN.md`
 - **上下文文件**：`.planning/phases/5.1-curriculum-foundation/5.1-CONTEXT.md`
@@ -105,7 +105,7 @@ progress:
 ### Phase 5.3: Trusted Learning Content & Audio 🧭
 
 - **目标**：为课程和自由训练提供来源可信的内容、标准音频、口音变体和 TTS 降级
-- **状态**：已规划，依赖 5.1、5.2
+- **状态**：已规划，依赖 5.1 的来源契约与 5.2 的试点内容需求
 - **计划文件**：`.planning/phases/5.3-trusted-learning-content/5.3-PLAN.md`
 - **上下文文件**：`.planning/phases/5.3-trusted-learning-content/5.3-CONTEXT.md`
 

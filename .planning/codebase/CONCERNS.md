@@ -1,7 +1,7 @@
 # PhoneticMaster — 代码库问题清单
 
 > 记录已知的技术债、脆弱区域和需要关注的问题。**每条必须包含文件路径。**
-> 最后更新：2026-07-03
+> 最后更新：2026-07-15
 
 ## 1. 技术债
 
@@ -63,6 +63,14 @@
 - **安全修改方式**：调整权重前先更新 `src/utils/__tests__/recommendation.test.ts` fixture；保持无 L1、无历史、无 storage 三种降级路径。
 - **测试覆盖**：✅ `src/utils/__tests__/recommendation.test.ts` 覆盖普通拼写、minimal pair、training mode 不写入 mastery 和 L1/history/fallback 排序；❌ 权重仍未由真实学习数据校准
 
+### 2.5 M5 外部内容许可与来源完整性
+
+- **文件**：`.planning/phases/5.1-curriculum-foundation/5.1-PLAN.md`、未来 `src/data/courses/*`、`public/audio/*`、`scripts/validateData.ts`
+- **脆弱原因**：代码仓库公开、教育用途或资源免费访问都不代表课程文本、词表和媒体允许被公开打包再分发；同一资源集合中的文件也可能采用不同许可证。
+- **常见失败**：把项目代码许可证误用于媒体；遗漏 CC BY/CC BY-SA 署名与修改记录；把外链教材中的第三方视频视为教材主体许可的一部分；无法证明某个音频进入仓库时的许可状态。
+- **安全修改方式**：Phase 5.1 先定义逐项来源元数据和生产准入门禁；优先原创课程文本、自有录音、CMUdict 与逐文件核验的 Wikimedia/Lingua Libre 音频；授权不明素材只作研究参考，不进入仓库或构建产物。
+- **测试覆盖**：❌ 规划阶段，待 `scripts/validateData.ts` 增加内容来源失败 fixture
+
 ## 3. 测试覆盖缺口
 
 | 优先级 | 文件 | 风险 |
@@ -92,5 +100,5 @@
 
 ---
 
-*清单更新：2026-07-03*
+*清单更新：2026-07-15*
 *问题解决后删除对应条目，新发现问题随时追加*

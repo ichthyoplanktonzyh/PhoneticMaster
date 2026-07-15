@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-07-15 10:41 +0800
+
+- Clarified that iSpeakerReact is a reference for course hierarchy, lesson sequencing, activity orchestration, recording/review, and interaction patterns—not a source of reusable Oxford-derived assets.
+- Moved content provenance and redistribution compatibility into the Phase 5.1 foundation gate, before any course pilot or media integration.
+- Documented the M5 open-content strategy: original course writing and word-set design, CMUdict as a candidate pronunciation source, and per-file verified Wikimedia Commons/Lingua Libre audio.
+- Updated M5 roadmap, requirements, phase context/plans, agent guidance, state, and content-licensing concerns without changing application code.
+
 All notable project changes should be recorded here before each commit.
 
 Timestamp format: `YYYY-MM-DD HH:mm Z` using local project time, precise to the minute.

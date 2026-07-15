@@ -37,6 +37,8 @@
 | 用户录音 | localStorage / IndexedDB / 云存储 | IndexedDB（M5 规划） | 二进制录音不适合 localStorage；默认只保存在设备本地 |
 | L1 数据来源 | 硬编码 / 远程 API / 社区编辑 | 硬编码 | v1 可控，云端增强阶段再考虑社区贡献 |
 | 后端 | 必需 / 可选 | 可选远期 | MVP 的训练、推荐、记录都可在浏览器内完成 |
+| 课程参考 | 直接复刻 / 机制参考 | 机制参考 | iSpeakerReact 可用于研究层级、顺序、活动衔接和交互，不构成 Oxford 内容再分发授权 |
+| 内容供应 | 单一出版商 / 自有+开放资源组合 | 自有+开放资源组合 | 降低授权依赖，并使公开仓库与未来商业化边界可审计 |
 
 ## 4. 依赖关系
 
@@ -174,7 +176,7 @@ graph LR
 - **目标**：用课程目标组织可信内容、现有训练活动与评价证据，提供可选 Learning Path，同时保持自由训练为完全独立的产品核心。
 - **覆盖需求**：CURR-001 ~ CURR-005, CONTENT-001 ~ CONTENT-002, AUDIO-001 ~ AUDIO-002, PRACTICE-001 ~ PRACTICE-002
 - **主要 phase**：
-  - 🧭 5.1 Curriculum Foundation：课程统一语言、目标—内容—活动—评价模型、英语 IPA 课程地图
+  - 🧭 5.1 Curriculum Foundation：课程统一语言、目标—内容—活动—评价模型、内容来源/授权门禁、英语 IPA 课程地图
   - 🧭 5.2 English IPA Course Pilot：一个模块、至少三个课时的完整教学设计试点
   - 🧭 5.3 Trusted Learning Content & Audio：来源可信的解释/例词/标准音频与 TTS fallback
   - 🧭 5.4 Optional Course Delivery & Progress：可选课程入口、activity adapters、软顺序和本地进度
@@ -187,6 +189,7 @@ graph LR
   - 标准音频优先/TTS 降级的播放层
   - 可选课程入口、软顺序、进度和训练证据关联
   - 本地录音活动、至少两种新感知练习和课程目标评价
+  - PhoneticMaster 自有课程词集规则：通用词频、音素覆盖、minimal-pair 价值、拼写—发音关系、学习阶段与 L1 难点的组合选择
 - **退出条件**：
   - 用户不选择课程仍可使用全部基础训练能力
   - 课程通过稳定接口引用现有训练，不复制出题、判定、答案记录和计分
@@ -199,6 +202,12 @@ graph LR
   - Electron/Python/wav2vec2 发音评分
   - 强制课程 onboarding、锁课或课程专用训练逻辑
   - 一次性复刻 iSpeakerReact 的全部八种练习
+- **外部参考策略**：
+  - iSpeakerReact：参考 Course/Module/Lesson 组织、内容到活动的衔接、本地录音/回放和练习交互机制
+  - CC BY 开放教材：参考知识顺序并在逐项检查例外后改写/署名
+  - CMUdict：候选美式发音数据源，经 ARPAbet → 内部音素模型 → IPA 转换后使用
+  - Wikimedia Commons / Lingua Libre：候选真人音频源，按单文件保存作者、许可、来源、获取日期与修改记录
+  - British Council、普通 YouTube 视频及 NC/ND 内容：默认不打包；仅在单独授权或许可与发布目标兼容时使用
 - **建议投入**：按 phase 独立评估；5.1 完成并评审课程地图后再推进内容与 UI
 
 ---
